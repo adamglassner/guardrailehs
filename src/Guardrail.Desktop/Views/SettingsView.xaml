@@ -1,0 +1,83 @@
+<UserControl x:Class="Guardrail.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel MaxWidth="900" HorizontalAlignment="Left">
+        <TextBlock Text="Settings" Style="{StaticResource PageTitle}" Margin="0,0,0,18" />
+
+        <!-- Appearance: this one actually works -->
+        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="APPEARANCE" Style="{StaticResource SectionLabel}" />
+                <RadioButton x:Name="ThemeSystem" GroupName="Theme" Content="Match Windows (light or dark)" Checked="Theme_Checked" Tag="System" />
+                <RadioButton x:Name="ThemeLight" GroupName="Theme" Content="Light" Checked="Theme_Checked" Tag="Light" />
+                <RadioButton x:Name="ThemeDark" GroupName="Theme" Content="Dark" Checked="Theme_Checked" Tag="Dark" />
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Text="YOUR DATA" Style="{StaticResource SectionLabel}" />
+                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10"
+                           Text="Actions, observations and training records are saved as plain JSON files on this PC. Back up this folder to keep them safe." />
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="OpenDataFolder_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE838;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                            <TextBlock Text="Open folder" />
+                        </StackPanel>
+                    </Button>
+                    <TextBox x:Name="DataFolderBox" IsReadOnly="True" />
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+            <StackPanel>
+                <DockPanel>
+                    <Border DockPanel.Dock="Right" Style="{StaticResource SoonPill}">
+                        <TextBlock Text="COMING SOON" Style="{StaticResource PillText}" />
+                    </Border>
+                    <TextBlock Text="GUARDRAIL SERVER (SELF-HOSTED)" Style="{StaticResource SectionLabel}" />
+                </DockPanel>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10"
+                           Text="Run Guardrail Server on your own PC, NAS or in-house server. All data stays on hardware you own. Field devices capture offline and sync to it when they reconnect." />
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="Connect" Style="{StaticResource PrimaryButton}" Margin="10,0,0,0"
+                            Click="Soon_Click" Tag="Connecting to Guardrail Server" />
+                    <TextBox Text="http://localhost:5080" IsEnabled="False" />
+                </DockPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+            <StackPanel>
+                <DockPanel>
+                    <Border DockPanel.Dock="Right" Style="{StaticResource SoonPill}">
+                        <TextBlock Text="COMING SOON" Style="{StaticResource PillText}" />
+                    </Border>
+                    <TextBlock Text="ORGANIZATION" Style="{StaticResource SectionLabel}" />
+                </DockPanel>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10"
+                           Text="Set up your corporate → region → district → location hierarchy, users and roles. Unlimited users, no seat licenses." />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Locations" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="Soon_Click" Tag="Location setup" />
+                    <Button Content="Users &amp; roles" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="Soon_Click" Tag="User and role management" />
+                    <Button Content="Custom fields" Style="{StaticResource GhostButton}" Click="Soon_Click" Tag="Custom fields" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="ABOUT" Style="{StaticResource SectionLabel}" />
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="pack://application:,,,/Assets/guardrail.png" Width="36" Height="36" Margin="0,0,12,0"
+                           RenderOptions.BitmapScalingMode="HighQuality" />
+                    <TextBlock FontSize="15" FontWeight="SemiBold" Text="Guardrail EHS 0.2.0 (preview)" VerticalAlignment="Center" />
+                </StackPanel>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0"
+                           Text="Free and open source under the MIT License. No subscriptions, no per-employee pricing, no contracts." />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
