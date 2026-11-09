@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -5,7 +6,7 @@ using Guardrail.Services;
 
 namespace Guardrail.Views;
 
-public enum FieldKind { Text, MultiLine, Date, Choice }
+public enum FieldKind { Text, MultiLine, Date, Choice, Number, File }
 
 public sealed class FormField
 {
@@ -15,7 +16,7 @@ public sealed class FormField
     public bool Required { get; init; }
     public string[] Options { get; init; } = [];
     public string? Hint { get; init; }
-    /// <summary>Initial value: string for Text/MultiLine/Choice, DateTime? for Date.</summary>
+    /// <summary>Initial value: string for Text/MultiLine/Choice/File, DateTime? for Date, decimal? for Number.</summary>
     public object? Value { get; init; }
 }
 
@@ -29,6 +30,7 @@ public sealed class FormDialog : Window
     private readonly Dictionary<string, Func<object?>> _readers = [];
     private readonly TextBlock _error = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10), Visibility = Visibility.Collapsed };
     private readonly Dictionary<string, object?> _values = [];
+    private readonly HashSet<string> _numberFields = [];
     private UIElement? _firstInput;
 
     public bool DeleteRequested { get; private set; }
@@ -164,6 +166,48 @@ public sealed class FormDialog : Window
                 input = wrap;
                 break;
             }
+            case FieldKind.Number:
+            {
+                var box = new TextBox
+                {
+                    Text = field.Value is decimal d ? d.ToString("0.##", CultureInfo.CurrentCulture) : "",
+                    Width = 200,
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                };
+                _readers[field.Key] = () => box.Text.Trim();
+                _numberFields.Add(field.Key);
+                input = box;
+                break;
+            }
+            case FieldKind.File:
+            {
+                // Value = path of the current file (or null). Reader returns the chosen path.
+                string? chosen = field.Value as string;
+                var name = new TextBlock
+                {
+                    Text = string.IsNullOrEmpty(chosen) ? "No file chosen" : System.IO.Path.GetFileName(chosen),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    Margin = new Thickness(10, 0, 0, 0),
+                };
+                var pick = new Button { Content = "Choose file…", Style = (Style)FindResource("GhostButton") };
+                pick.Click += (_, _) =>
+                {
+                    var ofd = new Microsoft.Win32.OpenFileDialog { Title = $"Choose a file for {field.Label}", Filter = "All files (*.*)|*.*" };
+                    if (ofd.ShowDialog(this) == true)
+                    {
+                        chosen = ofd.FileName;
+                        name.Text = System.IO.Path.GetFileName(chosen);
+                    }
+                };
+                var row = new DockPanel();
+                DockPanel.SetDock(pick, Dock.Left);
+                row.Children.Add(pick);
+                row.Children.Add(name);
+                _readers[field.Key] = () => chosen ?? "";
+                input = row;
+                break;
+            }
             default:
             {
                 var box = new TextBox { Text = field.Value as string ?? "" };
@@ -172,7 +216,7 @@ public sealed class FormDialog : Window
                 break;
             }
         }
-        _firstInput ??= input is WrapPanel ? null : input;
+        _firstInput ??= input is WrapPanel or DockPanel ? null : input;
         panel.Children.Add(input);
 
         if (!string.IsNullOrEmpty(field.Hint))
@@ -191,6 +235,19 @@ public sealed class FormDialog : Window
         foreach (var field in _fields)
         {
             var value = _readers[field.Key]();
+            if (_numberFields.Contains(field.Key) && value is string raw)
+            {
+                // Accept "2,500", "$2,500.50" or "2500".
+                var cleaned = raw.Replace(CultureInfo.CurrentCulture.NumberFormat.CurrencySymbol, "").Trim();
+                if (cleaned.Length == 0) value = null;
+                else if (decimal.TryParse(cleaned, NumberStyles.Number, CultureInfo.CurrentCulture, out var number) && number >= 0) value = number;
+                else
+                {
+                    _error.Text = $"{field.Label} must be a number, like 2500 or 2,500.50.";
+                    _error.Visibility = Visibility.Visible;
+                    return;
+                }
+            }
             _values[field.Key] = value;
             bool empty = value is null || (value is string s && s.Length == 0);
             if (field.Required && empty) missing.Add(field.Label);
@@ -219,4 +276,5 @@ public sealed class FormDialog : Window
 
     public string Text(string key) => _values.TryGetValue(key, out var v) ? v as string ?? "" : "";
     public DateTime? Date(string key) => _values.TryGetValue(key, out var v) ? v as DateTime? : null;
+    public decimal? Number(string key) => _values.TryGetValue(key, out var v) ? v as decimal? : null;
 }

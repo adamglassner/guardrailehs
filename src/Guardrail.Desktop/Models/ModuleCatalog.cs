@@ -1,7 +1,8 @@
 namespace Guardrail.Models;
 
 /// <summary>
-/// Every module in Guardrail EHS. Actions, Observations and Safety Training have real pages
+/// Every module in Guardrail EHS. Actions, Observations, Safety Training, Regulatory Compliance,
+/// Claims Register and Library have real pages
 /// (see MainWindow.Show); everything else uses the generic ComingSoonView built from this data.
 /// Add a module here and it appears in the toolbar automatically.
 /// </summary>

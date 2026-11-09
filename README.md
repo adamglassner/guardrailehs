@@ -5,7 +5,7 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.2.0).** Windows desktop app. Three modules work today and save to your PC;
+> **Status: preview (v0.3.0).** Windows desktop app. Six modules work today and save to your PC;
 > the rest of the product is in place as "coming soon" pages. There is no server yet.
 
 ## Working now
@@ -15,17 +15,20 @@ No subscriptions, no per-employee pricing, no contracts — run it on hardware y
 | **Actions** | Create, edit, close and delete corrective / preventive actions with owner, location, due date and priority. Overdue is detected automatically. Filter, search, export to CSV. |
 | **Observations** | Report unsafe conditions, unsafe behaviors and good catches (reporter optional, for anonymous reports). **Create action** turns any observation into a linked, pre-filled action. Filter, search, export to CSV. |
 | **Safety Training** | Log completed training per person with optional expiry. Status is worked out for you: Current, Expiring soon (30 days), Expired or No expiry. Filter, search, export to CSV. |
+| **Regulatory Compliance** | EPA, OSHA, DOT, state and local requirements: permits, licenses, reports, inspections and plans, with reference number, owner and next due date. Status is worked out for you: Upcoming, Due soon (30 days), Overdue or Completed. **Mark done** rolls monthly, quarterly and yearly items forward to the next due date (one-time items close). Filter, search, export to CSV. |
+| **Claims Register** | Workers' comp, auto, general liability and property claims: claimant, date of loss, carrier and claim number, adjuster, related incident, reserve and amount paid. Total incurred (paid + open reserve), days open and closed-this-year are worked out for you. Filter, search, export to CSV. |
+| **Library** | Policies, procedures, programs, forms and training material. Guardrail keeps its own copy of each file (so moving the original doesn't break it), with version, owner and next review date. **Open** opens the file; review reminders 30 days ahead. Filter, search, export to CSV. |
 | Dashboard | The Actions open / closed / overdue cards show live counts and open the filtered list. Other figures are sample data. |
 | Appearance | Light / dark mode (header toggle, or Settings → Appearance → "Match Windows"). |
 
-Records are saved as JSON in `%AppData%\Guardrail\data\` (Settings → Your data → **Open folder**).
+Records are saved as JSON in `%AppData%\Guardrail\data\` (Settings → Your data → **Open folder**);
+Library files are copied into `data\library\`.
 Each save writes a temp file first and keeps a `.bak` copy, so a crash can't corrupt your records.
 
 ## Coming soon
 
-Incidents, Risk Assessment, Monthly Data, Reports, Library, Claims Register, Behavioral Observations,
-Management of Change, Work Permits, Lockout/Tagout, Safety Data Sheets, Regulatory Compliance,
-Audits & Inspections, the full **Fleet Hub** (Driver Qualification, Accident Register, Vehicle Management,
+Incidents, Risk Assessment, Monthly Data, Reports, Behavioral Observations,
+Management of Change, Work Permits, Lockout/Tagout, Safety Data Sheets, Audits & Inspections, the full **Fleet Hub** (Driver Qualification, Accident Register, Vehicle Management,
 DVIR, Maintenance, Hours of Service, DOT Compliance Audit, Fleet Reporting) and **Crash Review AI**
 (drop in accident video and AI determines who was at fault, fully automatically).
 

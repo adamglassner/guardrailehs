@@ -252,6 +252,30 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
             </Trigger>
+            <Trigger Property="Tag" Value="Review overdue">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Due soon">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Review due soon">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Completed">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Denied">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="No review date">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
             <Trigger Property="Tag" Value="No expiry">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />

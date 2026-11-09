@@ -74,6 +74,8 @@ public static class SelfTest
                 new FormField { Key = "m", Label = "Multi-line", Kind = FieldKind.MultiLine, Value = "a\nb" },
                 new FormField { Key = "d", Label = "Date", Kind = FieldKind.Date, Value = (DateTime?)DateTime.Today },
                 new FormField { Key = "c", Label = "Choice", Kind = FieldKind.Choice, Options = ["A", "B"], Value = "B" },
+                new FormField { Key = "n", Label = "Number", Kind = FieldKind.Number, Value = 2500.5m },
+                new FormField { Key = "f", Label = "File", Kind = FieldKind.File, Value = @"C:\example\policy.pdf" },
             }, allowDelete: true);
             dialog.Show();
             dialog.UpdateLayout();
@@ -104,6 +106,47 @@ public static class SelfTest
             Check("Training: expiring in 10 days is Expiring soon", t.DisplayStatus == Status.ExpiringSoon, t.DisplayStatus);
             t.ExpiresOn = DateTime.Today.AddDays(-1);
             Check("Training: past expiry is Expired", t.DisplayStatus == Status.Expired, t.DisplayStatus);
+
+            // Regulatory Compliance
+            var yearly = new ComplianceItem { Title = "Stormwater permit", Frequency = "Yearly", DueDate = DateTime.Today.AddDays(-40) };
+            Check("Compliance: past due is Overdue", yearly.DisplayStatus == Status.Overdue, yearly.DisplayStatus);
+            yearly.MarkDone(DateTime.Today);
+            Check("Compliance: yearly rolls forward past today", !yearly.IsCompleted && yearly.DueDate > DateTime.Today
+                  && yearly.DueDate <= DateTime.Today.AddYears(1), yearly.DueDate.ToString("yyyy-MM-dd"));
+            var monthly = new ComplianceItem { Frequency = "Monthly", DueDate = DateTime.Today.AddMonths(-3) };
+            monthly.MarkDone(DateTime.Today);
+            Check("Compliance: missed months skip to the next one ahead", monthly.DueDate > DateTime.Today
+                  && monthly.DueDate <= DateTime.Today.AddMonths(1), monthly.DueDate.ToString("yyyy-MM-dd"));
+            var once = new ComplianceItem { Frequency = "One-time", DueDate = DateTime.Today.AddDays(10) };
+            Check("Compliance: due in 10 days is Due soon", once.DisplayStatus == Status.DueSoon, once.DisplayStatus);
+            once.MarkDone(DateTime.Today);
+            Check("Compliance: one-time item completes", once.IsCompleted && once.DisplayStatus == Status.Completed);
+
+            // Claims Register
+            var claim = new Claim { Claimant = "Pat", Reserve = 5000m, Paid = 1250.50m };
+            Check("Claims: incurred = paid + open reserve", claim.Incurred == 6250.50m, claim.Incurred.ToString());
+            claim.Status = Status.Closed;
+            Check("Claims: closed claim drops its reserve", claim.Incurred == 1250.50m, claim.Incurred.ToString());
+            var claims = new JsonStore<Claim>(temp, "claims");
+            claims.Add(new Claim { Claimant = "Lee", Reserve = 1234.56m });
+            var claimsAgain = new JsonStore<Claim>(temp, "claims");
+            Check("Claims: money survives save/load", claimsAgain.Items[0].Reserve == 1234.56m && claimsAgain.Items[0].Number == "CLM-0001");
+
+            // Library: the file is copied in, and replacing it leaves one file
+            var srcA = Path.Combine(temp, "policy-v1.txt");
+            var srcB = Path.Combine(temp, "policy-v2.txt");
+            File.WriteAllText(srcA, "v1");
+            File.WriteAllText(srcB, "v2");
+            var docId = Guid.NewGuid();
+            var stored1 = Editors.StoreLibraryFile(docId, srcA);
+            var stored2 = Editors.StoreLibraryFile(docId, srcB);
+            var docFolder = Path.Combine(DataStore.LibraryFolder, docId.ToString("N"));
+            Check("Library: file copied into the data folder", File.Exists(Path.Combine(DataStore.Folder, stored2))
+                  && File.ReadAllText(Path.Combine(DataStore.Folder, stored2)) == "v2", stored2);
+            Check("Library: replacing the file keeps only the new one", Directory.GetFiles(docFolder).Length == 1 && stored1 != stored2);
+            try { Directory.Delete(docFolder, recursive: true); } catch { /* ignore */ }
+            var doc = new LibraryDocument { ReviewDue = DateTime.Today.AddDays(-1) };
+            Check("Library: past review date is Review overdue", doc.DisplayStatus == Status.ReviewOverdue, doc.DisplayStatus);
         }
         catch (Exception ex)
         {

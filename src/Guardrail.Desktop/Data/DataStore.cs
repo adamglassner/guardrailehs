@@ -14,4 +14,10 @@ public static class DataStore
     public static readonly JsonStore<ActionItem> Actions = new(Folder, "actions");
     public static readonly JsonStore<Observation> Observations = new(Folder, "observations");
     public static readonly JsonStore<TrainingRecord> Training = new(Folder, "training");
+    public static readonly JsonStore<ComplianceItem> Compliance = new(Folder, "compliance");
+    public static readonly JsonStore<Claim> Claims = new(Folder, "claims");
+    public static readonly JsonStore<LibraryDocument> Library = new(Folder, "library");
+
+    /// <summary>Where Library files are kept: data\library\&lt;document id&gt;\&lt;file&gt;.</summary>
+    public static string LibraryFolder => Path.Combine(Folder, "library");
 }

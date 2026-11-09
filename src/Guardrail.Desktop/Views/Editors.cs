@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.IO;
 using Guardrail.Data;
 using Guardrail.Services;
 
@@ -159,5 +161,209 @@ public static class Editors
         if (!(t.ExpiresOn is { } e && e.Date < t.CompletedOn.Date))
             Toaster.Show(isNew ? $"{t.Number} saved." : $"{t.Number} updated.");
         return t;
+    }
+
+    // ------------------------------------------------------------------ Regulatory Compliance
+
+    public static ComplianceItem? EditCompliance(ComplianceItem? existing)
+    {
+        var c = existing ?? new ComplianceItem();
+        bool isNew = existing is null;
+
+        var dialog = new FormDialog(
+            isNew ? "New requirement" : $"Edit {c.Number}",
+            isNew ? "A permit, license, report or inspection you must keep up with. Recurring ones roll forward when you mark them done."
+                  : $"Added {c.CreatedAt:MMM d, yyyy}" + (c.LastCompleted is { } last ? $" · last done {last:MMM d, yyyy}" : ""),
+            [
+                new FormField { Key = "title", Label = "Requirement", Required = true, Value = c.Title, Hint = "For example: Stormwater permit renewal, Annual DOT vehicle inspection, OSHA 300A posting." },
+                new FormField { Key = "agency", Label = "Agency", Kind = FieldKind.Choice, Options = ComplianceItem.Agencies, Value = c.Agency },
+                new FormField { Key = "type", Label = "Type", Kind = FieldKind.Choice, Options = ComplianceItem.Types, Value = c.Type },
+                new FormField { Key = "ref", Label = "Permit / license / reference number", Value = c.Reference },
+                new FormField { Key = "due", Label = "Next due date", Kind = FieldKind.Date, Required = true, Value = (DateTime?)c.DueDate },
+                new FormField { Key = "freq", Label = "Repeats", Kind = FieldKind.Choice, Options = ComplianceItem.Frequencies, Value = c.Frequency },
+                new FormField { Key = "location", Label = "Location", Value = c.Location },
+                new FormField { Key = "owner", Label = "Owner", Value = c.Owner },
+                new FormField { Key = "notes", Label = "Notes", Kind = FieldKind.MultiLine, Value = c.Notes },
+            ],
+            allowDelete: !isNew,
+            saveText: isNew ? "Add requirement" : "Save changes");
+
+        if (dialog.ShowDialog() != true) return null;
+        if (dialog.DeleteRequested)
+        {
+            DataStore.Compliance.Delete(c);
+            Toaster.Show($"{c.Number} deleted.");
+            return null;
+        }
+
+        var newDue = dialog.Date("due") ?? DateTime.Today;
+        if (newDue.Date != c.DueDate.Date) c.IsCompleted = false; // a new due date reopens a finished one-time item
+        c.Title = dialog.Text("title");
+        c.Agency = dialog.Text("agency");
+        c.Type = dialog.Text("type");
+        c.Reference = dialog.Text("ref");
+        c.DueDate = newDue;
+        c.Frequency = dialog.Text("freq");
+        c.Location = dialog.Text("location");
+        c.Owner = dialog.Text("owner");
+        c.Notes = dialog.Text("notes");
+
+        if (isNew) DataStore.Compliance.Add(c); else DataStore.Compliance.Update(c);
+        Toaster.Show(isNew ? $"{c.Number} added." : $"{c.Number} saved.");
+        return c;
+    }
+
+    public static void MarkComplianceDone(ComplianceItem c)
+    {
+        c.MarkDone(DateTime.Today);
+        DataStore.Compliance.Update(c);
+        Toaster.Show(c.IsCompleted ? $"{c.Number} marked complete." : $"{c.Number} done. Next due {c.DueDate:MMM d, yyyy}.");
+    }
+
+    // ------------------------------------------------------------------ Claims Register
+
+    public static Claim? EditClaim(Claim? existing)
+    {
+        var c = existing ?? new Claim();
+        bool isNew = existing is null;
+
+        var dialog = new FormDialog(
+            isNew ? "New claim" : $"Edit {c.Number}",
+            isNew ? "Track a workers' comp, auto, liability or property claim from first report to close."
+                  : $"Opened {c.CreatedAt:MMM d, yyyy} · {c.DaysOpen} days" + (c.IsOpen ? " open" : ""),
+            [
+                new FormField { Key = "type", Label = "Claim type", Kind = FieldKind.Choice, Options = Claim.Types, Value = c.Type },
+                new FormField { Key = "claimant", Label = "Claimant", Required = true, Value = c.Claimant, Hint = "The injured employee, driver or third party." },
+                new FormField { Key = "loss", Label = "Date of loss", Kind = FieldKind.Date, Required = true, Value = (DateTime?)c.DateOfLoss },
+                new FormField { Key = "location", Label = "Location", Value = c.Location },
+                new FormField { Key = "incident", Label = "Related incident or accident", Value = c.RelatedIncident, Hint = "For example an incident number, or a short description." },
+                new FormField { Key = "carrier", Label = "Insurance carrier", Value = c.Carrier },
+                new FormField { Key = "carrierNo", Label = "Carrier claim number", Value = c.CarrierClaimNumber },
+                new FormField { Key = "adjuster", Label = "Adjuster", Value = c.Adjuster, Hint = "Name, phone or email." },
+                new FormField { Key = "reserve", Label = "Reserve", Kind = FieldKind.Number, Value = isNew ? null : c.Reserve, Hint = "Money still set aside for this claim." },
+                new FormField { Key = "paid", Label = "Paid to date", Kind = FieldKind.Number, Value = isNew ? null : c.Paid },
+                new FormField { Key = "status", Label = "Status", Kind = FieldKind.Choice, Options = Claim.Statuses, Value = c.Status },
+                new FormField { Key = "notes", Label = "Notes", Kind = FieldKind.MultiLine, Value = c.Notes },
+            ],
+            allowDelete: !isNew,
+            saveText: isNew ? "Add claim" : "Save changes");
+
+        if (dialog.ShowDialog() != true) return null;
+        if (dialog.DeleteRequested)
+        {
+            DataStore.Claims.Delete(c);
+            Toaster.Show($"{c.Number} deleted.");
+            return null;
+        }
+
+        string oldStatus = c.Status;
+        c.Type = dialog.Text("type");
+        c.Claimant = dialog.Text("claimant");
+        c.DateOfLoss = dialog.Date("loss") ?? DateTime.Today;
+        c.Location = dialog.Text("location");
+        c.RelatedIncident = dialog.Text("incident");
+        c.Carrier = dialog.Text("carrier");
+        c.CarrierClaimNumber = dialog.Text("carrierNo");
+        c.Adjuster = dialog.Text("adjuster");
+        c.Reserve = dialog.Number("reserve") ?? 0;
+        c.Paid = dialog.Number("paid") ?? 0;
+        c.Status = dialog.Text("status");
+        c.Notes = dialog.Text("notes");
+        if (!c.IsOpen && oldStatus == Status.Open) c.ClosedOn = DateTime.Today;
+        if (c.IsOpen) c.ClosedOn = null;
+
+        if (isNew) DataStore.Claims.Add(c); else DataStore.Claims.Update(c);
+        Toaster.Show(isNew ? $"{c.Number} added." : $"{c.Number} saved.");
+        return c;
+    }
+
+    // ------------------------------------------------------------------ Library
+
+    public static LibraryDocument? EditDocument(LibraryDocument? existing)
+    {
+        var d = existing ?? new LibraryDocument();
+        bool isNew = existing is null;
+        string? currentFile = d.HasFile ? Path.Combine(DataStore.Folder, d.StoredFile) : null;
+
+        var dialog = new FormDialog(
+            isNew ? "Add document" : $"Edit {d.Number}",
+            isNew ? "A copy of the file is kept in Guardrail's data folder, so moving or deleting the original doesn't break it."
+                  : $"Last updated {d.UpdatedAt:MMM d, yyyy}",
+            [
+                new FormField { Key = "title", Label = "Title", Required = true, Value = d.Title, Hint = "For example: Hazard Communication Program, Lockout/Tagout Procedure." },
+                new FormField { Key = "category", Label = "Category", Kind = FieldKind.Choice, Options = LibraryDocument.Categories, Value = d.Category },
+                new FormField { Key = "file", Label = isNew ? "File" : "File (choose a new one to replace it)", Kind = FieldKind.File, Required = true, Value = currentFile },
+                new FormField { Key = "version", Label = "Version", Value = d.DocVersion },
+                new FormField { Key = "owner", Label = "Owner", Value = d.Owner },
+                new FormField { Key = "review", Label = "Next review", Kind = FieldKind.Date, Value = d.ReviewDue, Hint = "Guardrail flags it 30 days before. Leave blank if it doesn't need regular review." },
+                new FormField { Key = "notes", Label = "Notes", Kind = FieldKind.MultiLine, Value = d.Notes },
+            ],
+            allowDelete: !isNew,
+            saveText: isNew ? "Add document" : "Save changes");
+
+        if (dialog.ShowDialog() != true) return null;
+        if (dialog.DeleteRequested)
+        {
+            DataStore.Library.Delete(d);
+            TryDeleteFolder(Path.Combine(DataStore.LibraryFolder, d.Id.ToString("N")));
+            Toaster.Show($"{d.Number} deleted.");
+            return null;
+        }
+
+        d.Title = dialog.Text("title");
+        d.Category = dialog.Text("category");
+        d.DocVersion = dialog.Text("version");
+        d.Owner = dialog.Text("owner");
+        d.ReviewDue = dialog.Date("review");
+        d.Notes = dialog.Text("notes");
+
+        string source = dialog.Text("file");
+        if (!string.Equals(source, currentFile, StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                d.StoredFile = StoreLibraryFile(d.Id, source);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Toaster.Show($"Couldn't copy the file: {ex.Message}");
+                return null;
+            }
+        }
+
+        if (isNew) DataStore.Library.Add(d); else DataStore.Library.Update(d);
+        Toaster.Show(isNew ? $"{d.Number} added." : $"{d.Number} saved.");
+        return d;
+    }
+
+    /// <summary>Copies a file into data\library\&lt;id&gt;\ (replacing any earlier file) and returns its path relative to the data folder.</summary>
+    public static string StoreLibraryFile(Guid id, string source)
+    {
+        var folder = Path.Combine(DataStore.LibraryFolder, id.ToString("N"));
+        var target = Path.Combine(folder, Path.GetFileName(source));
+        var temp = target + ".copying";
+        Directory.CreateDirectory(folder);
+        File.Copy(source, temp, overwrite: true);
+        foreach (var old in Directory.GetFiles(folder))
+            if (!old.Equals(temp, StringComparison.OrdinalIgnoreCase)) File.Delete(old);
+        File.Move(temp, target);
+        return Path.GetRelativePath(DataStore.Folder, target);
+    }
+
+    public static void OpenDocument(LibraryDocument d)
+    {
+        var path = Path.Combine(DataStore.Folder, d.StoredFile);
+        if (!d.HasFile || !File.Exists(path))
+        {
+            Toaster.Show("The file for this document is missing. Edit it and choose the file again.");
+            return;
+        }
+        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
+        catch (Exception ex) { Toaster.Show($"Couldn't open {d.FileName}: {ex.Message}"); }
+    }
+
+    private static void TryDeleteFolder(string folder)
+    {
+        try { if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true); } catch { /* ignore */ }
     }
 }
