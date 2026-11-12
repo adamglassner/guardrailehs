@@ -1,0 +1,143 @@
+<UserControl x:Class="Guardrail.Views.ChangesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <!-- Title -->
+        <DockPanel Margin="0,0,0,18">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource GhostButton}" Click="Export_Click" Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE896;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                        <TextBlock Text="Export CSV" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource PrimaryButton}" Click="New_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE710;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                        <TextBlock Text="Request change" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+            <Border Width="52" Height="52" CornerRadius="10" Margin="0,0,14,0" Background="{DynamicResource Brush.AccentSoft}">
+                <TextBlock Text="&#xE8AB;" Style="{StaticResource Icon}" FontSize="24" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource Brush.Accent}" />
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="Management of Change" Style="{StaticResource PageTitle}" />
+                <TextBlock Text="Review the safety impact of process, equipment, material and people changes before they go live." Style="{StaticResource Muted}" Margin="0,4,0,0" />
+            </StackPanel>
+        </DockPanel>
+
+        <!-- KPIs -->
+        <UniformGrid Rows="1" Margin="0,0,-12,16">
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock x:Name="KpiOpen" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Accent}" />
+                    <TextBlock Text="Open changes" Style="{StaticResource Muted}" FontSize="12" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock x:Name="KpiAwaiting" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Warm}" />
+                    <TextBlock Text="Awaiting approval" Style="{StaticResource Muted}" FontSize="12" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock x:Name="KpiTempExpired" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Danger}" />
+                    <TextBlock Text="Temporary changes past their date" Style="{StaticResource Muted}" FontSize="12" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock x:Name="KpiImplemented" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Success}" />
+                    <TextBlock Text="Implemented, last 90 days" Style="{StaticResource Muted}" FontSize="12" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Filters + search -->
+        <DockPanel Margin="0,0,0,6">
+            <Grid DockPanel.Dock="Right" Width="300" VerticalAlignment="Top">
+                <TextBox x:Name="SearchBox" Padding="28,6,6,6" TextChanged="Search_Changed" />
+                <TextBlock Text="&#xE721;" Style="{StaticResource Icon}" Margin="9,0,0,0" HorizontalAlignment="Left"
+                           Foreground="{DynamicResource Brush.TextMuted}" IsHitTestVisible="False" />
+                <TextBlock x:Name="SearchHint" Text="Search…" Margin="30,0,0,0" VerticalAlignment="Center"
+                           Foreground="{DynamicResource Brush.TextMuted}" IsHitTestVisible="False" />
+            </Grid>
+            <WrapPanel x:Name="FilterChips">
+                <RadioButton Style="{StaticResource ChipRadio}" GroupName="ChangesViewFilter" Content="All" Tag="All" Checked="Filter_Checked" />
+                <RadioButton Style="{StaticResource ChipRadio}" GroupName="ChangesViewFilter" Content="Open" Tag="Open" Checked="Filter_Checked" />
+                <RadioButton Style="{StaticResource ChipRadio}" GroupName="ChangesViewFilter" Content="Awaiting approval" Tag="Awaiting" Checked="Filter_Checked" />
+                <RadioButton Style="{StaticResource ChipRadio}" GroupName="ChangesViewFilter" Content="Temporary" Tag="Temporary" Checked="Filter_Checked" />
+                <RadioButton Style="{StaticResource ChipRadio}" GroupName="ChangesViewFilter" Content="Closed" Tag="Closed" Checked="Filter_Checked" />
+            </WrapPanel>
+        </DockPanel>
+
+        <!-- Table -->
+        <Border Style="{StaticResource Card}" Padding="0" ClipToBounds="True">
+            <StackPanel>
+                <Border Background="{DynamicResource Brush.SurfaceAlt}" Padding="16,10" CornerRadius="6,6,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="135" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="105" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="140" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="MOC #" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="1" Text="CHANGE" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="2" Text="REQUESTED BY" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="3" Text="DURATION" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="4" Text="TARGET" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="5" Text="STAGE" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="6" Text="" Style="{StaticResource TableHeader}" />
+                    </Grid>
+                </Border>
+
+                <ItemsControl x:Name="Rows">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource TableRow}" Click="Row_Click" ToolTip="Click to edit">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="135" />
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="105" />
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="140" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding Number, Mode=OneWay}" Foreground="{DynamicResource Brush.Accent}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" Margin="0,0,12,0" VerticalAlignment="Center"><TextBlock Text="{Binding Title, Mode=OneWay}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding Type, Mode=OneWay}" FontSize="11" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Visibility="{Binding Type, Converter={StaticResource NonEmptyToVis}}" /></StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding Requester, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <TextBlock Grid.Column="3" Text="{Binding DurationText, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <TextBlock Grid.Column="4" Text="{Binding TargetText, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <Border Grid.Column="5" Style="{StaticResource StatusPill}" Tag="{Binding DisplayStatus, Mode=OneWay}"><TextBlock Text="{Binding DisplayStatus, Mode=OneWay}" /></Border>
+                                    <Button x:Name="AdvanceButton" Grid.Column="6" Content="{Binding AdvanceText, Mode=OneWay}" Style="{StaticResource SmallButton}" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Advance_Click" ToolTip="Move to the next stage" />
+                                </Grid>
+                            </Button>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding CanAdvance, Mode=OneWay}" Value="False">
+                                    <Setter TargetName="AdvanceButton" Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <StackPanel x:Name="EmptyState" HorizontalAlignment="Center" Margin="0,40,0,44">
+                    <TextBlock Text="&#xE8AB;" Style="{StaticResource Icon}" FontSize="28" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource Brush.TextMuted}" />
+                    <TextBlock x:Name="EmptyTitle" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,4" />
+                    <TextBlock x:Name="EmptyText" Style="{StaticResource Muted}" HorizontalAlignment="Center" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        <TextBlock x:Name="CountText" Style="{StaticResource Muted}" FontSize="11.5" Margin="2,8,0,0" />
+    </StackPanel>
+</UserControl>

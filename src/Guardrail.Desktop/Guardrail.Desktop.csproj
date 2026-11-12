@@ -13,7 +13,7 @@
     <Company>Bytehawk Studio</Company>
     <Description>Free, open-source, self-hosted EHS and fleet safety software.</Description>
     <!-- Releasing: change this and push to main. CI builds, tests and publishes GitHub Release v<Version>. -->
-    <Version>0.4.0</Version>
+    <Version>0.5.0</Version>
     <Authors>Bytehawk Studio</Authors>
     <Copyright>Copyright (c) 2026 Adam Glassner. MIT License.</Copyright>
     <!-- Lets the project at least restore/compile on non-Windows CI; the app itself is Windows-only. -->

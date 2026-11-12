@@ -28,6 +28,18 @@ public static class Status
     public const string NotInspected = "Not inspected";
     public const string OnFile = "On file";
     public const string MissingSds = "Missing SDS";
+    public const string UnderInvestigation = "Under investigation";
+    public const string FindingsOpen = "Findings";
+    public const string Low = "Low";
+    public const string Medium = "Medium";
+    public const string High = "High";
+    public const string Extreme = "Extreme";
+    public const string Requested = "Requested";
+    public const string UnderReview = "Under review";
+    public const string Approved = "Approved";
+    public const string Implemented = "Implemented";
+    public const string Rejected = "Rejected";
+    public const string TemporaryExpired = "Temporary expired";
 }
 
 public abstract class RecordBase

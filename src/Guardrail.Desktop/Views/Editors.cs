@@ -6,7 +6,7 @@ using Guardrail.Services;
 namespace Guardrail.Views;
 
 /// <summary>Add / edit / delete dialogs for each working module.</summary>
-public static class Editors
+public static partial class Editors
 {
     /// <summary>Opens the action editor. Pass <paramref name="existing"/> to edit, or a <paramref name="draft"/> to pre-fill a new one.</summary>
     /// <returns>The saved action, or null if cancelled or deleted.</returns>

@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using Guardrail.Data;
 using Guardrail.Services;
@@ -15,8 +14,8 @@ public sealed record RateTile(string Value, string Label, string Help);
 public sealed record LocationBar(string Location, int Value, Brush Brush);
 
 /// <summary>
-/// Dashboard preview. Every number here is SAMPLE data so the layout can be judged;
-/// real figures will come from Guardrail Server once it exists.
+/// Live dashboard: everything comes from Incidents, Actions and Monthly Data,
+/// filtered by period and location.
 /// </summary>
 public partial class DashboardView : UserControl
 {
@@ -27,27 +26,112 @@ public partial class DashboardView : UserControl
         return brush;
     }
 
-    private static readonly Brush DaysAway = Hex("#C8352B");
-    private static readonly Brush FirstAid = Hex("#78B82A");
-    private static readonly Brush Restricted = Hex("#E07B26");
-    private static readonly Brush Fatality = Hex("#3A3A3A");
-    private static readonly Brush Medical = Hex("#C9BE2B");
+    private static readonly Brush DaysAwayBrush = Hex("#C8352B");
+    private static readonly Brush FirstAidBrush = Hex("#78B82A");
+    private static readonly Brush RestrictedBrush = Hex("#E07B26");
+    private static readonly Brush FatalityBrush = Hex("#3A3A3A");
+    private static readonly Brush MedicalBrush = Hex("#C9BE2B");
+
+    private string _period = "ThisYear";
+    private string? _location;
+    private bool _ready;
 
     public DashboardView()
     {
         InitializeComponent();
+        ((RadioButton)PeriodChips.Children.OfType<RadioButton>().First()).IsChecked = true;
+        BuildLocationChips();
+        _ready = true;
+        Refresh();
+    }
 
+    // ---------- filters ----------
+
+    private void BuildLocationChips()
+    {
+        foreach (var old in LocationChips.Children.OfType<RadioButton>().ToList()) LocationChips.Children.Remove(old);
+
+        var locations = DataStore.Incidents.Items.Select(i => i.Location)
+            .Concat(DataStore.Monthly.Items.Select(m => m.Location))
+            .Select(l => l.Trim())
+            .Where(l => l.Length > 0)
+            .GroupBy(l => l, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .OrderBy(l => l)
+            .Take(12)
+            .ToList();
+
+        void Add(string text, string? tag)
+        {
+            var chip = new RadioButton
+            {
+                Content = text,
+                Tag = tag ?? "",
+                GroupName = "DashLocation",
+                Style = (Style)FindResource("ChipRadio"),
+                IsChecked = string.Equals(tag, _location, StringComparison.OrdinalIgnoreCase),
+            };
+            chip.Checked += Location_Checked;
+            LocationChips.Children.Add(chip);
+        }
+        Add("All locations", null);
+        foreach (var l in locations) Add(l, l);
+    }
+
+    private void Period_Checked(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string tag }) _period = tag;
+        if (_ready) Refresh();
+    }
+
+    private void Location_Checked(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string tag }) _location = tag.Length == 0 ? null : tag;
+        if (_ready) Refresh();
+    }
+
+    private (DateTime From, DateTime To, string Label) Period()
+    {
+        var today = DateTime.Today;
+        return _period switch
+        {
+            "Last12" => (MonthlyEntry.FirstOfMonth(today).AddMonths(-11), today, "Last 12 months"),
+            "LastYear" => (new DateTime(today.Year - 1, 1, 1), new DateTime(today.Year - 1, 12, 31), $"{today.Year - 1}"),
+            _ => (new DateTime(today.Year, 1, 1), today, $"{today.Year} year to date"),
+        };
+    }
+
+    // ---------- data ----------
+
+    private void Refresh()
+    {
+        var (from, to, label) = Period();
+        var m = SafetyMetrics.Compute(from, to, _location);
+        PeriodText.Text = $"{label}{(_location is null ? "" : " · " + _location)}";
+
+        var allHere = DataStore.Incidents.Items.Where(i => SafetyMetrics.SameLocation(i.Location, _location)).ToList();
+
+        // Days since the last recordable injury / last vehicle incident (all time, this location).
+        var lastInjury = allHere.Where(i => i.IsRecordable).Select(i => (DateTime?)i.Date).Max();
+        InjuryFreeDays.Text = lastInjury is { } li ? Math.Max(0, (DateTime.Today - li.Date).Days).ToString() : "—";
+        LastInjuryText.Text = lastInjury is { } li2 ? $"Last recordable injury: {li2:MMM d, yyyy}" : "No recordable injuries on record";
+        var lastVehicle = allHere.Where(i => i.IsVehicle).Select(i => (DateTime?)i.Date).Max();
+        VehicleFreeDays.Text = lastVehicle is { } lv ? Math.Max(0, (DateTime.Today - lv.Date).Days).ToString() : "—";
+        LastVehicleText.Text = lastVehicle is { } lv2 ? $"Last vehicle incident: {lv2:MMM d, yyyy}" : "No vehicle incidents on record";
+
+        // Incident counts by type for the period.
+        int Count(string type) => m.Incidents.Count(i => i.Type == type);
         IncidentTypes.ItemsSource = new[]
         {
-            new IncidentTypeRow("", "INJURY / ILLNESS", 4),
-            new IncidentTypeRow("", "ENVIRONMENTAL", 0),
-            new IncidentTypeRow("", "PROPERTY DAMAGE OR LOSS", 3),
-            new IncidentTypeRow("", "MOTORIZED VEHICLES", 2),
-            new IncidentTypeRow("", "OPERATIONAL LIABILITIES", 1),
-            new IncidentTypeRow("", "NEAR MISS", 7),
+            new IncidentTypeRow("", "INJURY / ILLNESS", Count(Incident.InjuryIllness)),
+            new IncidentTypeRow("", "ENVIRONMENTAL", Count("Environmental")),
+            new IncidentTypeRow("", "PROPERTY DAMAGE", Count("Property damage")),
+            new IncidentTypeRow("", "MOTOR VEHICLE", Count(Incident.MotorVehicle)),
+            new IncidentTypeRow("", "OPERATIONAL LIABILITY", Count("Operational liability")),
+            new IncidentTypeRow("", "NEAR MISS", Count(Incident.NearMiss)),
         };
 
-        // Live counts from the Actions module.
+        // Actions (all, not period-filtered: open work is open work).
         var actions = DataStore.Actions.Items;
         ActionCards.ItemsSource = new[]
         {
@@ -56,47 +140,51 @@ public partial class DashboardView : UserControl
             new CountCard(actions.Count(a => a.IsOverdue), "Actions overdue", "Overdue"),
         };
 
+        // OSHA classification of injury / illness cases.
+        var injuries = m.Incidents.Where(i => i.IsInjuryIllness).ToList();
+        int Classified(string c) => injuries.Count(i => i.Classification == c);
         var slices = new[]
         {
-            new ChartSlice("Days away from work", 6, DaysAway),
-            new ChartSlice("First aid", 3, FirstAid),
-            new ChartSlice("Restricted work / job transfer", 2, Restricted),
-            new ChartSlice("Fatality", 0, Fatality),
-            new ChartSlice("Medical treatment beyond first aid", 1, Medical),
+            new ChartSlice("Days away from work", Classified(Incident.DaysAwayCase), DaysAwayBrush),
+            new ChartSlice("Restricted work / job transfer", Classified(Incident.RestrictedTransfer), RestrictedBrush),
+            new ChartSlice("Medical treatment beyond first aid", Classified(Incident.MedicalTreatment), MedicalBrush),
+            new ChartSlice("First aid", Classified(Incident.FirstAid), FirstAidBrush),
+            new ChartSlice("Fatality", Classified(Incident.Fatality), FatalityBrush),
         };
         DonutLegend.ItemsSource = slices;
         DrawDonut(slices);
 
-        DrawBars(new[]
-        {
-            new LocationBar("Main Plant", 1, DaysAway),
-            new LocationBar("North Yard", 0, DaysAway),
-            new LocationBar("Depot 3", 1, FirstAid),
-            new LocationBar("East Terminal", 1, DaysAway),
-            new LocationBar("Warehouse B", 0, DaysAway),
-            new LocationBar("Riverside", 1, Restricted),
-            new LocationBar("Site 12", 0, DaysAway),
-            new LocationBar("HQ", 0, DaysAway),
-            new LocationBar("South Shop", 1, Medical),
-        });
+        // Recordables by location.
+        var bars = m.Incidents.Where(i => i.IsRecordable)
+            .GroupBy(i => i.Location.Trim().Length == 0 ? "(no location)" : i.Location.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => new LocationBar(g.Key, g.Count(), DaysAwayBrush))
+            .OrderByDescending(b => b.Value)
+            .Take(12)
+            .ToList();
+        DrawBars(bars);
 
         Rates.ItemsSource = new[]
         {
-            new RateTile("4.12", "Recordable incident rate (TRIR)", "Recordable cases × 200,000 ÷ hours worked"),
-            new RateTile("2.06", "DART rate", "Days away, restricted or transferred cases × 200,000 ÷ hours worked"),
-            new RateTile("1.03", "Lost time incident rate", "Lost-time cases × 200,000 ÷ hours worked"),
-            new RateTile("38.00", "Lost time days rate", "Days lost × 200,000 ÷ hours worked"),
-            new RateTile("21.50", "Restricted days rate", "Restricted days × 200,000 ÷ hours worked"),
-            new RateTile("0.85", "Accident frequency rate", "Vehicle accidents × 1,000,000 ÷ miles driven"),
+            new RateTile(SafetyMetrics.Format(m.Trir), "Recordable incident rate (TRIR)", $"{m.Recordables} recordable cases × 200,000 ÷ {m.Hours:N0} hours"),
+            new RateTile(SafetyMetrics.Format(m.Dart), "DART rate", $"{m.DartCases} days away / restricted / transfer cases × 200,000 ÷ hours"),
+            new RateTile(SafetyMetrics.Format(m.Ltir), "Lost time incident rate", $"{m.LostTimeCases} days-away cases × 200,000 ÷ hours"),
+            new RateTile(SafetyMetrics.Format(m.LostDaysRate), "Lost time days rate", $"{m.DaysAway} days away × 200,000 ÷ hours"),
+            new RateTile(SafetyMetrics.Format(m.RestrictedDaysRate), "Restricted days rate", $"{m.DaysRestricted} restricted days × 200,000 ÷ hours"),
+            new RateTile(SafetyMetrics.Format(m.AccidentFrequencyRate), "Accident frequency rate", $"{m.VehicleAccidents} vehicle accidents × 1,000,000 ÷ {m.Miles:N0} miles"),
         };
+        RatesNote.Text = m.Hours == 0
+            ? "Rates need hours worked: enter them in Monthly Data. The accident frequency rate also needs miles driven."
+            : $"Based on {m.Hours:N0} hours worked" + (m.Miles > 0 ? $" and {m.Miles:N0} miles driven" : "") + " from Monthly Data. Hover a tile for the math.";
     }
 
-    // ---------- Charts (simple hand-drawn shapes; a real chart library can replace these later) ----------
+    // ---------- charts ----------
 
     private void DrawDonut(IReadOnlyList<ChartSlice> slices)
     {
+        Donut.Children.Clear();
         double size = Donut.Width, outer = size / 2, inner = outer * 0.55, cx = outer, cy = outer;
         double total = slices.Sum(s => s.Value);
+        DonutEmpty.Visibility = total > 0 ? Visibility.Collapsed : Visibility.Visible;
         if (total <= 0) return;
 
         double angle = 0;
@@ -136,13 +224,18 @@ public partial class DashboardView : UserControl
 
     private void DrawBars(IReadOnlyList<LocationBar> bars)
     {
+        BarChart.Children.Clear();
+        BarChart.RowDefinitions.Clear();
+        BarChart.ColumnDefinitions.Clear();
+        BarEmpty.Visibility = bars.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (bars.Count == 0) return;
+
         const double plotHeight = 190;
         double max = Math.Max(1, bars.Max(b => b.Value)) * 1.25;
 
         BarChart.RowDefinitions.Add(new RowDefinition { Height = new GridLength(plotHeight) });
         BarChart.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-        // Horizontal gridlines
         var lines = new Grid();
         for (int i = 0; i < 4; i++)
         {
@@ -165,16 +258,28 @@ public partial class DashboardView : UserControl
 
             var rect = new Border
             {
-                Width = 12,
+                Width = 14,
                 Height = Math.Max(0, bar.Value / max * plotHeight),
                 Background = bar.Brush,
                 CornerRadius = new CornerRadius(2, 2, 0, 0),
                 VerticalAlignment = VerticalAlignment.Bottom,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                ToolTip = $"{bar.Location}: {bar.Value}",
+                ToolTip = $"{bar.Location}: {bar.Value} recordable",
             };
             Grid.SetColumn(rect, i);
             BarChart.Children.Add(rect);
+
+            var count = new TextBlock
+            {
+                Text = bar.Value.ToString(),
+                FontSize = 11,
+                FontWeight = FontWeights.SemiBold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Margin = new Thickness(0, 0, 0, rect.Height + 2),
+            };
+            Grid.SetColumn(count, i);
+            BarChart.Children.Add(count);
 
             var label = new TextBlock
             {
@@ -183,6 +288,8 @@ public partial class DashboardView : UserControl
                 Margin = new Thickness(0, 8, 0, 0),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 LayoutTransform = new RotateTransform(-40),
+                MaxWidth = 120,
+                TextTrimming = TextTrimming.CharacterEllipsis,
             };
             label.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
             Grid.SetRow(label, 1);
@@ -191,19 +298,14 @@ public partial class DashboardView : UserControl
         }
     }
 
-    // ---------- Coming soon ----------
+    // ---------- navigation ----------
 
-    private void Soon_Click(object sender, RoutedEventArgs e) => Toaster.Soon(sender);
+    private void IncidentType_Click(object sender, RoutedEventArgs e) =>
+        MainWindow.Instance?.OpenModule("incidents", new IncidentsView());
 
     private void ActionCard_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: CountCard card })
             MainWindow.Instance?.OpenModule("actions", new ActionsView(card.Filter));
-    }
-
-    private void Filter_Click(object sender, MouseButtonEventArgs e)
-    {
-        e.Handled = true;
-        Toaster.Show("Corporate / region / district / location filters are coming soon.");
     }
 }

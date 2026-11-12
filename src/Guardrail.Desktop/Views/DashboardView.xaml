@@ -4,37 +4,28 @@
     <StackPanel>
         <!-- Title -->
         <DockPanel Margin="0,0,0,16">
-            <TextBlock DockPanel.Dock="Right" Text="Reporting year: 2026" Style="{StaticResource Muted}" VerticalAlignment="Center" />
+            <TextBlock x:Name="PeriodText" DockPanel.Dock="Right" Style="{StaticResource Muted}" VerticalAlignment="Center" />
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="Dashboard" Style="{StaticResource PageTitle}" />
                 <Border Style="{StaticResource SoonPill}" Margin="12,0,0,0"
-                        ToolTip="Action counts come from your real Actions. Everything else on this page is a made-up example until Incidents and Monthly Data are built.">
-                    <TextBlock Text="ACTIONS ARE LIVE · OTHER FIGURES ARE SAMPLE DATA" Style="{StaticResource PillText}" />
+                        ToolTip="Everything on this page comes from your records: Incidents, Actions and Monthly Data.">
+                    <TextBlock Text="LIVE" Style="{StaticResource PillText}" />
                 </Border>
             </StackPanel>
         </DockPanel>
 
         <!-- Filters -->
-        <WrapPanel Margin="0,0,0,18">
-            <StackPanel Margin="0,0,16,0">
-                <TextBlock Text="Corporate" FontWeight="SemiBold" Margin="0,0,0,4" />
-                <TextBox Width="200" IsReadOnly="True" Text="All corporate" PreviewMouseLeftButtonDown="Filter_Click" Cursor="Hand" />
-            </StackPanel>
-            <StackPanel Margin="0,0,16,0">
-                <TextBlock Text="Region" FontWeight="SemiBold" Margin="0,0,0,4" />
-                <TextBox Width="200" IsReadOnly="True" Text="All regions" PreviewMouseLeftButtonDown="Filter_Click" Cursor="Hand" />
-            </StackPanel>
-            <StackPanel Margin="0,0,16,0">
-                <TextBlock Text="District" FontWeight="SemiBold" Margin="0,0,0,4" />
-                <TextBox Width="200" IsReadOnly="True" Text="All districts" PreviewMouseLeftButtonDown="Filter_Click" Cursor="Hand" />
-            </StackPanel>
-            <StackPanel Margin="0,0,16,0">
-                <TextBlock Text="Location" FontWeight="SemiBold" Margin="0,0,0,4" />
-                <TextBox Width="200" IsReadOnly="True" Text="All locations" PreviewMouseLeftButtonDown="Filter_Click" Cursor="Hand" />
-            </StackPanel>
-            <Button Content="Search" Style="{StaticResource PrimaryButton}" VerticalAlignment="Bottom"
-                    Click="Soon_Click" Tag="Dashboard filtering" />
-        </WrapPanel>
+        <StackPanel Margin="0,0,0,14">
+            <WrapPanel x:Name="PeriodChips">
+                <TextBlock Text="Period" FontWeight="SemiBold" Width="70" VerticalAlignment="Center" Margin="0,0,0,8" />
+                <RadioButton Style="{StaticResource ChipRadio}" GroupName="DashPeriod" Content="This year" Tag="ThisYear" Checked="Period_Checked" />
+                <RadioButton Style="{StaticResource ChipRadio}" GroupName="DashPeriod" Content="Last 12 months" Tag="Last12" Checked="Period_Checked" />
+                <RadioButton Style="{StaticResource ChipRadio}" GroupName="DashPeriod" Content="Last year" Tag="LastYear" Checked="Period_Checked" />
+            </WrapPanel>
+            <WrapPanel x:Name="LocationChips">
+                <TextBlock Text="Location" FontWeight="SemiBold" Width="70" VerticalAlignment="Center" Margin="0,0,0,8" />
+            </WrapPanel>
+        </StackPanel>
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -53,22 +44,22 @@
                     </Grid.ColumnDefinitions>
                     <Border Style="{StaticResource Card}" BorderBrush="{DynamicResource Brush.Accent}" BorderThickness="2" Padding="12,18">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="48" FontSize="58" FontWeight="Light" HorizontalAlignment="Center"
+                            <TextBlock x:Name="InjuryFreeDays" FontSize="58" FontWeight="Light" HorizontalAlignment="Center"
                                        Foreground="{DynamicResource Brush.Accent}" />
                             <TextBlock Text="INJURY-FREE DAYS" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center"
                                        Foreground="{DynamicResource Brush.Accent}" />
-                            <TextBlock Text="Last injury: sample date" FontSize="10" HorizontalAlignment="Center"
+                            <TextBlock x:Name="LastInjuryText" FontSize="10" HorizontalAlignment="Center"
                                        Style="{StaticResource Muted}" Margin="0,3,0,0" />
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="2" Style="{StaticResource Card}" Background="{DynamicResource Brush.SurfaceWarm}"
                             BorderBrush="{DynamicResource Brush.BorderWarm}" Padding="12,18">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="212" FontSize="58" FontWeight="Light" HorizontalAlignment="Center"
+                            <TextBlock x:Name="VehicleFreeDays" FontSize="58" FontWeight="Light" HorizontalAlignment="Center"
                                        Foreground="{DynamicResource Brush.Warm}" />
                             <TextBlock Text="VEHICLE INCIDENT-FREE DAYS" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center"
                                        Foreground="{DynamicResource Brush.WarmText}" />
-                            <TextBlock Text="Last vehicle incident: sample date" FontSize="10" HorizontalAlignment="Center"
+                            <TextBlock x:Name="LastVehicleText" FontSize="10" HorizontalAlignment="Center"
                                        Style="{StaticResource Muted}" Margin="0,3,0,0" />
                         </StackPanel>
                     </Border>
@@ -81,7 +72,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource Brush.BorderWarm}">
-                                    <Button Style="{StaticResource RowButton}" Click="Soon_Click" Tag="{Binding Name}" Padding="16,17">
+                                    <Button Style="{StaticResource RowButton}" Click="IncidentType_Click" Padding="16,17" ToolTip="Open these incidents">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="40" />
@@ -144,7 +135,11 @@
                     <Border Style="{StaticResource Card}">
                         <StackPanel>
                             <TextBlock Text="OSHA EVENT TYPE" Style="{StaticResource SectionLabel}" />
-                            <Canvas x:Name="Donut" Width="210" Height="210" Margin="0,8,0,14" HorizontalAlignment="Center" />
+                            <Grid Margin="0,8,0,14" HorizontalAlignment="Center">
+                                <Canvas x:Name="Donut" Width="210" Height="210" />
+                                <TextBlock x:Name="DonutEmpty" Text="No OSHA-classified&#x0a;injuries in this period" TextAlignment="Center"
+                                           Style="{StaticResource Muted}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
                             <ItemsControl x:Name="DonutLegend" HorizontalAlignment="Center">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -163,7 +158,11 @@
                     <Border Grid.Column="2" Style="{StaticResource Card}">
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="OSHA INCIDENTS BY LOCATION" Style="{StaticResource SectionLabel}" />
-                            <Grid x:Name="BarChart" Margin="0,10,0,0" />
+                            <Grid>
+                                <Grid x:Name="BarChart" Margin="0,10,0,0" />
+                                <TextBlock x:Name="BarEmpty" Text="No recordable injuries in this period" Style="{StaticResource Muted}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
                         </DockPanel>
                     </Border>
                 </Grid>
@@ -187,6 +186,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <TextBlock x:Name="RatesNote" Style="{StaticResource Muted}" FontSize="12" Margin="2,0,0,0" />
             </StackPanel>
         </Grid>
     </StackPanel>

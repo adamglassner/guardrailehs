@@ -22,6 +22,11 @@ public static class DataStore
     public static readonly JsonStore<WorkPermit> Permits = new(Folder, "permits");
     public static readonly JsonStore<LotoProcedure> Loto = new(Folder, "loto");
     public static readonly JsonStore<SdsEntry> Sds = new(Folder, "sds");
+    public static readonly JsonStore<Incident> Incidents = new(Folder, "incidents");
+    public static readonly JsonStore<InspectionTemplate> Templates = new(Folder, "inspection-templates");
+    public static readonly JsonStore<Inspection> Inspections = new(Folder, "inspections");
+    public static readonly JsonStore<RiskAssessment> Risks = new(Folder, "risk-assessments");
+    public static readonly JsonStore<ChangeRequest> Changes = new(Folder, "moc");
 
     /// <summary>Where Library files are kept: data\library\&lt;document id&gt;\&lt;file&gt;.</summary>
     public static string LibraryFolder => Path.Combine(Folder, "library");

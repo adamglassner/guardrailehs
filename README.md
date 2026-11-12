@@ -5,13 +5,18 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.4.0).** Windows desktop app. Eleven modules work today and save to your PC;
+> **Status: preview (v0.5.0).** Windows desktop app. Every safety module works today and saves to your PC;
 > the rest of the product is in place as "coming soon" pages. There is no server yet.
 
 ## Working now
 
 | Module | What you can do |
 | --- | --- |
+| **Incidents** | Report injuries and illnesses, environmental releases, property damage, motor vehicle incidents, operational liabilities and near misses. OSHA classification (first aid, medical treatment, restricted / transfer, days away, fatality), injury type, body part, days away and restricted, DOT recordable, root cause. Recordable, DART and lost-time cases are worked out for you. **Create action** opens a linked corrective action. |
+| **Audits & Inspections** | Checklists (three starters included: monthly workplace inspection, forklift pre-use, fire extinguisher monthly; add your own). Answer each item Pass / Fail / N/A with notes, save for later or complete. Scores ignore N/A. **Create actions** makes one action per failed item. |
+| **Risk Assessment** | Task and hazard rated on a 5 × 5 likelihood × severity matrix before and after controls (1–4 Low, 5–9 Medium, 10–14 High, 15–25 Extreme), with a live heat map and review dates. |
+| **Management of Change** | Process, equipment, material, people, procedure and facility changes: Requested → Under review → Approved → Implemented → Closed (or Rejected). Approval needs a risk assessment; temporary changes are flagged when their end date passes. |
+| **Reports** | OSHA 300 log, OSHA 300A summary, incident rates by month, incidents by type and location, overdue actions, inspection findings, training expiring, compliance due, LOTO inspections due, products missing an SDS, open claims. Preview any report and export it to CSV. |
 | **Actions** | Create, edit, close and delete corrective / preventive actions with owner, location, due date and priority. Overdue is detected automatically. Filter, search, export to CSV. |
 | **Observations** | Report unsafe conditions, unsafe behaviors and good catches (reporter optional, for anonymous reports). **Create action** turns any observation into a linked, pre-filled action. Filter, search, export to CSV. |
 | **Safety Training** | Log completed training per person with optional expiry. Status is worked out for you: Current, Expiring soon (30 days), Expired or No expiry. Filter, search, export to CSV. |
@@ -23,7 +28,7 @@ No subscriptions, no per-employee pricing, no contracts — run it on hardware y
 | **Work Permits** | Hot work, confined space, working at height, excavation, electrical and line-break permits: who it's issued to, where, valid dates and precautions. Permits past their end date that weren't closed show as **Expired**; **Close out** finishes them. |
 | **Lockout / Tagout** | Equipment-specific energy control procedures: energy sources, isolation points, an optional procedure document or photo, and the annual periodic inspection OSHA requires (1910.147). Statuses: Current, Due soon, Overdue, Not inspected. **Inspected today** records an inspection in one click. |
 | **Safety Data Sheets** | Chemical inventory: product, manufacturer, signal word (Danger / Warning), hazards, location, quantity and the SDS file itself. **Open** shows the sheet; products without one are flagged **Missing SDS**. |
-| Dashboard | The Actions open / closed / overdue cards show live counts and open the filtered list. Other figures are sample data. |
+| **Dashboard** | Live, by period (this year, last 12 months, last year) and location: days since the last recordable injury and vehicle incident, incidents by type, actions open / closed / overdue, OSHA classification breakdown, recordables by location, and TRIR, DART, LTIR, lost-time and restricted days rates and the accident frequency rate (from Monthly Data hours and miles). |
 | Appearance | Light / dark mode (header toggle, or Settings → Appearance → "Match Windows"). |
 
 Records are saved as JSON in `%AppData%\Guardrail\data\` (Settings → Your data → **Open folder**);
@@ -32,7 +37,7 @@ Each save writes a temp file first and keeps a `.bak` copy, so a crash can't cor
 
 ## Coming soon
 
-Incidents, Risk Assessment, Reports, Management of Change, Audits & Inspections, the full **Fleet Hub** (Driver Qualification, Accident Register, Vehicle Management,
+The full **Fleet Hub** (Driver Qualification, Accident Register, Vehicle Management,
 DVIR, Maintenance, Hours of Service, DOT Compliance Audit, Fleet Reporting) and **Crash Review AI**
 (drop in accident video and AI determines who was at fault, fully automatically).
 

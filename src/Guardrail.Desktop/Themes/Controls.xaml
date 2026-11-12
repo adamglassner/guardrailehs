@@ -300,6 +300,58 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
             </Trigger>
+            <Trigger Property="Tag" Value="Recordable">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Extreme">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Rejected">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Temporary expired">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Under investigation">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Findings">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="High">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Under review">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Low">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Implemented">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Not recordable">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="First aid only">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="—">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
             <Trigger Property="Tag" Value="No expiry">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />

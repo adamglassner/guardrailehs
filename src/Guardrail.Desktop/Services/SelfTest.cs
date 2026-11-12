@@ -82,6 +82,23 @@ public static class SelfTest
             dialog.Close();
         });
 
+        // The inspection checklist window.
+        await Step("Checklist window builds and shows", () =>
+        {
+            var starter = InspectionTemplate.Starters()[0];
+            var inspection = new Inspection
+            {
+                TemplateName = starter.Name,
+                Location = "Self-test",
+                Items = starter.Items.Select(t => new ChecklistItem { Text = t }).ToList(),
+            };
+            inspection.Items[0].Result = ChecklistItem.Fail;
+            var window = new ChecklistWindow(inspection);
+            window.Show();
+            window.UpdateLayout();
+            window.Close();
+        });
+
         // JSON store round trip in a temp folder.
         var temp = Path.Combine(Path.GetTempPath(), "guardrail-selftest-" + Guid.NewGuid().ToString("N")[..8]);
         try
@@ -184,6 +201,64 @@ public static class SelfTest
             Check("SDS: with a file is On file", sds.DisplayStatus == Status.OnFile);
             Check("SDS: without a file is Missing SDS", new SdsEntry().DisplayStatus == Status.MissingSds);
             try { Directory.Delete(Path.Combine(DataStore.Folder, "sds", sdsId.ToString("N")), recursive: true); } catch { /* ignore */ }
+
+            // Incidents and OSHA rates
+            var cut = new Incident { Type = Incident.InjuryIllness, Classification = Incident.MedicalTreatment };
+            var sprain = new Incident { Type = Incident.InjuryIllness, Classification = Incident.DaysAwayCase, DaysAway = 5 };
+            var firstAid = new Incident { Type = Incident.InjuryIllness, Classification = Incident.FirstAid };
+            var spill = new Incident { Type = "Environmental", Classification = Incident.DaysAwayCase };
+            Check("Incidents: medical treatment is recordable", cut.IsRecordable && !cut.IsDart);
+            Check("Incidents: days away is recordable, DART and lost time", sprain.IsRecordable && sprain.IsDart && sprain.IsLostTime);
+            Check("Incidents: first aid only is not recordable", !firstAid.IsRecordable);
+            Check("Incidents: only injury / illness cases are recordable", !spill.IsRecordable);
+            var metrics = new SafetyMetrics { Incidents = [cut, sprain, firstAid, spill], Hours = 200_000m, Miles = 500_000m };
+            Check("Rates: TRIR = 2 cases × 200,000 ÷ 200,000 hours", SafetyMetrics.Format(metrics.Trir) == "2.00", SafetyMetrics.Format(metrics.Trir));
+            Check("Rates: DART and LTIR", SafetyMetrics.Format(metrics.Dart) == "1.00" && SafetyMetrics.Format(metrics.Ltir) == "1.00");
+            Check("Rates: lost days rate", SafetyMetrics.Format(metrics.LostDaysRate) == "5.00", SafetyMetrics.Format(metrics.LostDaysRate));
+            Check("Rates: no hours shows a dash", SafetyMetrics.Format(new SafetyMetrics { Incidents = [cut] }.Trir) == "—");
+            var vehicle = new SafetyMetrics { Incidents = [new Incident { Type = Incident.MotorVehicle }], Miles = 500_000m, ExtraVehicleAccidents = 1 };
+            Check("Rates: accident frequency per million miles", SafetyMetrics.Format(vehicle.AccidentFrequencyRate) == "4.00", SafetyMetrics.Format(vehicle.AccidentFrequencyRate));
+
+            // Risk Assessment
+            Check("Risk: 2 × 2 is Low", RiskAssessment.LevelFor(4) == Status.Low);
+            Check("Risk: 3 × 3 is Medium", RiskAssessment.LevelFor(9) == Status.Medium);
+            Check("Risk: 3 × 4 is High", RiskAssessment.LevelFor(12) == Status.High);
+            Check("Risk: 4 × 4 is Extreme", RiskAssessment.LevelFor(16) == Status.Extreme);
+            Check("Risk: rating labels parse", RiskAssessment.ParseRating("4 – Likely") == 4 && RiskAssessment.ParseRating("") == 3);
+
+            // Audits & Inspections
+            var audit = new Inspection
+            {
+                IsComplete = true,
+                Items =
+                [
+                    new ChecklistItem { Result = ChecklistItem.Pass }, new ChecklistItem { Result = ChecklistItem.Pass },
+                    new ChecklistItem { Result = ChecklistItem.Pass }, new ChecklistItem { Result = ChecklistItem.Fail },
+                    new ChecklistItem { Result = ChecklistItem.NotApplicable },
+                ],
+            };
+            Check("Audits: score ignores N/A (3 of 4 = 75%)", audit.ScoreText == "75%", audit.ScoreText);
+            Check("Audits: failed item is a finding that can become an action", audit.DisplayStatus == Status.FindingsOpen && audit.CanCreateActions);
+            Check("Audits: starter checklists", InspectionTemplate.Starters().Count == 3 && InspectionTemplate.Starters().All(t => t.Items.Count > 0));
+
+            // Management of Change
+            var change = new ChangeRequest();
+            Check("MOC: requested → under review", change.NextStage == Status.UnderReview);
+            change.Stage = Status.Implemented;
+            Check("MOC: implemented → closed", change.NextStage == Status.Closed);
+            var temp1 = new ChangeRequest { Duration = "Temporary", TemporaryUntil = DateTime.Today.AddDays(-1) };
+            Check("MOC: temporary change past its date is flagged", temp1.DisplayStatus == Status.TemporaryExpired);
+
+            // Every report builds
+            foreach (var report in ReportCatalog.All)
+            {
+                try
+                {
+                    var table = report.Build(DateTime.Today.Year);
+                    Check($"Report builds: {report.Title}", table.Headers.Length > 0 && table.Rows.All(r => r.Length <= table.Headers.Length));
+                }
+                catch (Exception ex) { Check($"Report builds: {report.Title}", false, ex.Message); }
+            }
         }
         catch (Exception ex)
         {
