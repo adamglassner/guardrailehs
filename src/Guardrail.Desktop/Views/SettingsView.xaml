@@ -18,7 +18,7 @@
             <StackPanel>
                 <TextBlock Text="YOUR DATA" Style="{StaticResource SectionLabel}" />
                 <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10"
-                           Text="Your records (actions, observations, training, compliance, claims and library documents, including their files) are saved on this PC in plain JSON. Back up this folder to keep them safe." />
+                           Text="Your records, and the files attached to Library documents, LOTO procedures and Safety Data Sheets, are saved on this PC in plain JSON and ordinary files. Back up this folder to keep them safe." />
                 <DockPanel>
                     <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="OpenDataFolder_Click">
                         <StackPanel Orientation="Horizontal">

@@ -102,7 +102,7 @@ jobs:
           $data = Join-Path $env:APPDATA 'Guardrail'
           New-Item -ItemType Directory -Force $data | Out-Null
           New-Item -ItemType Directory -Force screenshots | Out-Null
-          foreach ($shot in @(@('Light', 'dashboard'), @('Dark', 'dashboard'), @('Light', 'actions'), @('Light', 'regulatory'), @('Dark', 'claims'), @('Light', 'library'), @('Dark', 'ai'), @('Dark', 'fleet'))) {
+          foreach ($shot in @(@('Light', 'dashboard'), @('Dark', 'dashboard'), @('Light', 'actions'), @('Light', 'regulatory'), @('Dark', 'claims'), @('Light', 'library'), @('Light', 'monthly'), @('Dark', 'bbs'), @('Light', 'permits'), @('Dark', 'loto'), @('Light', 'sds'), @('Dark', 'ai'), @('Dark', 'fleet'))) {
             @{ Theme = $shot[0] } | ConvertTo-Json | Set-Content (Join-Path $data 'settings.json')
             $p = Start-Process dist/Guardrail.exe -ArgumentList '--page', $shot[1] -PassThru
             Start-Sleep -Seconds 8

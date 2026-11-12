@@ -147,6 +147,43 @@ public static class SelfTest
             try { Directory.Delete(docFolder, recursive: true); } catch { /* ignore */ }
             var doc = new LibraryDocument { ReviewDue = DateTime.Today.AddDays(-1) };
             Check("Library: past review date is Review overdue", doc.DisplayStatus == Status.ReviewOverdue, doc.DisplayStatus);
+
+            // Monthly Data
+            Check("Monthly: any day maps to the 1st", MonthlyEntry.FirstOfMonth(new DateTime(2026, 3, 17)) == new DateTime(2026, 3, 1));
+            var months = new JsonStore<MonthlyEntry>(temp, "monthly");
+            months.Add(new MonthlyEntry { Month = new DateTime(2026, 3, 1), Location = "Plant", HoursWorked = 17325.5m, MilesDriven = 4200m });
+            var monthsAgain = new JsonStore<MonthlyEntry>(temp, "monthly");
+            Check("Monthly: hours and miles survive save/load", monthsAgain.Items[0].HoursWorked == 17325.5m && monthsAgain.Items[0].MilesDriven == 4200m);
+
+            // Behavioral Observations
+            var card = new BbsObservation { SafeCount = 9, AtRiskCount = 1 };
+            Check("BBS: 9 safe / 1 at-risk is 90% safe", card.PercentSafeText == "90%", card.PercentSafeText);
+            Check("BBS: at-risk card can become an action", card.CanCreateAction && card.DisplayStatus == Status.AtRiskFound);
+            card.LinkedAction = "ACT-0001";
+            Check("BBS: linked card can't create a second action", !card.CanCreateAction && card.HasLinkedAction);
+            Check("BBS: all-safe card", new BbsObservation { SafeCount = 5 }.DisplayStatus == Status.AllSafe);
+
+            // Work Permits
+            var permit = new WorkPermit { ValidFrom = DateTime.Today.AddDays(-2), ValidUntil = DateTime.Today.AddDays(-1) };
+            Check("Permits: active past its end date shows Expired", permit.DisplayStatus == Status.Expired, permit.DisplayStatus);
+            permit.Status = Status.Closed;
+            Check("Permits: closed permit isn't Expired", permit.DisplayStatus == Status.Closed, permit.DisplayStatus);
+            Check("Permits: valid today", new WorkPermit().DisplayStatus == Status.Active);
+
+            // Lockout / Tagout
+            Check("LOTO: never inspected", new LotoProcedure().DisplayStatus == Status.NotInspected);
+            Check("LOTO: inspected 400 days ago is Overdue", new LotoProcedure { LastInspection = DateTime.Today.AddDays(-400) }.DisplayStatus == Status.Overdue);
+            Check("LOTO: inspected 350 days ago is Due soon", new LotoProcedure { LastInspection = DateTime.Today.AddDays(-350) }.DisplayStatus == Status.DueSoon);
+            Check("LOTO: inspected today is Current", new LotoProcedure { LastInspection = DateTime.Today }.DisplayStatus == Status.Current);
+
+            // Safety Data Sheets (file storage shared with Library and LOTO)
+            var sdsId = Guid.NewGuid();
+            var sdsFile = Editors.StoreFile("sds", sdsId, srcA);
+            var sds = new SdsEntry { Product = "Acetone", StoredFile = sdsFile };
+            Check("SDS: file stored under data\\sds", sdsFile.StartsWith("sds") && File.Exists(Path.Combine(DataStore.Folder, sdsFile)), sdsFile);
+            Check("SDS: with a file is On file", sds.DisplayStatus == Status.OnFile);
+            Check("SDS: without a file is Missing SDS", new SdsEntry().DisplayStatus == Status.MissingSds);
+            try { Directory.Delete(Path.Combine(DataStore.Folder, "sds", sdsId.ToString("N")), recursive: true); } catch { /* ignore */ }
         }
         catch (Exception ex)
         {

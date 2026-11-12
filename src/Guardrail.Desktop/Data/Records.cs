@@ -21,6 +21,13 @@ public static class Status
     public const string ReviewOverdue = "Review overdue";
     public const string ReviewDueSoon = "Review due soon";
     public const string NoReviewDate = "No review date";
+    public const string AllSafe = "All safe";
+    public const string AtRiskFound = "At-risk found";
+    public const string Active = "Active";
+    public const string Cancelled = "Cancelled";
+    public const string NotInspected = "Not inspected";
+    public const string OnFile = "On file";
+    public const string MissingSds = "Missing SDS";
 }
 
 public abstract class RecordBase
@@ -208,4 +215,137 @@ public sealed class LibraryDocument : RecordBase
         { } d when d.Date <= DateTime.Today.AddDays(ReviewSoonDays) => Status.ReviewDueSoon,
         _ => Status.Current,
     };
+}
+
+/// <summary>Exposure data for one location and month: hours worked, headcount and miles driven (used for incident rates).</summary>
+public sealed class MonthlyEntry : RecordBase
+{
+    /// <summary>Always the first day of the month.</summary>
+    public DateTime Month { get; set; } = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+    public string Location { get; set; } = "";
+    public decimal HoursWorked { get; set; }
+    public decimal Employees { get; set; }
+    public decimal MilesDriven { get; set; }
+    public string EnteredBy { get; set; } = "";
+    public string Notes { get; set; } = "";
+
+    [JsonIgnore] public override string Prefix => "MON";
+    [JsonIgnore] public string MonthText => Month.ToString("MMMM yyyy");
+    [JsonIgnore] public string HoursText => HoursWorked.ToString("N0");
+    [JsonIgnore] public string EmployeesText => Employees.ToString("0.#");
+    [JsonIgnore] public string MilesText => MilesDriven == 0 ? "—" : MilesDriven.ToString("N0");
+
+    public static DateTime FirstOfMonth(DateTime d) => new(d.Year, d.Month, 1);
+}
+
+/// <summary>A behavior-based safety (BBS) observation card: how many safe and at-risk behaviors were seen.</summary>
+public sealed class BbsObservation : RecordBase
+{
+    public static readonly string[] FocusAreas = ["PPE", "Body position", "Tools & equipment", "Housekeeping", "Procedures", "Driving", "Other"];
+    public static readonly string[] YesNo = ["Yes", "No"];
+
+    public DateTime Date { get; set; } = DateTime.Today;
+    public string Observer { get; set; } = "";
+    public string Area { get; set; } = "";
+    public string Task { get; set; } = "";
+    public string FocusArea { get; set; } = "PPE";
+    public int SafeCount { get; set; }
+    public int AtRiskCount { get; set; }
+    public string FeedbackGiven { get; set; } = "Yes";
+    public string Comments { get; set; } = "";
+    /// <summary>Number of the action created from this card, e.g. "ACT-0012".</summary>
+    public string LinkedAction { get; set; } = "";
+
+    [JsonIgnore] public override string Prefix => "BBS";
+    [JsonIgnore] public string DateText => Date.ToString("MMM d, yyyy");
+    [JsonIgnore] public int Total => SafeCount + AtRiskCount;
+    [JsonIgnore] public string PercentSafeText => Total == 0 ? "—" : $"{100.0 * SafeCount / Total:0}%";
+    [JsonIgnore] public string DisplayStatus => AtRiskCount > 0 ? Status.AtRiskFound : Status.AllSafe;
+    [JsonIgnore] public bool CanCreateAction => AtRiskCount > 0 && LinkedAction.Length == 0;
+    [JsonIgnore] public bool HasLinkedAction => LinkedAction.Length > 0;
+}
+
+/// <summary>A permit to work: hot work, confined space, working at height and so on.</summary>
+public sealed class WorkPermit : RecordBase
+{
+    public static readonly string[] Types = ["Hot work", "Confined space", "Working at height", "Excavation", "Electrical", "Line break", "Other"];
+    public static readonly string[] Statuses = [Data.Status.Active, Data.Status.Closed, Data.Status.Cancelled];
+
+    public string Type { get; set; } = "Hot work";
+    public string Work { get; set; } = "";
+    public string Location { get; set; } = "";
+    public string IssuedTo { get; set; } = "";
+    public string IssuedBy { get; set; } = "";
+    public DateTime ValidFrom { get; set; } = DateTime.Today;
+    public DateTime ValidUntil { get; set; } = DateTime.Today;
+    public string Precautions { get; set; } = "";
+    public string Status { get; set; } = Data.Status.Active;
+    public DateTime? ClosedOn { get; set; }
+
+    [JsonIgnore] public override string Prefix => "PTW";
+    [JsonIgnore] public bool IsActive => Status == Data.Status.Active;
+    [JsonIgnore] public bool IsExpired => IsActive && ValidUntil.Date < DateTime.Today;
+    [JsonIgnore] public string DisplayStatus => IsExpired ? Data.Status.Expired : Status;
+    [JsonIgnore] public string ValidText => ValidFrom.Date == ValidUntil.Date
+        ? ValidFrom.ToString("MMM d, yyyy")
+        : $"{ValidFrom:MMM d} – {ValidUntil:MMM d, yyyy}";
+}
+
+/// <summary>An equipment-specific lockout/tagout (energy control) procedure, with its annual periodic inspection.</summary>
+public sealed class LotoProcedure : RecordBase
+{
+    /// <summary>OSHA 1910.147(c)(6): periodic inspection at least annually.</summary>
+    public const int InspectionIntervalDays = 365;
+    public const int DueSoonDays = 30;
+
+    public string Equipment { get; set; } = "";
+    public string AssetTag { get; set; } = "";
+    public string Location { get; set; } = "";
+    public string ProcedureNumber { get; set; } = "";
+    public string EnergySources { get; set; } = "";
+    public string IsolationPoints { get; set; } = "";
+    public DateTime? LastInspection { get; set; }
+    public string Inspector { get; set; } = "";
+    /// <summary>Optional procedure document, relative to the data folder (data\loto\&lt;id&gt;\file).</summary>
+    public string StoredFile { get; set; } = "";
+
+    [JsonIgnore] public override string Prefix => "LTO";
+    [JsonIgnore] public bool HasFile => StoredFile.Length > 0;
+    [JsonIgnore] public string FileName => HasFile ? System.IO.Path.GetFileName(StoredFile) : "";
+    [JsonIgnore] public DateTime? NextInspection => LastInspection?.Date.AddDays(InspectionIntervalDays);
+    [JsonIgnore] public string LastText => LastInspection?.ToString("MMM d, yyyy") ?? "—";
+    [JsonIgnore] public string NextText => NextInspection?.ToString("MMM d, yyyy") ?? "Now";
+
+    [JsonIgnore]
+    public string DisplayStatus => NextInspection switch
+    {
+        null => Status.NotInspected,
+        { } d when d < DateTime.Today => Status.Overdue,
+        { } d when d <= DateTime.Today.AddDays(DueSoonDays) => Status.DueSoon,
+        _ => Status.Current,
+    };
+}
+
+/// <summary>A hazardous product in the chemical inventory and its Safety Data Sheet.</summary>
+public sealed class SdsEntry : RecordBase
+{
+    public static readonly string[] SignalWords = ["Danger", "Warning", "None"];
+
+    public string Product { get; set; } = "";
+    public string Manufacturer { get; set; } = "";
+    public string ProductCode { get; set; } = "";
+    public string Location { get; set; } = "";
+    public string Quantity { get; set; } = "";
+    public string SignalWord { get; set; } = "Warning";
+    public string Hazards { get; set; } = "";
+    public DateTime? RevisionDate { get; set; }
+    public string Notes { get; set; } = "";
+    /// <summary>The SDS file, relative to the data folder (data\sds\&lt;id&gt;\file).</summary>
+    public string StoredFile { get; set; } = "";
+
+    [JsonIgnore] public override string Prefix => "SDS";
+    [JsonIgnore] public bool HasFile => StoredFile.Length > 0;
+    [JsonIgnore] public string FileName => HasFile ? System.IO.Path.GetFileName(StoredFile) : "";
+    [JsonIgnore] public string RevisionText => RevisionDate?.ToString("MMM d, yyyy") ?? "—";
+    [JsonIgnore] public string DisplayStatus => HasFile ? Status.OnFile : Status.MissingSds;
 }

@@ -276,6 +276,30 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
             </Trigger>
+            <Trigger Property="Tag" Value="All safe">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="On file">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="At-risk found">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Not inspected">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Missing SDS">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Cancelled">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
             <Trigger Property="Tag" Value="No expiry">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
@@ -292,6 +316,22 @@
             </Trigger>
             <Trigger Property="Text" Value="Low">
                 <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- GHS signal word: Danger in red, Warning in amber -->
+    <Style x:Key="SignalText" TargetType="TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.TextMuted}" />
+        <Style.Triggers>
+            <Trigger Property="Text" Value="Danger">
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="FontWeight" Value="Bold" />
+            </Trigger>
+            <Trigger Property="Text" Value="Warning">
+                <Setter Property="Foreground" Value="{DynamicResource Brush.WarmText}" />
+                <Setter Property="FontWeight" Value="SemiBold" />
             </Trigger>
         </Style.Triggers>
     </Style>

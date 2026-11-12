@@ -5,7 +5,7 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.3.0).** Windows desktop app. Six modules work today and save to your PC;
+> **Status: preview (v0.4.0).** Windows desktop app. Eleven modules work today and save to your PC;
 > the rest of the product is in place as "coming soon" pages. There is no server yet.
 
 ## Working now
@@ -18,17 +18,21 @@ No subscriptions, no per-employee pricing, no contracts — run it on hardware y
 | **Regulatory Compliance** | EPA, OSHA, DOT, state and local requirements: permits, licenses, reports, inspections and plans, with reference number, owner and next due date. Status is worked out for you: Upcoming, Due soon (30 days), Overdue or Completed. **Mark done** rolls monthly, quarterly and yearly items forward to the next due date (one-time items close). Filter, search, export to CSV. |
 | **Claims Register** | Workers' comp, auto, general liability and property claims: claimant, date of loss, carrier and claim number, adjuster, related incident, reserve and amount paid. Total incurred (paid + open reserve), days open and closed-this-year are worked out for you. Filter, search, export to CSV. |
 | **Library** | Policies, procedures, programs, forms and training material. Guardrail keeps its own copy of each file (so moving the original doesn't break it), with version, owner and next review date. **Open** opens the file; review reminders 30 days ahead. Filter, search, export to CSV. |
+| **Monthly Data** | Hours worked, average headcount and fleet miles for each location and month: the exposure numbers OSHA incident rates are calculated from. Rolling 12-month totals; duplicate months are caught. Filter by year, search, export to CSV. |
+| **Behavioral Observations** | Behavior-based safety (BBS) cards: task, focus area (PPE, body position, tools, housekeeping, procedures, driving), safe and at-risk counts and whether feedback was given. % safe is worked out per card and for the last 30 days. **Create action** turns at-risk findings into a linked action. |
+| **Work Permits** | Hot work, confined space, working at height, excavation, electrical and line-break permits: who it's issued to, where, valid dates and precautions. Permits past their end date that weren't closed show as **Expired**; **Close out** finishes them. |
+| **Lockout / Tagout** | Equipment-specific energy control procedures: energy sources, isolation points, an optional procedure document or photo, and the annual periodic inspection OSHA requires (1910.147). Statuses: Current, Due soon, Overdue, Not inspected. **Inspected today** records an inspection in one click. |
+| **Safety Data Sheets** | Chemical inventory: product, manufacturer, signal word (Danger / Warning), hazards, location, quantity and the SDS file itself. **Open** shows the sheet; products without one are flagged **Missing SDS**. |
 | Dashboard | The Actions open / closed / overdue cards show live counts and open the filtered list. Other figures are sample data. |
 | Appearance | Light / dark mode (header toggle, or Settings → Appearance → "Match Windows"). |
 
 Records are saved as JSON in `%AppData%\Guardrail\data\` (Settings → Your data → **Open folder**);
-Library files are copied into `data\library\`.
+files attached to Library documents, LOTO procedures and Safety Data Sheets are copied into `data\library\`, `data\loto\` and `data\sds\`.
 Each save writes a temp file first and keeps a `.bak` copy, so a crash can't corrupt your records.
 
 ## Coming soon
 
-Incidents, Risk Assessment, Monthly Data, Reports, Behavioral Observations,
-Management of Change, Work Permits, Lockout/Tagout, Safety Data Sheets, Audits & Inspections, the full **Fleet Hub** (Driver Qualification, Accident Register, Vehicle Management,
+Incidents, Risk Assessment, Reports, Management of Change, Audits & Inspections, the full **Fleet Hub** (Driver Qualification, Accident Register, Vehicle Management,
 DVIR, Maintenance, Hours of Service, DOT Compliance Audit, Fleet Reporting) and **Crash Review AI**
 (drop in accident video and AI determines who was at fault, fully automatically).
 
