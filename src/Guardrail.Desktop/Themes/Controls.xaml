@@ -352,6 +352,82 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
             </Trigger>
+            <Trigger Property="Tag" Value="Qualified">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="In service">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="No defects">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Repaired">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Compliant">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Non-preventable">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Pass">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Incomplete">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Pending review">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Warm}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.WarmText}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Out of service">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Registration expired">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Inspection overdue">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Defects open">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Violation">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Preventable">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="DOT recordable">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Gaps">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="On hold">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Sold">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />
+            </Trigger>
             <Trigger Property="Tag" Value="No expiry">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.TextMuted}" />

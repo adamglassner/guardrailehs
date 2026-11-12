@@ -115,7 +115,9 @@ public partial class DashboardView : UserControl
         var lastInjury = allHere.Where(i => i.IsRecordable).Select(i => (DateTime?)i.Date).Max();
         InjuryFreeDays.Text = lastInjury is { } li ? Math.Max(0, (DateTime.Today - li.Date).Days).ToString() : "—";
         LastInjuryText.Text = lastInjury is { } li2 ? $"Last recordable injury: {li2:MMM d, yyyy}" : "No recordable injuries on record";
-        var lastVehicle = allHere.Where(i => i.IsVehicle).Select(i => (DateTime?)i.Date).Max();
+        var lastVehicle = allHere.Where(i => i.IsVehicle).Select(i => (DateTime?)i.Date)
+            .Concat(_location is null ? DataStore.FleetAccidents.Items.Select(a => (DateTime?)a.Date) : Enumerable.Empty<DateTime?>())
+            .Max();
         VehicleFreeDays.Text = lastVehicle is { } lv ? Math.Max(0, (DateTime.Today - lv.Date).Days).ToString() : "—";
         LastVehicleText.Text = lastVehicle is { } lv2 ? $"Last vehicle incident: {lv2:MMM d, yyyy}" : "No vehicle incidents on record";
 

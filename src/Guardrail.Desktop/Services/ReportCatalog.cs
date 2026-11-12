@@ -52,6 +52,28 @@ public static class ReportCatalog
         new("open-claims", "Open claims", "", Compliance,
             "Every open claim with reserve, paid, total incurred and days open.",
             false, _ => OpenClaims()),
+
+        new("driver-applications", "Driver application status", "\uE77B", Fleet,
+            "Every driver and applicant with their application status, license class and when they were added.",
+            false, _ => DriverApplications()),
+        new("dq-status", "Driver qualification file status", "\uE77B", Fleet,
+            "Active drivers' license, medical certificate and annual MVR dates, and anything missing or expired.",
+            false, _ => DriverQualification()),
+        new("vehicle-renewals", "Vehicle maintenance and renewal status", "\uE804", Fleet,
+            "Each vehicle's registration, annual DOT inspection and next scheduled service.",
+            false, _ => VehicleRenewals()),
+        new("accident-register", "DOT accident register", "\uE7BA", Fleet,
+            "The 49 CFR 390.15 register for the year: date, city and state, driver, injuries, fatalities and hazmat. Keep three years.",
+            true, AccidentRegister),
+        new("dvir-defects", "DVIR defects and repairs", "\uE9D9", Fleet,
+            "Every DVIR with defects during the year and whether the repair was certified.",
+            true, DvirDefects),
+        new("hos-violations", "Hours-of-service violations", "\uE823", Fleet,
+            "Every reviewed log with a violation during the year.",
+            true, HosViolations),
+        new("fleet-roster", "Fleet roster", "\uE804", Fleet,
+            "Every vehicle with VIN, plate, assigned driver, odometer and status.",
+            false, _ => FleetRoster()),
     ];
 
     // ------------------------------------------------------------------ OSHA
@@ -207,5 +229,76 @@ public static class ReportCatalog
                                             c.Reserve.ToString("C0"), c.Paid.ToString("C0"), c.Incurred.ToString("C0"), c.DaysOpen.ToString() }).ToList();
         return new ReportTable(["Claim #", "Type", "Claimant", "Date of loss", "Carrier", "Carrier claim #", "Reserve", "Paid", "Incurred", "Days open"], rows,
             $"{rows.Count} open claim{(rows.Count == 1 ? "" : "s")}, {open.Sum(c => c.Incurred):C0} total incurred.");
+    }
+
+    // ------------------------------------------------------------------ Fleet
+
+    public static ReportTable DriverApplications()
+    {
+        var rows = DataStore.Drivers.Items.OrderBy(d => d.ApplicationStatus).ThenBy(d => d.Name)
+            .Select(d => new[] { d.Number, d.Name, d.ApplicationStatus, d.LicenseClass, d.Location, D(d.CreatedAt.Date), D(d.HireDate) })
+            .ToList();
+        return new ReportTable(["Driver #", "Name", "Application status", "License class", "Location", "Added", "Hire date"], rows,
+            $"{rows.Count} driver{(rows.Count == 1 ? "" : "s")} and applicants.");
+    }
+
+    public static ReportTable DriverQualification()
+    {
+        var active = DataStore.Drivers.Items.Where(d => d.IsActive).OrderBy(d => d.Name).ToList();
+        var rows = active.Select(d => new[] { d.Name, d.ClassText, D(d.LicenseExpires), D(d.MedicalCardExpires), D(d.LastMvrReview), D(d.MvrDue),
+                                              d.RoadTest, d.DisplayStatus, string.Join("; ", d.Problems) }).ToList();
+        return new ReportTable(["Driver", "License", "License expires", "Medical card expires", "Last MVR review", "MVR due", "Road test", "Status", "Problems"], rows,
+            $"{active.Count(d => d.DisplayStatus == FleetStatus.Qualified)} of {active.Count} active drivers fully qualified.");
+    }
+
+    public static ReportTable VehicleRenewals()
+    {
+        var open = DataStore.Maintenance.Items.Where(w => !w.IsComplete).ToList();
+        var rows = DataStore.Vehicles.Items.Where(v => v.IsActive).OrderBy(v => v.UnitNumber)
+            .Select(v =>
+            {
+                var next = open.Where(w => string.Equals(w.UnitNumber, v.UnitNumber, StringComparison.OrdinalIgnoreCase)).MinBy(w => w.DueDate);
+                return new[] { v.UnitNumber, v.Description, D(v.RegistrationExpires), D(v.LastAnnualInspection), D(v.AnnualDue),
+                               next is null ? "" : $"{next.Service} ({next.Number})", next is null ? "" : D(next.DueDate), v.DisplayStatus };
+            })
+            .ToList();
+        return new ReportTable(["Unit", "Vehicle", "Registration expires", "Last annual inspection", "Annual due", "Next service", "Service due", "Status"], rows,
+            $"{rows.Count} active vehicle{(rows.Count == 1 ? "" : "s")}.");
+    }
+
+    public static ReportTable AccidentRegister(int year)
+    {
+        var list = DataStore.FleetAccidents.Items.Where(a => a.Date.Year == year).OrderBy(a => a.Date).ToList();
+        var rows = list.Select(a => new[] { a.Number, D(a.Date), a.CityState, a.Driver, a.UnitNumber, a.Injuries.ToString(), a.Fatalities.ToString(),
+                                            a.Hazmat, a.TowAway, a.IsDotRecordable ? "Yes" : "No", a.Preventability, a.PoliceReport }).ToList();
+        return new ReportTable(["Accident #", "Date", "City and state", "Driver", "Unit", "Injuries", "Fatalities", "Hazmat released", "Tow-away", "DOT recordable", "Preventability", "Police report"], rows,
+            $"{list.Count} accident{(list.Count == 1 ? "" : "s")} in {year}, {list.Count(a => a.IsDotRecordable)} DOT recordable.");
+    }
+
+    public static ReportTable DvirDefects(int year)
+    {
+        var rows = DataStore.Dvirs.Items.Where(r => r.DefectsFound && r.Date.Year == year).OrderBy(r => r.Date)
+            .Select(r => new[] { r.Number, D(r.Date), r.UnitNumber, r.Driver, r.Defects, r.DisplayStatus, D(r.RepairedOn), r.RepairedBy })
+            .ToList();
+        return new ReportTable(["DVIR #", "Date", "Unit", "Driver", "Defects", "Status", "Repaired on", "Certified by"], rows,
+            $"{rows.Count} DVIR{(rows.Count == 1 ? "" : "s")} with defects in {year}.");
+    }
+
+    public static ReportTable HosViolations(int year)
+    {
+        var rows = DataStore.Hos.Items.Where(h => h.HasViolation && h.Date.Year == year).OrderBy(h => h.Date)
+            .Select(h => new[] { h.Number, D(h.Date), h.Driver, h.Violation, h.DrivingText, h.OnDutyText, h.ReviewedBy, h.Notes })
+            .ToList();
+        return new ReportTable(["HOS #", "Date", "Driver", "Violation", "Driving hours", "On-duty hours", "Reviewed by", "Notes"], rows,
+            $"{rows.Count} violation{(rows.Count == 1 ? "" : "s")} in {year}.");
+    }
+
+    public static ReportTable FleetRoster()
+    {
+        var rows = DataStore.Vehicles.Items.OrderBy(v => v.UnitNumber)
+            .Select(v => new[] { v.UnitNumber, v.Type, v.Description, v.Vin, $"{v.Plate} {v.PlateState}".Trim(), v.AssignedDriver, v.Location, v.OdometerText, v.DisplayStatus })
+            .ToList();
+        return new ReportTable(["Unit", "Type", "Vehicle", "VIN", "Plate", "Assigned driver", "Location", "Odometer", "Status"], rows,
+            $"{rows.Count} vehicle{(rows.Count == 1 ? "" : "s")}.");
     }
 }

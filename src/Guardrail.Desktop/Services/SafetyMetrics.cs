@@ -18,15 +18,19 @@ public sealed class SafetyMetrics
     public decimal Miles { get; init; }
     /// <summary>Average monthly headcount over the months entered (OSHA 300A "annual average number of employees").</summary>
     public decimal AverageEmployees { get; init; }
-    /// <summary>Vehicle accidents from other sources (Fleet Hub accident register), added to motor-vehicle incidents.</summary>
+    /// <summary>Vehicle accidents from other sources, added to the count.</summary>
     public int ExtraVehicleAccidents { get; init; }
+    /// <summary>Accidents in the Fleet Hub accident register during the period.</summary>
+    public int FleetAccidents { get; init; }
+    /// <summary>Once the accident register is in use it is the source for vehicle accidents (avoids counting a crash twice).</summary>
+    public bool UseFleetRegister { get; init; }
 
     public int Recordables => Incidents.Count(i => i.IsRecordable);
     public int DartCases => Incidents.Count(i => i.IsDart);
     public int LostTimeCases => Incidents.Count(i => i.IsLostTime);
     public int DaysAway => Incidents.Where(i => i.IsInjuryIllness).Sum(i => i.DaysAway);
     public int DaysRestricted => Incidents.Where(i => i.IsInjuryIllness).Sum(i => i.DaysRestricted);
-    public int VehicleAccidents => Incidents.Count(i => i.IsVehicle) + ExtraVehicleAccidents;
+    public int VehicleAccidents => (UseFleetRegister ? FleetAccidents : Incidents.Count(i => i.IsVehicle)) + ExtraVehicleAccidents;
 
     public decimal? Trir => PerHours(Recordables);
     public decimal? Dart => PerHours(DartCases);
@@ -65,6 +69,9 @@ public sealed class SafetyMetrics
             Miles = months.Sum(m => m.MilesDriven),
             AverageEmployees = perMonthHeadcount.Count == 0 ? 0 : perMonthHeadcount.Average(),
             ExtraVehicleAccidents = extraVehicleAccidents,
+            // The register records street / city, not your locations, so it's used for company-wide figures.
+            UseFleetRegister = location is null && DataStore.FleetAccidents.Items.Count > 0,
+            FleetAccidents = DataStore.FleetAccidents.Items.Count(a => a.Date.Date >= from && a.Date.Date <= to),
         };
     }
 

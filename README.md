@@ -5,7 +5,7 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.5.0).** Windows desktop app. Every safety module works today and saves to your PC;
+> **Status: preview (v0.6.0).** Windows desktop app. Every safety module and the full Fleet Hub work today and save to your PC;
 > the rest of the product is in place as "coming soon" pages. There is no server yet.
 
 ## Working now
@@ -28,6 +28,7 @@ No subscriptions, no per-employee pricing, no contracts — run it on hardware y
 | **Work Permits** | Hot work, confined space, working at height, excavation, electrical and line-break permits: who it's issued to, where, valid dates and precautions. Permits past their end date that weren't closed show as **Expired**; **Close out** finishes them. |
 | **Lockout / Tagout** | Equipment-specific energy control procedures: energy sources, isolation points, an optional procedure document or photo, and the annual periodic inspection OSHA requires (1910.147). Statuses: Current, Due soon, Overdue, Not inspected. **Inspected today** records an inspection in one click. |
 | **Safety Data Sheets** | Chemical inventory: product, manufacturer, signal word (Danger / Warning), hazards, location, quantity and the SDS file itself. **Open** shows the sheet; products without one are flagged **Missing SDS**. |
+| **Fleet Hub** | **Overview** (everything overdue or due in 30 days across the fleet), **Driver Qualification** (license, medical certificate, annual MVR review, road test, DQ file document; Qualified / Expiring soon / Expired / Incomplete), **Accident Register** (49 CFR 390.15: injuries, fatalities, tow-away, hazmat, DOT recordable, preventability, dashcam video), **Vehicle Management** (registration, annual DOT inspection, odometer, in / out of service), **DVIR Inspections** (pre- and post-trip, defects put the unit out of service until a repair is certified), **Maintenance** (PM schedules that repeat, completing an annual DOT inspection updates the vehicle), **Hours of Service** (log reviews with 11-hour and 14-hour violations flagged), **DOT Compliance Audit** (a live mock audit across all of the above with readiness %, gaps and an exportable report) and **Fleet Reporting** (driver application status, DQ file status, vehicle maintenance and renewal status, DOT accident register, DVIR defects, HOS violations, fleet roster). |
 | **Dashboard** | Live, by period (this year, last 12 months, last year) and location: days since the last recordable injury and vehicle incident, incidents by type, actions open / closed / overdue, OSHA classification breakdown, recordables by location, and TRIR, DART, LTIR, lost-time and restricted days rates and the accident frequency rate (from Monthly Data hours and miles). |
 | Appearance | Light / dark mode (header toggle, or Settings → Appearance → "Match Windows"). |
 
@@ -37,9 +38,8 @@ Each save writes a temp file first and keeps a `.bak` copy, so a crash can't cor
 
 ## Coming soon
 
-The full **Fleet Hub** (Driver Qualification, Accident Register, Vehicle Management,
-DVIR, Maintenance, Hours of Service, DOT Compliance Audit, Fleet Reporting) and **Crash Review AI**
-(drop in accident video and AI determines who was at fault, fully automatically).
+**Crash Review AI**: drop in accident video and AI determines who was at fault, fully automatically. Until then,
+the Accident Register keeps the video with each accident.
 
 ## Download
 

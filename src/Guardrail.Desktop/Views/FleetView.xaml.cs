@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using Guardrail.Models;
+using Guardrail.Services;
 
 namespace Guardrail.Views;
 
@@ -29,6 +30,18 @@ public partial class FleetView : UserControl
     {
         if (SectionHost.Content is ComingSoonView { DataContext: ModuleInfo current } && ReferenceEquals(current, section))
             return;
-        SectionHost.Content = new ComingSoonView(section);
+        SectionHost.Content = section.Key switch
+        {
+            "fleet-overview" => new FleetOverviewView(),
+            "fleet-dq" => new DriversView(),
+            "fleet-accidents" => new AccidentsView(),
+            "fleet-vehicles" => new VehiclesView(),
+            "fleet-dvir" => new DvirView(),
+            "fleet-maintenance" => new MaintenanceView(),
+            "fleet-hos" => new HosView(),
+            "fleet-dot" => new DotAuditView(),
+            "fleet-reports" => new ReportsView(ReportCatalog.Fleet),
+            _ => (object)new ComingSoonView(section),
+        };
     }
 }

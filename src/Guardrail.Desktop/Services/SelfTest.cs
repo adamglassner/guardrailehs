@@ -249,6 +249,48 @@ public static class SelfTest
             var temp1 = new ChangeRequest { Duration = "Temporary", TemporaryUntil = DateTime.Today.AddDays(-1) };
             Check("MOC: temporary change past its date is flagged", temp1.DisplayStatus == Status.TemporaryExpired);
 
+            // Fleet Hub
+            var driver = new Driver
+            {
+                ApplicationStatus = FleetStatus.Accepted, RoadTest = "Yes",
+                LicenseExpires = DateTime.Today.AddYears(2), MedicalCardExpires = DateTime.Today.AddYears(1), LastMvrReview = DateTime.Today.AddMonths(-2),
+            };
+            Check("Fleet: complete driver file is Qualified", driver.DisplayStatus == FleetStatus.Qualified, driver.DisplayStatus);
+            driver.MedicalCardExpires = DateTime.Today.AddDays(10);
+            Check("Fleet: medical card in 10 days is Expiring soon", driver.DisplayStatus == Status.ExpiringSoon, driver.DisplayStatus);
+            driver.LastMvrReview = DateTime.Today.AddMonths(-13);
+            Check("Fleet: MVR review over a year old is Expired", driver.DisplayStatus == Status.Expired && driver.Problems.Count == 1, string.Join("; ", driver.Problems));
+            Check("Fleet: applicant shows application status", new Driver().DisplayStatus == FleetStatus.Applied);
+            Check("Fleet: missing dates make the file Incomplete", new Driver { ApplicationStatus = FleetStatus.Accepted }.DisplayStatus == FleetStatus.Incomplete);
+
+            var truck = new Vehicle { LastAnnualInspection = DateTime.Today.AddMonths(-11).AddDays(-20), RegistrationExpires = DateTime.Today.AddYears(1) };
+            Check("Fleet: annual inspection due in about 10 days is Due soon", truck.DisplayStatus == Status.DueSoon, truck.DisplayStatus);
+            truck.LastAnnualInspection = DateTime.Today.AddYears(-2);
+            Check("Fleet: annual inspection overdue", truck.DisplayStatus == FleetStatus.InspectionOverdue, truck.DisplayStatus);
+            truck.RegistrationExpires = DateTime.Today.AddDays(-1);
+            Check("Fleet: expired registration comes first", truck.DisplayStatus == FleetStatus.RegistrationExpired, truck.DisplayStatus);
+
+            var dvir = new Dvir { DefectsFound = true };
+            Check("Fleet: DVIR with defects is open until repaired", dvir.DefectsOpen && dvir.DisplayStatus == FleetStatus.DefectsOpen);
+            dvir.RepairedOn = DateTime.Today;
+            Check("Fleet: certified DVIR is Repaired", !dvir.DefectsOpen && dvir.DisplayStatus == FleetStatus.Repaired);
+
+            Check("Fleet: 11.5 hours driving is an 11-hour violation", HosLog.DetectViolation(11.5m, 13m, HosLog.None) == "11-hour driving");
+            Check("Fleet: 14.5-hour window is a 14-hour violation", HosLog.DetectViolation(10m, 14.5m, HosLog.None) == "14-hour window");
+            Check("Fleet: 10 hours driving in a 12-hour window is compliant", HosLog.DetectViolation(10m, 12m, HosLog.None) == HosLog.None);
+
+            Check("Fleet: tow-away makes an accident DOT recordable", new FleetAccident { TowAway = "Yes" }.IsDotRecordable);
+            Check("Fleet: property damage only is not DOT recordable", !new FleetAccident().IsDotRecordable);
+            Check("Fleet: quarterly service repeats every 3 months", new MaintenanceOrder { Repeat = "Every 3 months" }.RepeatMonths == 3);
+            Check("Fleet: overdue work order", new MaintenanceOrder { DueDate = DateTime.Today.AddDays(-1) }.DisplayStatus == Status.Overdue);
+
+            var register = new SafetyMetrics { Incidents = [new Incident { Type = Incident.MotorVehicle }], Miles = 1_000_000m, UseFleetRegister = true, FleetAccidents = 3 };
+            Check("Fleet: accident register drives the accident frequency rate", SafetyMetrics.Format(register.AccidentFrequencyRate) == "3.00", SafetyMetrics.Format(register.AccidentFrequencyRate));
+
+            var audit2 = FleetInsights.DotAudit();
+            Check("Fleet: DOT mock audit runs every check", audit2.Count == 10, audit2.Count.ToString());
+            Check("Fleet: overview alerts build", FleetInsights.Alerts() is not null);
+
             // Every report builds
             foreach (var report in ReportCatalog.All)
             {
