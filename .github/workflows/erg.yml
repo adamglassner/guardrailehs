@@ -13,13 +13,10 @@ jobs:
           sudo apt-get install -y poppler-utils >/dev/null
           UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
           mkdir -p out
-          curl -sSL -A "$UA" https://www.phmsa.dot.gov/training/hazmat/erg/erg2024-pdf-accessible-english -o out/page.html || true
-          grep -oE 'href="[^"]+\.pdf"' out/page.html | sort -u > out/links.txt || true
-          cat out/links.txt
-          URL=$(grep -oE 'href="[^"]+\.pdf"' out/page.html | sed 's/href="//;s/"$//' | grep -i erg | grep -iv -e spanish -e french -e cover | head -1)
-          case "$URL" in http*) ;; *) URL="https://www.phmsa.dot.gov$URL";; esac
+          URL=https://tc.canada.ca/sites/default/files/2024-04/2024-emergency-response-guidebook.pdf
           echo "$URL" > out/url.txt
           curl -sSL -A "$UA" "$URL" -o erg.pdf
+          head -c 300 erg.pdf | strings | head
           ls -la erg.pdf; sha256sum erg.pdf | tee out/sha256.txt
           pdfinfo erg.pdf | tee out/info.txt
           pdftotext -layout erg.pdf out/erg-layout.txt
