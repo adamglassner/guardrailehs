@@ -194,6 +194,52 @@ public static class SelfTest
         Check("Locations: hierarchy text", loc.Hierarchy == "South › North Texas" && loc.IsActive && loc.Number.StartsWith("LOC"));
     }
 
+    // ----- Safety References -----
+
+    private static async Task ReferencesChecks(MainWindow window)
+    {
+        try
+        {
+            Check("ERG: data loads", ErgData.Materials.Count > 2500 && ErgData.Guides.Count == 64, $"{ErgData.Materials.Count} materials, {ErgData.Guides.Count} guides");
+            var gasoline = ErgData.Search("1203");
+            Check("ERG: 1203 is gasoline, guide 128", gasoline.Any(m => m.Name == "Gasoline" && m.Guide == "128"), string.Join("; ", gasoline.Select(m => m.Guide + " " + m.Name)));
+            Check("ERG: UN prefix accepted", ErgData.Search("UN1203").Count == gasoline.Count && ErgData.Search("na 1993").Any(m => m.Name == "Diesel fuel"));
+            var propane = ErgData.Search("propane");
+            Check("ERG: name search finds propane (1075, guide 115)", propane.Count > 0 && propane[0].Id == "1075" && propane[0].Guide == "115", propane.FirstOrDefault()?.ToString() ?? "none");
+            Check("ERG: multi-word search", ErgData.Search("sulfuric acid").Any(m => m.Id == "1830"));
+            var chlorine = ErgData.DistancesFor("1017");
+            Check("ERG: chlorine has Table 1 distances (large spill → Table 3)", chlorine.Count == 1 && chlorine[0].Small[0] == "60 m (200 ft)" && chlorine[0].LargeUsesTable3,
+                chlorine.Count > 0 ? string.Join(", ", chlorine[0].Small.Concat(chlorine[0].Large)) : "none");
+            var h2s = ErgData.DistancesFor("1053");
+            Check("ERG: hydrogen sulfide large-spill distances", h2s.Count > 0 && h2s[0].Large.Length == 3 && h2s[0].Large[0] == "400 m (1250 ft)");
+            Check("ERG: gasoline is not highlighted", !ErgData.IsHighlighted("1203"));
+            Check("ERG: water-reactive table", ErgData.WaterReactiveFor("1360").Any(w => w.Gases == "PH3"));
+            var g128 = ErgData.Guide("128");
+            Check("ERG: guide 128 text", g128 is not null && g128.Title.Contains("Flammable Liquids") && g128.Lines.Any(l => l.Kind == 'H' && l.Text == "EMERGENCY RESPONSE") && g128.Lines.Count(l => l.Kind == 'B') > 20,
+                g128?.Title ?? "missing");
+            Check("ERG: guide 121 is intentionally blank", ErgData.Guide("121")?.IsBlank == true);
+            Check("ERG: polymerization flag", ErgData.Search("1010").All(m => m.MayPolymerize && m.GuideNumber == "116"));
+            Check("ERG: general first aid", ErgData.GeneralFirstAid.Count >= 10);
+            Check("References: every placard has a real guide", ReferencesView.Placards.All(p => ErgData.Guide(p.Guide) is { IsBlank: false }));
+        }
+        catch (Exception ex) { Check("ERG: data", false, ex.ToString()); }
+
+        foreach (var theme in new[] { AppTheme.Light, AppTheme.Dark })
+        {
+            await Step($"[{theme}] Apply theme", () => App.ApplyTheme(theme));
+            await Step($"[{theme}] Page: Safety References", () => window.GoTo("references"));
+            if (window.PageHost.Content is not ReferencesView view) { Check("References: page opens", false); continue; }
+            foreach (var (key, title, _) in ReferencesView.Tabs)
+                await Step($"[{theme}] References: {title}", () => view.Select(key));
+            await Step($"[{theme}] References: chlorine lookup with distances", () => view.Lookup("1017"));
+            await Step($"[{theme}] References: name search", () => view.Lookup("acid"));
+            await Step($"[{theme}] References: guide from a placard", () => view.OpenGuide("153"));
+            await Step($"[{theme}] References: blank guide", () => view.OpenGuide("121"));
+            await Step($"[{theme}] References: no matches", () => view.Lookup("zzzz not a chemical"));
+            await Step($"[{theme}] References: cleared search", () => view.Lookup(""));
+        }
+    }
+
     // ----- Crash Review AI -----
 
     private static Sample FakeSample(double t, CameraStep cam, params Detection[] dets) =>
@@ -577,6 +623,7 @@ public static class SelfTest
         LockChecks();
         await WebVideoChecks();
         await LockAndLocationUiChecks(window);
+        await ReferencesChecks(window);
 
         await Step("Back to Dashboard", () => window.GoTo(ModuleCatalog.Dashboard.Key));
 

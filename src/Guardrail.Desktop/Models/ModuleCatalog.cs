@@ -199,6 +199,11 @@ public static class ModuleCatalog
             Key = "ai", Title = "Crash Review AI", ToolbarLabel = "CRASH REVIEW AI", Glyph = "", IsNew = true,
             Tagline = "AI watches the video and determines who was at fault.",
         },
+        new()
+        {
+            Key = "references", Title = "Safety References", ToolbarLabel = "SAFETY REFERENCES", Glyph = "\uE82D", IsNew = true,
+            Tagline = "ERG lookup, hazmat placards, GHS and NFPA labels, rules and emergency numbers — offline.",
+        },
     ];
 
     /// <summary>How the sidebar groups the modules.</summary>
@@ -206,7 +211,7 @@ public static class ModuleCatalog
     [
         ("Overview", ["dashboard", "reports"]),
         ("Safety", ["incidents", "actions", "observations", "bbs", "risk", "audits"]),
-        ("Programs", ["permits", "loto", "sds", "moc", "training", "library"]),
+        ("Programs", ["permits", "loto", "sds", "moc", "training", "library", "references"]),
         ("Compliance", ["regulatory", "claims", "monthly"]),
         ("Fleet", ["fleet"]),
         ("Labs", ["ai"]),

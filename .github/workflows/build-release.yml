@@ -102,7 +102,7 @@ jobs:
           $data = Join-Path $env:APPDATA 'Guardrail'
           New-Item -ItemType Directory -Force $data | Out-Null
           New-Item -ItemType Directory -Force screenshots | Out-Null
-          foreach ($shot in @(@('Light', 'dashboard'), @('Dark', 'dashboard'), @('Light', 'incidents'), @('Light', 'audits'), @('Dark', 'risk'), @('Light', 'moc'), @('Light', 'reports'), @('Light', 'actions'), @('Light', 'regulatory'), @('Dark', 'claims'), @('Light', 'library'), @('Light', 'monthly'), @('Dark', 'bbs'), @('Light', 'permits'), @('Dark', 'loto'), @('Light', 'sds'), @('Dark', 'ai'), @('Dark', 'fleet'), @('Light', 'fleet-dq'), @('Light', 'fleet-vehicles'), @('Dark', 'fleet-dot'), @('Light', 'fleet-reports'))) {
+          foreach ($shot in @(@('Light', 'dashboard'), @('Dark', 'dashboard'), @('Light', 'incidents'), @('Light', 'audits'), @('Dark', 'risk'), @('Light', 'moc'), @('Light', 'reports'), @('Light', 'actions'), @('Light', 'regulatory'), @('Dark', 'claims'), @('Light', 'library'), @('Light', 'monthly'), @('Dark', 'bbs'), @('Light', 'permits'), @('Dark', 'loto'), @('Light', 'sds'), @('Dark', 'ai'), @('Dark', 'fleet'), @('Light', 'fleet-dq'), @('Light', 'fleet-vehicles'), @('Dark', 'fleet-dot'), @('Light', 'fleet-reports'), @('Light', 'references'), @('Dark', 'references/placards'), @('Light', 'references/ghs'), @('Light', 'references/workplace'))) {
             @{ Theme = $shot[0] } | ConvertTo-Json | Set-Content (Join-Path $data 'settings.json')
             $p = Start-Process dist/Guardrail.exe -ArgumentList '--page', $shot[1] -PassThru
             Start-Sleep -Seconds 8
@@ -111,7 +111,7 @@ jobs:
               $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
               $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
               [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
-              $bmp.Save("screenshots/$($shot[1])-$($shot[0]).png")
+              $bmp.Save("screenshots/$($shot[1].Replace('/', '-'))-$($shot[0]).png")
             } catch { Write-Host "Screenshot not available: $_" }
             Stop-Process -Id $p.Id -Force
             Start-Sleep -Seconds 2

@@ -205,8 +205,10 @@ public partial class AiReviewView : UserControl
                 new CrashReportDialog(review).ShowDialog();
                 break;
             case ReviewState.Failed:
-                if (MessageDialog.Confirm($"{review.Number} couldn't be analyzed", review.Error + "\n\nTry this video again?", "Try again", "Close", danger: true))
-                    CrashReviewService.Retry(review);
+                var pick = MessageDialog.Choose($"{review.Number} couldn't be analyzed", review.Error + "\n\nTry this video again, or remove it from the list?",
+                    "Try again", "Close", "Remove from list", danger: true);
+                if (pick == "Try again") CrashReviewService.Retry(review);
+                else if (pick == "Remove from list") { CrashReviewService.Delete(review); Toaster.Show($"{review.Number} removed."); }
                 break;
             default:
                 if (MessageDialog.Confirm($"{review.Number} is {(review.State == ReviewState.Analyzing ? "being analyzed" : "waiting its turn")}",
@@ -215,5 +217,46 @@ public partial class AiReviewView : UserControl
                 break;
         }
         Refresh();
+    }
+
+    private void RowMenu_Click(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true; // don't also open the report
+        if (sender is FrameworkElement { DataContext: VideoReview review } element) ShowMenu(element, review);
+    }
+
+    private void Row_RightClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        if (sender is FrameworkElement { DataContext: VideoReview review } element) ShowMenu(element, review);
+    }
+
+    /// <summary>Everything you can do with one video: open, retry, find the file, open the link, remove.</summary>
+    private void ShowMenu(FrameworkElement target, VideoReview review)
+    {
+        var menu = new ContextMenu { PlacementTarget = target, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        void Item(string glyph, string text, Action action, bool enabled = true, bool danger = false)
+        {
+            var item = new MenuItem { Header = text, IsEnabled = enabled, Icon = new TextBlock { Text = glyph, Style = (Style)FindResource("Icon"), FontSize = 13 } };
+            if (danger) item.SetResourceReference(ForegroundProperty, "Brush.Danger");
+            item.Click += (_, _) => { action(); Refresh(); };
+            menu.Items.Add(item);
+        }
+
+        if (review.IsDone) Item("\uE8A5", "Open report", () => new CrashReportDialog(review).ShowDialog());
+        if (review.State == ReviewState.Failed || review.IsDone) Item("\uE72C", review.IsDone ? "Analyze again" : "Try again", () => CrashReviewService.Retry(review));
+        Item("\uE838", "Show video in folder", () => CrashReviewService.ShowInFolder(review), review.VideoExists || review.VideoPath.Length > 0);
+        if (review.IsWeb)
+        {
+            Item("\uE774", "Open link", () =>
+            {
+                try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(review.SourceUrl) { UseShellExecute = true }); }
+                catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { Toaster.Show($"Couldn't open the link: {ex.Message}"); }
+            });
+            Item("\uE8C8", "Copy link", () => { try { Clipboard.SetText(review.SourceUrl); Toaster.Show("Link copied."); } catch { /* clipboard busy */ } });
+        }
+        menu.Items.Add(new Separator());
+        Item("\uE74D", "Remove from list", () => CrashReviewService.ConfirmAndDelete(review), danger: true);
+        menu.IsOpen = true;
     }
 }
