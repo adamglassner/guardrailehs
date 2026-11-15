@@ -127,6 +127,33 @@ public static class CrashReviewService
         Changed?.Invoke();
     }
 
+    /// <summary>Opens File Explorer with the video selected (or its folder, if the file is gone).</summary>
+    public static void ShowInFolder(VideoReview review)
+    {
+        try
+        {
+            if (File.Exists(review.VideoPath))
+                System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{review.VideoPath}\"");
+            else if (Path.GetDirectoryName(review.VideoPath) is { Length: > 0 } dir && Directory.Exists(dir))
+                System.Diagnostics.Process.Start("explorer.exe", $"\"{dir}\"");
+            else
+                Toaster.Show(review.IsWeb ? "This video hasn't been downloaded." : "The video file has been moved or deleted.");
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { Toaster.Show($"Couldn't open File Explorer: {ex.Message}"); }
+    }
+
+    /// <summary>Asks, then removes a review from the list. Downloaded copies of web videos go with it; files on this PC are never touched.</summary>
+    public static bool ConfirmAndDelete(VideoReview review)
+    {
+        string what = review.IsWeb
+            ? "The report and the downloaded copy of the video are deleted. The video online isn't affected."
+            : "The report is deleted. Your video file stays where it is.";
+        if (!Views.MessageDialog.Confirm($"Remove {review.Number}?", $"{review.VideoName}\n\n{what}", "Remove", "Keep it", danger: true)) return false;
+        Delete(review);
+        Toaster.Show($"{review.Number} removed.");
+        return true;
+    }
+
     public static int WaitingCount => DataStore.CrashReviews.Items.Count(r => r.State == ReviewState.Waiting);
 
     // ----- Watch folder -----

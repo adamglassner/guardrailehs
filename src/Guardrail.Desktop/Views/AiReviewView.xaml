@@ -180,7 +180,7 @@
                 <ItemsControl x:Name="Rows">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Button Style="{StaticResource TableRow}" Click="Row_Click" ToolTip="Open the report">
+                            <Button Style="{StaticResource TableRow}" Click="Row_Click" ToolTip="Open the report — right-click for more" MouseRightButtonUp="Row_RightClick">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="80" />
@@ -189,6 +189,7 @@
                                         <ColumnDefinition Width="190" />
                                         <ColumnDefinition Width="180" />
                                         <ColumnDefinition Width="70" />
+                                        <ColumnDefinition Width="40" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Number, Mode=OneWay}" Foreground="{DynamicResource Brush.Accent}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Text="{Binding DateText, Mode=OneWay}" VerticalAlignment="Center" Margin="0,0,8,0" TextTrimming="CharacterEllipsis" />
@@ -205,6 +206,8 @@
                                         <TextBlock Text="{Binding DisplayStatus, Mode=OneWay}" />
                                     </Border>
                                     <TextBlock Grid.Column="5" Text="{Binding ConfidenceText, Mode=OneWay}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <Button Grid.Column="6" Style="{StaticResource IconButton}" Width="32" Height="32" Content="&#xE712;" FontSize="14"
+                                            ToolTip="More: show the video in its folder, remove from the list…" Click="RowMenu_Click" HorizontalAlignment="Right" />
                                 </Grid>
                             </Button>
                         </DataTemplate>

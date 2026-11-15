@@ -56,6 +56,12 @@ public sealed class CrashReportDialog : DialogFrame
             right.Children.Insert(0, rename);
         }
         right.Children.Add(open);
+        var folder = MakeButton("Show in folder", "GhostButton", "\uE838");
+        folder.Margin = new Thickness(0, 0, 10, 0);
+        folder.ToolTip = review.VideoPath;
+        folder.IsEnabled = review.VideoExists;
+        folder.Click += (_, _) => CrashReviewService.ShowInFolder(_review);
+        right.Children.Add(folder);
         if (review.IsWeb)
         {
             var web = MakeButton("Open link", "GhostButton", "\uE774");
