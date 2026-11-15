@@ -28,7 +28,6 @@ jobs:
           $exe = Get-ChildItem tools/CrashReviewCli/bin/Release -Recurse -Filter CrashReviewCli.exe | Select-Object -First 1
           & $exe.FullName --probe (Get-ChildItem testdata/videos/03_*.mp4).FullName
       - name: Engine on test videos (with per-frame dump)
-        if: false
         shell: pwsh
         env:
           GUARDRAIL_DUMP: '1'
@@ -39,7 +38,6 @@ jobs:
           $vids = foreach ($n in $names) { Get-ChildItem "testdata/videos/$n.mp4" | ForEach-Object { $_.FullName } }
           & $exe.FullName (Join-Path $env:RUNNER_TEMP 'eval') @vids
       - name: Push dumps to branch ai-debug
-        if: false
         shell: bash
         run: |
           cd "$RUNNER_TEMP/eval"

@@ -88,7 +88,7 @@ public static class Extractor
                     using var cropped = new Mat(frame, v);
                     using var work = new Mat();
                     double scale = cropped.Cols > 960 ? 960.0 / cropped.Cols : 1.0;
-                    if (scale != 1.0) Cv2.Resize(cropped, work, new OpenCvSharp.Size((int)(cropped.Cols * scale), (int)(cropped.Rows * scale)), 0, 0, InterpolationFlags.Area);
+                    if (scale != 1.0) Cv2.Resize(cropped, work, new OpenCvSharp.Size((int)(cropped.Cols * scale), (int)(cropped.Rows * scale)), 0, 0, InterpolationFlags.Linear);
                     else cropped.CopyTo(work);
 
                     var dets = detector.Detect(work);
@@ -102,7 +102,7 @@ public static class Extractor
                     var movers = dets.Where(d => Classes.IsRoadUser(d.Kind)).Select(d => d.Box).ToList();
 
                     using var small = new Mat();
-                    Cv2.Resize(work, small, new OpenCvSharp.Size(480, Math.Max(1, (int)(480.0 * work.Rows / work.Cols))), 0, 0, InterpolationFlags.Area);
+                    Cv2.Resize(work, small, new OpenCvSharp.Size(480, Math.Max(1, (int)(480.0 * work.Rows / work.Cols))), 0, 0, InterpolationFlags.Linear);
                     Cv2.ImEncode(".jpg", small, out byte[] jpeg, new ImageEncodingParam(ImwriteFlags.JpegQuality, 82));
 
                     samples.Add(new Sample { T = t, Detections = dets, YellowLine = Scene.YellowLine(work, movers), Jpeg = jpeg });
