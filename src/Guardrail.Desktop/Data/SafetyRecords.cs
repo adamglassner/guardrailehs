@@ -65,8 +65,40 @@ public sealed class InspectionTemplate : RecordBase
     public string Description { get; set; } = "";
     public List<string> Items { get; set; } = [];
 
+    // Where this checklist applies. Empty lists = anywhere (a general checklist).
+    public List<string> Sites { get; set; } = [];
+    public List<string> Departments { get; set; } = [];
+    public List<string> Equipment { get; set; } = [];
+    /// <summary>The checklist this one was customized from, if any.</summary>
+    public string BasedOn { get; set; } = "";
+
     [JsonIgnore] public override string Prefix => "TPL";
     [JsonIgnore] public string ItemCountText => $"{Items.Count} item{(Items.Count == 1 ? "" : "s")}";
+    [JsonIgnore] public bool IsGeneral => Sites.Count == 0 && Departments.Count == 0 && Equipment.Count == 0;
+    /// <summary>"Dallas Plant · Maintenance · Forklift 3", or "All sites, departments and equipment".</summary>
+    [JsonIgnore]
+    public string ScopeText => IsGeneral ? "All sites, departments and equipment"
+        : string.Join("  ·  ", new[] { Sites, Departments, Equipment }.Where(l => l.Count > 0).Select(l => string.Join(", ", l)));
+    [JsonIgnore] public string BasedOnText => BasedOn.Length > 0 ? $"Customized from {BasedOn}" : "";
+
+    /// <summary>
+    /// How well this checklist fits an inspection at a site / department / piece of equipment:
+    /// -1 = doesn't apply; 0 = general; higher = more specific match (equipment beats department beats site).
+    /// </summary>
+    public int MatchScore(string site, string department, string equipment)
+    {
+        static bool Has(List<string> list, string value) => list.Any(x => string.Equals(x, value.Trim(), StringComparison.OrdinalIgnoreCase));
+        int score = 0;
+        if (Sites.Count > 0) { if (!Has(Sites, site)) return -1; score += 1; }
+        if (Departments.Count > 0) { if (!Has(Departments, department)) return -1; score += 2; }
+        if (Equipment.Count > 0) { if (!Has(Equipment, equipment)) return -1; score += 4; }
+        return score;
+    }
+
+    /// <summary>Splits "a, b; c" into a clean list.</summary>
+    public static List<string> ParseList(string text) =>
+        text.Split(new[] { ',', ';', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
     /// <summary>Starter checklists added the first time the Audits & Inspections page opens.</summary>
     public static List<InspectionTemplate> Starters() =>
@@ -144,6 +176,8 @@ public sealed class Inspection : RecordBase
     public string TemplateName { get; set; } = "";
     public DateTime Date { get; set; } = DateTime.Today;
     public string Location { get; set; } = "";
+    public string Department { get; set; } = "";
+    public string Equipment { get; set; } = "";
     public string Inspector { get; set; } = "";
     public List<ChecklistItem> Items { get; set; } = [];
     public bool IsComplete { get; set; }
@@ -153,6 +187,8 @@ public sealed class Inspection : RecordBase
 
     [JsonIgnore] public override string Prefix => "AUD";
     [JsonIgnore] public string DateText => Date.ToString("MMM d, yyyy");
+    /// <summary>"Dallas Plant · Maintenance · Forklift 3".</summary>
+    [JsonIgnore] public string WhereText => string.Join(" · ", new[] { Location, Department, Equipment }.Where(x => x.Length > 0));
     [JsonIgnore] public int Passed => Items.Count(i => i.Result == ChecklistItem.Pass);
     [JsonIgnore] public int Failed => Items.Count(i => i.Result == ChecklistItem.Fail);
     [JsonIgnore] public int Unanswered => Items.Count(i => i.Result.Length == 0);

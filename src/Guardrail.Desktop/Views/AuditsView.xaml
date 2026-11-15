@@ -116,7 +116,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding Number, Mode=OneWay}" Foreground="{DynamicResource Brush.Accent}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Text="{Binding DateText, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0" />
-                                    <StackPanel Grid.Column="2" Margin="0,0,12,0" VerticalAlignment="Center"><TextBlock Text="{Binding TemplateName, Mode=OneWay}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding Location, Mode=OneWay}" FontSize="11" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Visibility="{Binding Location, Converter={StaticResource NonEmptyToVis}}" /></StackPanel>
+                                    <StackPanel Grid.Column="2" Margin="0,0,12,0" VerticalAlignment="Center"><TextBlock Text="{Binding TemplateName, Mode=OneWay}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" /><TextBlock Text="{Binding WhereText, Mode=OneWay}" FontSize="11" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Visibility="{Binding WhereText, Converter={StaticResource NonEmptyToVis}}" /></StackPanel>
                                     <TextBlock Grid.Column="3" Text="{Binding Inspector, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0" />
                                     <TextBlock Grid.Column="4" Text="{Binding ScoreText, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold" />
                                     <TextBlock Grid.Column="5" Text="{Binding FindingsText, Mode=OneWay}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,8,0" />
@@ -162,10 +162,22 @@
                     <DataTemplate>
                         <Button Style="{StaticResource TableRow}" Click="Template_Click" ToolTip="Click to edit this checklist">
                             <DockPanel>
-                                <TextBlock DockPanel.Dock="Right" Text="{Binding ItemCountText, Mode=OneWay}" Style="{StaticResource Muted}" VerticalAlignment="Center" />
-                                <TextBlock Text="&#xE9D5;" Style="{StaticResource Icon}" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,10,0" />
-                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" Margin="12,0,12,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                                <Button DockPanel.Dock="Right" Style="{StaticResource SmallButton}" Click="CustomizeTemplate_Click" VerticalAlignment="Center" Margin="12,0,0,0"
+                                        ToolTip="Make a version of this checklist for a site, department or piece of equipment">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE8C8;" Style="{StaticResource Icon}" FontSize="11" Margin="0,0,5,0" />
+                                        <TextBlock Text="Customize…" />
+                                    </StackPanel>
+                                </Button>
+                                <TextBlock DockPanel.Dock="Right" Text="{Binding ItemCountText, Mode=OneWay}" Style="{StaticResource Muted}" VerticalAlignment="Center" Width="60" />
+                                <TextBlock Text="&#xE9D5;" Style="{StaticResource Icon}" Foreground="{DynamicResource Brush.Accent}" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock FontSize="11.5" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Brush.Accent}">
+                                        <Run Text="{Binding ScopeText, Mode=OneWay}" />
+                                        <Run Text="{Binding BasedOnText, Mode=OneWay}" Foreground="{DynamicResource Brush.TextMuted}" />
+                                    </TextBlock>
+                                </StackPanel>
                             </DockPanel>
                         </Button>
                     </DataTemplate>

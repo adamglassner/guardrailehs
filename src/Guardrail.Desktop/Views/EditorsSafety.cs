@@ -99,18 +99,33 @@ public static partial class Editors
 
     // ------------------------------------------------------------------ Audits & Inspections
 
-    public static InspectionTemplate? EditTemplate(InspectionTemplate? existing)
+    // Suggestions for where a checklist applies.
+    private static string[] KnownDepartments() =>
+        DataStore.Templates.Items.SelectMany(t => t.Departments).Concat(DataStore.Inspections.Items.Select(i => i.Department))
+            .Where(x => x.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x).ToArray();
+
+    private static string[] KnownEquipment() =>
+        DataStore.Templates.Items.SelectMany(t => t.Equipment).Concat(DataStore.Inspections.Items.Select(i => i.Equipment))
+            .Concat(DataStore.Loto.Items.Select(l => l.Equipment)).Concat(DataStore.Vehicles.Items.Select(v => v.UnitNumber))
+            .Where(x => x.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x).ToArray();
+
+    private static string Examples(string[] names) => names.Length == 0 ? "" : " You have: " + string.Join(", ", names.Take(8)) + (names.Length > 8 ? "…" : "") + ".";
+
+    public static InspectionTemplate? EditTemplate(InspectionTemplate? existing, InspectionTemplate? draft = null)
     {
-        var t = existing ?? new InspectionTemplate();
+        var t = existing ?? draft ?? new InspectionTemplate();
         bool isNew = existing is null;
 
         var dialog = new FormDialog(
-            isNew ? "New checklist" : $"Edit checklist: {t.Name}",
-            "One item per line. Each item is answered Pass, Fail or N/A during an inspection.",
+            isNew ? (t.BasedOn.Length > 0 ? $"Customize {t.BasedOn}" : "New checklist") : $"Edit checklist: {t.Name}",
+            "One item per line; each is answered Pass, Fail or N/A. Leave the sites, departments and equipment blank for a checklist that's used everywhere.",
             [
                 new FormField { Key = "name", Label = "Checklist name", Required = true, Value = t.Name },
                 new FormField { Key = "desc", Label = "Description", Value = t.Description },
                 new FormField { Key = "items", Label = "Items (one per line)", Kind = FieldKind.MultiLine, Required = true, Value = string.Join(Environment.NewLine, t.Items) },
+                new FormField { Key = "sites", Label = "Sites", Value = string.Join(", ", t.Sites), Hint = "Separate with commas. Blank = every site." + Examples(LocationNames.ActiveNames()) },
+                new FormField { Key = "departments", Label = "Departments", Value = string.Join(", ", t.Departments), Hint = "e.g. Maintenance, Warehouse, Shipping. Blank = every department." + Examples(KnownDepartments()) },
+                new FormField { Key = "equipment", Label = "Equipment", Value = string.Join(", ", t.Equipment), Hint = "Specific machines or units, e.g. Forklift 3, Press 12, Truck 104. Blank = any equipment." + Examples(KnownEquipment()) },
             ],
             allowDelete: !isNew,
             saveText: isNew ? "Create checklist" : "Save changes");
@@ -123,45 +138,117 @@ public static partial class Editors
             return null;
         }
 
-        t.Name = dialog.Text("name");
+        string name = dialog.Text("name");
+        if (DataStore.Templates.Items.Any(x => x != t && string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase)))
+        {
+            MessageDialog.Inform("Name already used", $"There's already a checklist called \"{name}\". Give this one a different name.");
+            return null;
+        }
+        t.Name = name;
         t.Description = dialog.Text("desc");
         t.Items = dialog.Text("items").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0).ToList();
+        t.Sites = InspectionTemplate.ParseList(dialog.Text("sites"));
+        t.Departments = InspectionTemplate.ParseList(dialog.Text("departments"));
+        t.Equipment = InspectionTemplate.ParseList(dialog.Text("equipment"));
 
         if (isNew) DataStore.Templates.Add(t); else DataStore.Templates.Update(t);
-        Toaster.Show($"Checklist \"{t.Name}\" saved ({t.ItemCountText}).");
+        Toaster.Show($"Checklist \"{t.Name}\" saved ({t.ItemCountText}{(t.IsGeneral ? "" : ", for " + t.ScopeText)}).");
         return t;
     }
 
-    /// <summary>Starts a new inspection: pick the checklist and where, then fill it in.</summary>
+    /// <summary>Makes a site / department / equipment version of a checklist: a copy you can then change freely.</summary>
+    public static InspectionTemplate? CustomizeTemplate(InspectionTemplate source)
+    {
+        var where = new FormDialog(
+            $"Customize {source.Name}",
+            "Make a version of this checklist for a particular site, department or piece of equipment. The original stays as it is.",
+            [
+                new FormField { Key = "site", Label = "For site", Value = "", Suggestions = LocationNames.ActiveNames(), Hint = "Leave blank if it isn't site-specific." },
+                new FormField { Key = "department", Label = "For department", Value = "", Suggestions = KnownDepartments() },
+                new FormField { Key = "equipment", Label = "For equipment", Value = "", Suggestions = KnownEquipment(), Hint = "A machine or unit, e.g. Forklift 3." },
+            ],
+            allowDelete: false,
+            saveText: "Next");
+        if (where.ShowDialog() != true) return null;
+        string site = where.Text("site"), dept = where.Text("department"), equip = where.Text("equipment");
+        if (site.Length + dept.Length + equip.Length == 0)
+        {
+            Toaster.Show("Pick a site, department or piece of equipment to customize it for.");
+            return null;
+        }
+        string suffix = string.Join(" · ", new[] { equip, dept, site }.Where(x => x.Length > 0));
+        var draft = new InspectionTemplate
+        {
+            Name = $"{source.Name} ({suffix})",
+            Description = source.Description,
+            Items = source.Items.ToList(),
+            Sites = site.Length > 0 ? [site] : source.Sites.ToList(),
+            Departments = dept.Length > 0 ? [dept] : source.Departments.ToList(),
+            Equipment = equip.Length > 0 ? [equip] : source.Equipment.ToList(),
+            BasedOn = source.Name,
+        };
+        return EditTemplate(null, draft);
+    }
+
+    /// <summary>
+    /// Starts a new inspection: say where (site, department, equipment), then pick from the checklists that apply,
+    /// most specific first.
+    /// </summary>
     public static void StartInspection()
     {
-        var templates = DataStore.Templates.Items.OrderBy(t => t.Name).ToList();
-        if (templates.Count == 0)
+        if (DataStore.Templates.Items.Count == 0)
         {
-            Toaster.Show("Create a checklist first (Checklists button).");
+            Toaster.Show("Create a checklist first (New checklist).");
             return;
         }
 
-        var dialog = new FormDialog(
+        var where = new FormDialog(
             "Start an inspection",
-            "Pick the checklist, then answer each item Pass, Fail or N/A.",
+            "Where is it, and what's being inspected? Guardrail then offers the checklists made for it.",
             [
-                new FormField { Key = "template", Label = "Checklist", Kind = FieldKind.Choice, Options = templates.Select(t => t.Name).ToArray(), Value = templates[0].Name },
+                new FormField { Key = "location", Label = "Site / area", Required = true },
+                new FormField { Key = "department", Label = "Department", Suggestions = KnownDepartments(), Hint = "Optional." },
+                new FormField { Key = "equipment", Label = "Equipment", Suggestions = KnownEquipment(), Hint = "Optional: a machine or unit, e.g. Forklift 3." },
                 new FormField { Key = "date", Label = "Date", Kind = FieldKind.Date, Required = true, Value = (DateTime?)DateTime.Today },
-                new FormField { Key = "location", Label = "Location / area", Required = true },
                 new FormField { Key = "inspector", Label = "Inspector" },
             ],
             allowDelete: false,
-            saveText: "Start");
-        if (dialog.ShowDialog() != true) return;
+            saveText: "Next");
+        if (where.ShowDialog() != true) return;
+        string site = where.Text("location"), dept = where.Text("department"), equip = where.Text("equipment");
 
-        var template = templates.First(t => t.Name == dialog.Text("template"));
+        var fitting = DataStore.Templates.Items
+            .Select(t => (Template: t, Score: t.MatchScore(site, dept, equip)))
+            .Where(x => x.Score >= 0)
+            .OrderByDescending(x => x.Score).ThenBy(x => x.Template.Name)
+            .Select(x => x.Template).ToList();
+        if (fitting.Count == 0)
+        {
+            MessageDialog.Inform("No checklist fits",
+                $"None of your checklists apply to {string.Join(" · ", new[] { site, dept, equip }.Where(x => x.Length > 0))}. Make a general one, or customize one for it.");
+            return;
+        }
+
+        string Label(InspectionTemplate t) => t.IsGeneral ? t.Name : $"{t.Name}  —  for {t.ScopeText}";
+        var pick = new FormDialog(
+            "Choose the checklist",
+            fitting[0].IsGeneral ? "These checklists are used everywhere." : "Checklists made for this are listed first.",
+            [
+                new FormField { Key = "template", Label = "Checklist", Kind = FieldKind.Choice, Options = fitting.Select(Label).ToArray(), Value = Label(fitting[0]) },
+            ],
+            allowDelete: false,
+            saveText: "Start");
+        if (pick.ShowDialog() != true) return;
+
+        var template = fitting.First(t => Label(t) == pick.Text("template"));
         var inspection = new Inspection
         {
             TemplateName = template.Name,
-            Date = dialog.Date("date") ?? DateTime.Today,
-            Location = dialog.Text("location"),
-            Inspector = dialog.Text("inspector"),
+            Date = where.Date("date") ?? DateTime.Today,
+            Location = site,
+            Department = dept,
+            Equipment = equip,
+            Inspector = where.Text("inspector"),
             Items = template.Items.Select(text => new ChecklistItem { Text = text }).ToList(),
         };
         DataStore.Inspections.Add(inspection);
