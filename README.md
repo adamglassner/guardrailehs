@@ -5,7 +5,7 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.7.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module and the full Fleet Hub work today and save to your PC;
+> **Status: preview (v0.8.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module, the full Fleet Hub and Crash Review AI work today and save to your PC;
 > the rest of the product is in place as "coming soon" pages. There is no server yet.
 
 ## Working now
@@ -29,6 +29,7 @@ No subscriptions, no per-employee pricing, no contracts — run it on hardware y
 | **Lockout / Tagout** | Equipment-specific energy control procedures: energy sources, isolation points, an optional procedure document or photo, and the annual periodic inspection OSHA requires (1910.147). Statuses: Current, Due soon, Overdue, Not inspected. **Inspected today** records an inspection in one click. |
 | **Safety Data Sheets** | Chemical inventory: product, manufacturer, signal word (Danger / Warning), hazards, location, quantity and the SDS file itself. **Open** shows the sheet; products without one are flagged **Missing SDS**. |
 | **Fleet Hub** | **Overview** (everything overdue or due in 30 days across the fleet), **Driver Qualification** (license, medical certificate, annual MVR review, road test, DQ file document; Qualified / Expiring soon / Expired / Incomplete), **Accident Register** (49 CFR 390.15: injuries, fatalities, tow-away, hazmat, DOT recordable, preventability, dashcam video), **Vehicle Management** (registration, annual DOT inspection, odometer, in / out of service), **DVIR Inspections** (pre- and post-trip, defects put the unit out of service until a repair is certified), **Maintenance** (PM schedules that repeat, completing an annual DOT inspection updates the vehicle), **Hours of Service** (log reviews with 11-hour and 14-hour violations flagged), **DOT Compliance Audit** (a live mock audit across all of the above with readiness %, gaps and an exportable report) and **Fleet Reporting** (driver application status, DQ file status, vehicle maintenance and renewal status, DOT accident register, DVIR defects, HOS violations, fleet roster). |
+| **Crash Review AI** | Give it dashcam or fixed-camera (CCTV) video and it works out who was most likely at fault, with no one clicking anything: videos you drop in, videos that land in a **watch folder**, and videos attached to accidents in the Accident Register (it can also fill in preventability when it's at least 70% sure). The report shows the verdict and confidence, a fault split, the collision type, the moment of impact, four key frames with the vehicles outlined, the camera vehicle's speed over time and a timeline of what the AI saw. Handles split-screen (cab + road) dashcams, bonnets and timestamp overlays, edited videos with cuts, and handheld footage. Runs entirely on your PC (see *How Crash Review AI works* below). |
 | **Dashboard** | Live, by period (this year, last 12 months, last year) and location: days since the last recordable injury and vehicle incident, incidents by type, actions open / closed / overdue, OSHA classification breakdown, recordables by location, and TRIR, DART, LTIR, lost-time and restricted days rates and the accident frequency rate (from Monthly Data hours and miles). |
 | Appearance | Light / dark mode (header toggle, or Settings → Appearance → "Match Windows"). |
 
@@ -36,10 +37,16 @@ Records are saved as JSON in `%AppData%\Guardrail\data\` (Settings → Your data
 files attached to Library documents, LOTO procedures and Safety Data Sheets are copied into `data\library\`, `data\loto\` and `data\sds\`.
 Each save writes a temp file first and keeps a `.bak` copy, so a crash can't corrupt your records.
 
-## Coming soon
+## How Crash Review AI works
 
-**Crash Review AI**: drop in accident video and AI determines who was at fault, fully automatically. Until then,
-the Accident Register keeps the video with each accident.
+1. **Find the road view.** Black bars are trimmed; split-screen recordings (cab camera + road camera side by side or stacked) are detected and the road panel is used.
+2. **Detect and track.** [YOLOX-S](https://github.com/Megvii-BaseDetection/YOLOX) (Apache-2.0, running on OpenCV's DNN module on the CPU) finds cars, trucks, buses, motorcycles, bicycles, pedestrians, traffic lights and stop signs 10 times a second; Guardrail tracks each one and reads paint colours and signal states. Things that never move with traffic (your own bonnet, the dashboard, reflections) are removed.
+3. **Measure the camera.** Optical flow over the background tells whether the camera is fixed, handheld or in a moving vehicle, how fast that vehicle is going (relative), when it brakes, steers or stops, and when it's jolted by an impact. Scene cuts in edited videos are found and each piece is analyzed on its own.
+4. **Find the collision.** An impact on the camera vehicle needs something close and closing in, a real jolt (or the picture breaking up) and the vehicle stopping; a collision between other road users needs two of them meeting at the same depth and one changing course or speed abruptly.
+5. **Apply rules of the road.** Rear-ending the vehicle ahead, cutting in, crossing the yellow centre line (right-hand traffic), red lights and stop signs, pedestrians in your path, being hit while stopped, a moving vehicle hitting a stopped one, and more. Each rule adds evidence for one side; the balance gives the verdict, fault split and confidence. Unclear cases say so.
+
+It's an estimate from the video alone (no audio, GPS, statements or police report), so results are labelled with their confidence.
+`tools/CrashReviewCli` runs the same engine from the command line. The model is downloaded by `build.ps1` and checked against its SHA-256.
 
 ## Download
 
@@ -85,6 +92,7 @@ Command-line options: `--page <module>` opens a page at startup (for example `--
 ## Project layout
 
 ```
+src/Guardrail.CrashReview/  Crash Review AI engine (OpenCV + YOLOX-S): detection, tracking, camera motion, fault rules
 src/Guardrail.Desktop/
   App.xaml(.cs)          app startup + light/dark theme switching
   MainWindow.xaml(.cs)   sidebar navigation (groups in ModuleCatalog.NavGroups), page host, toast, dialog dimming
@@ -98,6 +106,7 @@ src/Guardrail.Desktop/
 installer/GuardrailEHS.iss  Inno Setup script (+ wizard images)
 build.ps1                exe + portable zip + installer
 .github/workflows/       CI: build, self-test, installer test, screenshots, release
+tools/CrashReviewCli/    run Crash Review AI on videos from the command line
 tools/make_icon.py       regenerates the icon (Python + Pillow)
 tools/make_wizard_images.py  regenerates the installer wizard images
 ```
@@ -113,7 +122,7 @@ and a page in `Views/`.
 2. Audits & Inspections with checklists and offline capture
 3. Guardrail Server (self-hosted) with sign-in and sync
 4. Fleet Hub: driver qualification files, DVIR, maintenance
-5. Crash Review AI (local models — video never leaves your server)
+5. Crash Review AI on Guardrail Server (analyze videos uploaded from phones and dashcams)
 
 ## License
 

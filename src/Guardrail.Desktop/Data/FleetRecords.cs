@@ -272,4 +272,17 @@ public sealed class FleetAccident : RecordBase
     [JsonIgnore] public bool IsDotRecordable => Fatalities > 0 || Injuries > 0 || TowAway == "Yes";
     [JsonIgnore] public string RecordableText => IsDotRecordable ? "DOT recordable" : "Not recordable";
     [JsonIgnore] public string DisplayStatus => Preventability;
+
+    /// <summary>Latest Crash Review AI result for this accident's video, e.g. "AI: Your vehicle at fault (87%)".</summary>
+    [JsonIgnore]
+    public string AiText
+    {
+        get
+        {
+            var r = DataStore.CrashReviews.Items.Where(x => x.AccidentId == Id).OrderByDescending(x => x.Seq).FirstOrDefault();
+            if (r is null) return "";
+            if (!r.IsDone) return r.State == ReviewState.Failed ? "AI: couldn't analyze the video" : "AI: analyzing the video…";
+            return r.ConfidenceText == "—" ? $"AI: {r.DisplayStatus}" : $"AI: {r.DisplayStatus} ({r.ConfidenceText})";
+        }
+    }
 }

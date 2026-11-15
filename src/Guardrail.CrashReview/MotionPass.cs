@@ -117,6 +117,18 @@ public static class MotionPass
             s.Camera = step with { Cut = prevHist != null && Correlation(prevHist, hist) < 0.5 };
             prevHist = hist;
         }
+
+        // Jump cuts in edited videos: one frame of chaos with a steady picture on both sides
+        // (a real impact shakes the picture for several frames).
+        for (int i = 1; i < samples.Count - 1; i++)
+        {
+            var m = samples[i].Camera;
+            var around = Enumerable.Range(Math.Max(0, i - 3), Math.Min(samples.Count, i + 4) - Math.Max(0, i - 3))
+                .Where(j => j != i).Select(j => samples[j].Camera.Mag);
+            if (m.Inliers < 0.5 && samples[i - 1].Camera.Inliers > 0.85 && samples[i + 1].Camera.Inliers > 0.85
+                && m.Mag > 10 * Math.Max(CameraMotion.Median(around), 0.0003))
+                samples[i].Camera = m with { Cut = true };
+        }
         return staticFrac;
     }
 }

@@ -164,7 +164,10 @@ public static class Scene
         return best is null ? null : Math.Clamp(best.Value, -0.5, 1.5);
     }
 
-    /// <summary>Rough paint colour of a vehicle ("white", "red", …) from the middle of its box.</summary>
+    /// <summary>
+    /// Rough paint colour of a vehicle ("white", "red", …) from the middle of its box. The frame is white-balanced
+    /// first (gray world), so evening sun or a tinted windshield doesn't turn a white truck orange.
+    /// </summary>
     public static string? VehicleColor(Mat img, Box b)
     {
         int h = img.Rows, w = img.Cols;
@@ -172,8 +175,21 @@ public static class Scene
         var r = CameraMotion.Clip(new Rect((int)(x1 + (x2 - x1) * 0.25), (int)(y1 + (y2 - y1) * 0.3),
             (int)((x2 - x1) * 0.5), (int)((y2 - y1) * 0.45)), w, h);
         if (r.Width < 2 || r.Height < 2) return null;
-        var (hh, s, v) = MedianHsv(img, r);
-        if (s < 45) return v > 175 ? "white" : v > 120 ? "silver" : v > 70 ? "gray" : "black";
+        var mean = Cv2.Mean(img);
+        double gray = (mean.Val0 + mean.Val1 + mean.Val2) / 3;
+        using var roi = new Mat(img, r);
+        var px = Bytes(roi);
+        int n = px.Length / 3;
+        var bs = new double[n]; var gs = new double[n]; var rs = new double[n];
+        for (int i = 0; i < n; i++) { bs[i] = px[i * 3]; gs[i] = px[i * 3 + 1]; rs[i] = px[i * 3 + 2]; }
+        byte Bal(double v, double m) => (byte)Math.Clamp(v * gray / Math.Max(m, 1), 0, 255);
+        using var one = new Mat(1, 1, MatType.CV_8UC3, new Scalar(
+            Bal(CameraMotion.Median(bs), mean.Val0), Bal(CameraMotion.Median(gs), mean.Val1), Bal(CameraMotion.Median(rs), mean.Val2)));
+        using var hsv = new Mat();
+        Cv2.CvtColor(one, hsv, ColorConversionCodes.BGR2HSV);
+        var v3 = hsv.Get<Vec3b>(0, 0);
+        double hh = v3.Item0, s = v3.Item1, v = v3.Item2;
+        if (s < 50 || (v > 180 && s < 75)) return v > 175 ? "white" : v > 120 ? "silver" : v > 70 ? "gray" : "black";
         if (v < 50) return "black";
         if (hh < 8 || hh > 170) return "red";
         if (hh < 22) return "orange";
@@ -206,17 +222,5 @@ public static class Scene
         int m = Math.Max(red, Math.Max(yel, grn));
         if (bright < 4 || m < 4) return null;
         return m == red ? "red" : m == yel ? "yellow" : "green";
-    }
-
-    private static (double H, double S, double V) MedianHsv(Mat img, Rect r)
-    {
-        using var roi = new Mat(img, r);
-        using var hsv = new Mat();
-        Cv2.CvtColor(roi, hsv, ColorConversionCodes.BGR2HSV);
-        var px = Bytes(hsv);
-        int n = px.Length / 3;
-        var hs = new double[n]; var ss = new double[n]; var vs = new double[n];
-        for (int i = 0; i < n; i++) { hs[i] = px[i * 3]; ss[i] = px[i * 3 + 1]; vs[i] = px[i * 3 + 2]; }
-        return (CameraMotion.Median(hs), CameraMotion.Median(ss), CameraMotion.Median(vs));
     }
 }
