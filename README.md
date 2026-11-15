@@ -5,7 +5,7 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.9.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module, the full Fleet Hub and Crash Review AI work today and save to your PC;
+> **Status: preview (v0.10.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module, the full Fleet Hub and Crash Review AI work today and save to your PC;
 > the rest of the product is in place as "coming soon" pages. There is no server yet.
 
 ## Working now
@@ -13,7 +13,7 @@ No subscriptions, no per-employee pricing, no contracts — run it on hardware y
 | Module | What you can do |
 | --- | --- |
 | **Incidents** | Report injuries and illnesses, environmental releases, property damage, motor vehicle incidents, operational liabilities and near misses. OSHA classification (first aid, medical treatment, restricted / transfer, days away, fatality), injury type, body part, days away and restricted, DOT recordable, root cause. Recordable, DART and lost-time cases are worked out for you. **Create action** opens a linked corrective action. |
-| **Audits & Inspections** | Checklists (three starters included: monthly workplace inspection, forklift pre-use, fire extinguisher monthly; add your own). Answer each item Pass / Fail / N/A with notes, save for later or complete. Scores ignore N/A. **Create actions** makes one action per failed item. |
+| **Audits & Inspections** | Checklists (three starters included: monthly workplace inspection, forklift pre-use, fire extinguisher monthly; add your own). Checklists can apply to specific sites, departments or equipment, and **Customize…** makes a version of any checklist for one of them; starting an inspection asks where first and offers the checklists made for it. Answer each item Pass / Fail / N/A with notes, save for later or complete. Scores ignore N/A. **Create actions** makes one action per failed item. |
 | **Risk Assessment** | Task and hazard rated on a 5 × 5 likelihood × severity matrix before and after controls (1–4 Low, 5–9 Medium, 10–14 High, 15–25 Extreme), with a live heat map and review dates. |
 | **Management of Change** | Process, equipment, material, people, procedure and facility changes: Requested → Under review → Approved → Implemented → Closed (or Rejected). Approval needs a risk assessment; temporary changes are flagged when their end date passes. |
 | **Reports** | OSHA 300 log, OSHA 300A summary, incident rates by month, incidents by type and location, overdue actions, inspection findings, training expiring, compliance due, LOTO inspections due, products missing an SDS, open claims. Preview any report and export it to CSV. |
