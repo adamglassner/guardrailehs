@@ -124,6 +124,14 @@ public static class Reasoner
                 double post = Median(k => ts[k] >= t + 0.8 && ts[k] <= t + 3.0, speed);
                 bool stops = !double.IsNaN(pre) && !double.IsNaN(post) && post < 0.4 * Math.Max(pre, 1e-6) && pre > 0.15 * Math.Max(cruise, 1e-6);
                 bool breakup = inl[i] < 0.3 && npts[i] >= 10;
+                if (breakup)
+                {
+                    // A two-frame glitch (the picture recovers and the car carries on at the same speed) isn't an impact.
+                    bool recovers = Enumerable.Range(i + 1, Math.Max(0, Math.Min(n, i + 3) - i - 1)).Any(j => inl[j] >= 0.75);
+                    double mb = Median(k => ts[k] >= t - 0.6 && ts[k] <= t - 0.2, mag), ma = Median(k => ts[k] >= t + 0.2 && ts[k] <= t + 0.6, mag);
+                    if (recovers && !double.IsNaN(mb) && !double.IsNaN(ma) && mb > 0.0005 && ma / Math.Max(mb, 1e-9) is >= 0.67 and <= 1.5)
+                        breakup = false;
+                }
                 bool wasStopped = !double.IsNaN(pre) && pre < Math.Max(0.0003, 0.1 * cruise);
                 bool impact = jolt[i] / joltBase >= 2.0 || breakup;
                 bool confirm = impact && (stops || breakup || (wasStopped && jz[i] > 8));
