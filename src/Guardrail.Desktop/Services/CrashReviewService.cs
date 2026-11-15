@@ -52,13 +52,62 @@ public static class CrashReviewService
         var review = new VideoReview
         {
             VideoPath = info.FullName, VideoSize = info.Length, VideoModified = info.LastWriteTimeUtc,
-            Source = source, AccidentId = accidentId,
+            Source = source, AccidentId = accidentId, CameraName = GuessCameraName(info.Name, accidentId),
         };
         DataStore.CrashReviews.Add(review);
         Signal.Release();
         Changed?.Invoke();
         return review;
     }
+
+    /// <summary>
+    /// Names the camera vehicle when it can be told: the unit on the linked accident, or a fleet unit number
+    /// that appears in the file name (dashcams often name files after the truck).
+    /// </summary>
+    public static string GuessCameraName(string fileName, Guid? accidentId)
+    {
+        if (accidentId is { } id && DataStore.FleetAccidents.Items.FirstOrDefault(a => a.Id == id) is { UnitNumber.Length: > 0 } acc)
+            return VideoReview.NameForUnit(acc.UnitNumber);
+        string name = Path.GetFileNameWithoutExtension(fileName);
+        var match = DataStore.Vehicles.Items
+            .Where(v => v.UnitNumber.Trim().Length >= 2)
+            .OrderByDescending(v => v.UnitNumber.Length)
+            .FirstOrDefault(v => System.Text.RegularExpressions.Regex.IsMatch(name,
+                $@"(?<![A-Za-z0-9]){System.Text.RegularExpressions.Regex.Escape(v.UnitNumber.Trim())}(?![A-Za-z0-9])",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase));
+        return match is null ? "" : VideoReview.NameForUnit(match.UnitNumber.Trim());
+    }
+
+    /// <summary>Renames the camera vehicle on a review.</summary>
+    public static void SetCameraName(VideoReview review, string name)
+    {
+        review.CameraName = name.Trim();
+        DataStore.CrashReviews.Update(review);
+        Changed?.Invoke();
+    }
+
+    /// <summary>Queues a web link: the video is downloaded, kept with the review, then analyzed. Call on the UI thread.</summary>
+    public static VideoReview? AddUrl(string url, string source = "Web link")
+    {
+        if (!WebVideo.LooksLikeUrl(url)) return null;
+        var review = new VideoReview { SourceUrl = url.Trim(), Source = $"{source} · {new Uri(url.Trim()).Host.Replace("www.", "")}" };
+        DataStore.CrashReviews.Add(review);
+        Signal.Release();
+        Changed?.Invoke();
+        return review;
+    }
+
+    /// <summary>Asked (once) before yt-dlp is downloaded. Runs on the UI thread.</summary>
+    private static bool MayGetYtDlp() => OnUi(() =>
+    {
+        if (App.Settings.AllowYtDlp) return true;
+        bool ok = Views.MessageDialog.Confirm("Download yt-dlp?",
+            "This link is on a site like YouTube, Facebook or Vimeo. Guardrail uses yt-dlp, a free open-source downloader, to get the video. " +
+            "It's downloaded once (about 18 MB) from yt-dlp's official GitHub releases and checked before use.\n\n" +
+            "Only analyze videos you have the right to use.", "Download yt-dlp", "Not now");
+        if (ok) { App.Settings.AllowYtDlp = true; App.Settings.Save(); }
+        return ok;
+    });
 
     public static void Retry(VideoReview review)
     {
@@ -166,7 +215,7 @@ public static class CrashReviewService
         var accident = DataStore.FleetAccidents.Items.FirstOrDefault(a => a.Id == id);
         if (accident is null || accident.Notes.Contains(review.Number)) return;
 
-        string line = $"Crash Review AI ({review.Number}): {rep.Headline}";
+        string line = $"Crash Review AI ({review.Number}): {review.Describe(rep.Headline)}";
         if (rep.Verdict != Verdicts.NoCollision) line += $" ({rep.Confidence}% confidence)";
         line += ".";
         if (App.Settings.CrashSetPreventability && accident.Preventability == FleetStatus.PendingReview && rep.Confidence >= 70)
@@ -213,7 +262,6 @@ public static class CrashReviewService
 
                 try
                 {
-                    if (!File.Exists(next.VideoPath)) throw new FileNotFoundException("The video file has been moved or deleted.");
                     var lastUi = DateTime.MinValue;
                     var progress = new InlineProgress<(string Stage, double Fraction)>(p =>
                     {
@@ -223,6 +271,19 @@ public static class CrashReviewService
                         lastUi = DateTime.UtcNow;
                         OnUiAsync(() => Changed?.Invoke());
                     });
+                    if (next.IsWeb && (next.VideoPath.Length == 0 || !File.Exists(next.VideoPath)))
+                    {
+                        string path = WebVideo.DownloadAsync(next.SourceUrl, next.Folder, progress, MayGetYtDlp, _cancel.Token).GetAwaiter().GetResult();
+                        var info = new FileInfo(path);
+                        OnUi(() =>
+                        {
+                            next.VideoPath = path;
+                            next.VideoSize = info.Length;
+                            next.VideoModified = info.LastWriteTimeUtc;
+                            if (DataStore.CrashReviews.Items.Contains(next)) DataStore.CrashReviews.Update(next);
+                        });
+                    }
+                    if (!File.Exists(next.VideoPath)) throw new FileNotFoundException("The video file has been moved or deleted.");
                     var report = CrashAnalyzer.Analyze(next.VideoPath, next.Folder, progress, _cancel.Token);
                     foreach (var key in report.KeyFrames) DataLock.ProtectFile(Path.Combine(next.Folder, key.FileName));
                     OnUi(() =>
@@ -237,7 +298,7 @@ public static class CrashReviewService
                         Changed?.Invoke();
                         Toaster.Show(report.Verdict == Verdicts.NoCollision
                             ? $"{next.Number}: no collision found in {next.VideoName}."
-                            : $"{next.Number}: {report.Headline} ({report.Confidence}% confidence).");
+                            : $"{next.Number}: {next.Describe(report.Headline)} ({report.Confidence}% confidence).");
                     });
                 }
                 catch (OperationCanceledException)
@@ -263,6 +324,7 @@ public static class CrashReviewService
     private static string Friendly(Exception ex) => ex switch
     {
         FileNotFoundException => "The video file has been moved or deleted.",
+        System.Net.Http.HttpRequestException h => $"Couldn't reach that link: {h.Message}",
         InvalidDataException => ex.Message,
         OutOfMemoryException => "The computer ran out of memory on this video.",
         DllNotFoundException or TypeInitializationException => "The video engine couldn't start on this PC.",

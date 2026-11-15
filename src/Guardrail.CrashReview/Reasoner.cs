@@ -193,7 +193,7 @@ public static class Reasoner
             report.Headline = "No collision found";
             report.Summary = isFixed
                 ? "The AI followed every road user in view and didn't see two of them collide."
-                : "The AI didn't see your vehicle hit anything or get hit, and didn't see other road users collide.";
+                : "The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.";
             return ((report, plan), 0);
         }
         // Our own vehicle's first contact matters most for fault; otherwise take the clearest collision.
@@ -209,12 +209,12 @@ public static class Reasoner
         if (hit.Kind is "ego_front" or "ego_unseen")
         {
             var tr = hit.Other;
-            report.Parties = ["your vehicle", tr?.Name ?? "the other party"];
+            report.Parties = ["camera vehicle", tr?.Name ?? "the other party"];
             double vBefore = SpeedBetween(tImp - 2.5, tImp - 1.0), vLast = SpeedBetween(tImp - 0.8, tImp - 0.1);
             bool stopped = vBefore < Math.Max(0.0003, 0.1 * cruise);
             bool braking = !stopped && vLast < 0.6 * vBefore;
-            if (stopped) { notes.Add(tImp - 1.5, "Your vehicle was stopped or barely moving before the impact.", key: true); faultSecond += 0.8; }
-            else if (braking) notes.Add(tImp - 0.8, "Your vehicle slowed sharply just before the impact (braking).");
+            if (stopped) { notes.Add(tImp - 1.5, "The camera vehicle was stopped or barely moving before the impact.", key: true); faultSecond += 0.8; }
+            else if (braking) notes.Add(tImp - 0.8, "The camera vehicle slowed sharply just before the impact (braking).");
 
             if (tr is null)
             {
@@ -256,8 +256,8 @@ public static class Reasoner
                 if (crossedCenter && tr.Kind is Kind.Vehicle or Kind.TwoWheeler)
                 {
                     report.CollisionType = "Head-on (crossed the centre line)";
-                    if (ylEarly is not null) notes.Add(tImp - 3.0, "The yellow centre line was on your left, where it belongs.");
-                    notes.Add(tImp - 1.0, "Your vehicle drifted across the yellow centre line into the oncoming lane" + (drift > 0.02 ? " (steering left)" : "") + ".", key: true);
+                    if (ylEarly is not null) notes.Add(tImp - 3.0, "The yellow centre line was on the camera vehicle's left, where it belongs.");
+                    notes.Add(tImp - 1.0, "The camera vehicle drifted across the yellow centre line into the oncoming lane" + (drift > 0.02 ? " (steering left)" : "") + ".", key: true);
                     notes.Add(tImp, $"It collided head-on with the oncoming {tr.Name}.");
                     faultFirst += 0.95;
                 }
@@ -266,12 +266,12 @@ public static class Reasoner
                     report.CollisionType = "Pedestrian struck";
                     if (enteredFrom != null && inPath.Count > 0 && tImp - inPath[0] < 1.2)
                     {
-                        notes.Add(inPath[0], $"The pedestrian stepped into your path from the {enteredFrom} {tImp - inPath[0]:0.0} s before impact.", key: true);
+                        notes.Add(inPath[0], $"The pedestrian stepped into the camera vehicle's path from the {enteredFrom} {tImp - inPath[0]:0.0} s before impact.", key: true);
                         faultFirst += 0.3; faultSecond += 0.4;
                     }
                     else
                     {
-                        notes.Add(tImp - Math.Min(timeInPath, 4), $"The pedestrian was in your path for at least {Math.Min(timeInPath, 4):0.0} s before your vehicle struck them.", key: true);
+                        notes.Add(tImp - Math.Min(timeInPath, 4), $"The pedestrian was in the camera vehicle's path for at least {Math.Min(timeInPath, 4):0.0} s before the camera vehicle struck them.", key: true);
                         faultFirst += 0.7;
                     }
                 }
@@ -279,37 +279,37 @@ public static class Reasoner
                 {
                     report.CollisionType = "Crossing paths (intersection / angle)";
                     string side = enteredFrom ?? (lat > 0 ? "left" : "right");
-                    notes.Add(tImp - 1.0, $"The {tr.Name} crossed your path from the {side}.", key: true);
+                    notes.Add(tImp - 1.0, $"The {tr.Name} crossed the camera vehicle's path from the {side}.", key: true);
                     string? light = LightState(S, tImp - 4, tImp - 0.5);
-                    if (light == "red") { notes.Add(tImp - 2.0, "The traffic light ahead of your vehicle was red.", key: true); faultFirst += 0.8; }
-                    else if (light == "green") { notes.Add(tImp - 2.0, "The traffic light ahead of your vehicle was green.", key: true); faultSecond += 0.7; }
+                    if (light == "red") { notes.Add(tImp - 2.0, "The traffic light ahead of the camera vehicle was red.", key: true); faultFirst += 0.8; }
+                    else if (light == "green") { notes.Add(tImp - 2.0, "The traffic light ahead of the camera vehicle was green.", key: true); faultSecond += 0.7; }
                     else if (StopSignSeen(S, tImp - 5, tImp - 0.5) && !stopped && SpeedBetween(tImp - 4, tImp - 0.5) >= 0.3 * cruise)
-                    { notes.Add(tImp - 2.0, "A stop sign was visible ahead and your vehicle didn't come to a stop.", key: true); faultFirst += 0.6; }
+                    { notes.Add(tImp - 2.0, "A stop sign was visible ahead and the camera vehicle didn't come to a stop.", key: true); faultFirst += 0.6; }
                     else notes.Add(tImp - 1.0, "No traffic light or stop sign could be read, so right of way is unclear.");
                 }
                 else if (enteredFrom != null && timeInPath < 2.5)
                 {
                     report.CollisionType = "Lane change / cut-in";
-                    notes.Add(inPath[0], $"The {tr.Name} moved into your lane from the {enteredFrom} only {timeInPath:0.0} s before impact.", key: true);
+                    notes.Add(inPath[0], $"The {tr.Name} moved into the camera vehicle's lane from the {enteredFrom} only {timeInPath:0.0} s before impact.", key: true);
                     faultSecond += 0.75;
-                    if (timeInPath > 1.6 && !braking) { notes.Add(tImp - 0.5, "Your vehicle didn't visibly slow down after it moved in."); faultFirst += 0.2; }
+                    if (timeInPath > 1.6 && !braking) { notes.Add(tImp - 0.5, "The camera vehicle didn't visibly slow down after it moved in."); faultFirst += 0.2; }
                 }
                 else
                 {
                     report.CollisionType = "Rear-end";
                     double shown = Math.Min(Math.Min(timeInPath, seenFor), 4);
-                    notes.Add(tImp - Math.Min(timeInPath, 4), $"The {tr.Name} was ahead of you, in your lane, for {shown:0.0}+ s before the impact.");
+                    notes.Add(tImp - Math.Min(timeInPath, 4), $"The {tr.Name} was ahead of the camera vehicle, in its lane, for {shown:0.0}+ s before the impact.");
                     double? gLate = GrowthRate(tr, tImp - 1.0, tImp), gEarly = GrowthRate(tr, tImp - 3.0, tImp - 1.2);
                     if (!stopped)
                     {
-                        notes.Add(tImp - 0.5, "Your vehicle closed in on it and struck it from behind.", key: true);
+                        notes.Add(tImp - 0.5, "The camera vehicle closed in on it and struck it from behind.", key: true);
                         faultFirst += 0.75;
                         if (gEarly is not null && gLate is not null && gLate > 3 * Math.Max(gEarly.Value, 0.05))
                         { notes.Add(tImp - 1.0, "The vehicle ahead slowed suddenly; the gap closed quickly."); faultFirst -= 0.15; }
                     }
                     else
                     {
-                        notes.Add(tImp, "The vehicle ahead backed or rolled into your stopped vehicle.", key: true);
+                        notes.Add(tImp, "The vehicle ahead backed or rolled into the camera vehicle while it was stopped.", key: true);
                         faultSecond += 0.4;
                     }
                 }
@@ -388,7 +388,7 @@ public static class Reasoner
         report.FaultShares = [first, 100 - first];
         report.Headline = report.Verdict switch
         {
-            Verdicts.Camera => "Your vehicle was most likely at fault",
+            Verdicts.Camera => "The camera vehicle was most likely at fault",
             Verdicts.Other => hit.Other is { } o ? $"The {o.Name} was most likely at fault" : "The other party was most likely at fault",
             Verdicts.A => $"The {report.Parties[0]} was most likely at fault",
             Verdicts.B => $"The {report.Parties[1]} was most likely at fault",

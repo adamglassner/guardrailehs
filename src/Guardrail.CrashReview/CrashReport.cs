@@ -24,7 +24,7 @@ public sealed class CrashReport
     public string Verdict { get; set; } = Verdicts.NoCollision;
     /// <summary>0–100.</summary>
     public int Confidence { get; set; }
-    /// <summary>One line, e.g. "Your vehicle was most likely at fault".</summary>
+    /// <summary>One line, e.g. "The camera vehicle was most likely at fault".</summary>
     public string Headline { get; set; } = "";
     /// <summary>A sentence or two explaining the call.</summary>
     public string Summary { get; set; } = "";
@@ -35,7 +35,7 @@ public sealed class CrashReport
     public bool SplitScreen { get; set; }
     public double? ImpactSeconds { get; set; }
     public double DurationSeconds { get; set; }
-    /// <summary>Display names: [your vehicle or A, other party or B].</summary>
+    /// <summary>Display names: [camera vehicle or A, other party or B].</summary>
     public List<string> Parties { get; set; } = [];
     /// <summary>Fault share for each party in <see cref="Parties"/>, summing to 100 (empty when no collision).</summary>
     public List<int> FaultShares { get; set; } = [];

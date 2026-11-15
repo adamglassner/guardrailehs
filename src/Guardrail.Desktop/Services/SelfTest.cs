@@ -51,6 +51,76 @@ public static class SelfTest
         }
     }
 
+    // ----- Web links for Crash Review -----
+
+    private static async Task WebVideoChecks()
+    {
+        var named = new VideoReview { CameraName = "Unit 104" };
+        Check("Crash AI: camera vehicle named in the report",
+            named.Describe("The camera vehicle drifted across the yellow centre line.") == "Unit 104 drifted across the yellow centre line."
+            && named.Describe("The white car moved into the camera vehicle's lane.") == "The white car moved into Unit 104's lane."
+            && named.Describe("camera vehicle") == "Unit 104");
+        Check("Crash AI: no \"you\" wording, even in older reports",
+            new VideoReview().Describe("The black car was ahead of you, in your lane, for 3.0+ s.") == "The black car was ahead of the camera vehicle, in its lane, for 3.0+ s."
+            && new VideoReview().Describe("Your vehicle was most likely at fault") == "The camera vehicle was most likely at fault"
+            && named.Describe("Your vehicle crossed your path.") == "Unit 104 crossed Unit 104's path.");
+        Check("Crash AI: unit numbers become names", VideoReview.NameForUnit("104") == "Unit 104" && VideoReview.NameForUnit("Truck 12") == "Truck 12");
+
+        Check("Web: links recognized", WebVideo.LooksLikeUrl("https://youtu.be/abc") && !WebVideo.LooksLikeUrl("C:\\videos\\a.mp4") && !WebVideo.LooksLikeUrl("hello"));
+        Check("Web: Dropbox share link becomes a download", WebVideo.Normalize("https://www.dropbox.com/s/abc/crash.mp4?dl=0").Contains("dl=1"));
+        Check("Web: Google Drive share link becomes a download",
+            WebVideo.Normalize("https://drive.google.com/file/d/1AbC_dEf/view?usp=sharing") == "https://drive.google.com/uc?export=download&id=1AbC_dEf");
+        Check("Web: OneDrive link becomes a download", WebVideo.Normalize("https://1drv.ms/v/s!Abc123").EndsWith("download=1"));
+        Check("Web: video found inside a page",
+            WebVideo.FindVideoInHtml("<html><head><meta property=\"og:video\" content=\"/clips/crash.mp4\"></head></html>", new Uri("https://portal.example.com/share/9")) == "https://portal.example.com/clips/crash.mp4"
+            && WebVideo.FindVideoInHtml("<video controls src=\"https://cdn.example.com/a.webm\"></video>", new Uri("https://x.example.com/")) == "https://cdn.example.com/a.webm"
+            && WebVideo.FindVideoInHtml("<p>no video</p>", new Uri("https://x.example.com/")) is null);
+        Check("Web: friendly names", WebVideo.DisplayName("https://www.youtube.com/watch?v=abc123") == "youtube.com · v=abc123");
+
+        // Real downloads from a tiny local web server: a direct video link and a page with the video in it.
+        var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+        listener.Start();
+        int port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
+        var payload = Enumerable.Range(0, 300_000).Select(i => (byte)(i % 251)).ToArray();
+        using var stop = new CancellationTokenSource();
+        var server = Task.Run(async () =>
+        {
+            while (!stop.IsCancellationRequested)
+            {
+                System.Net.Sockets.TcpClient client;
+                try { client = await listener.AcceptTcpClientAsync(stop.Token); } catch { break; }
+                using (client)
+                {
+                    var stream = client.GetStream();
+                    var reader = new StreamReader(stream, leaveOpen: true);
+                    string first = await reader.ReadLineAsync() ?? "";
+                    while (!string.IsNullOrEmpty(await reader.ReadLineAsync())) { }
+                    bool page = first.Contains("/page");
+                    byte[] body = page ? System.Text.Encoding.UTF8.GetBytes("<html><video src=\"/clip.mp4\"></video></html>") : payload;
+                    string head = $"HTTP/1.1 200 OK\r\nContent-Type: {(page ? "text/html" : "video/mp4")}\r\nContent-Length: {body.Length}\r\nConnection: close\r\n\r\n";
+                    await stream.WriteAsync(System.Text.Encoding.ASCII.GetBytes(head));
+                    await stream.WriteAsync(body);
+                }
+            }
+        });
+        string dir = Path.Combine(Path.GetTempPath(), "guardrail-web-selftest-" + Guid.NewGuid().ToString("N")[..8]);
+        try
+        {
+            string direct = await WebVideo.DownloadAsync($"http://127.0.0.1:{port}/clip.mp4", Path.Combine(dir, "a"), null, () => false, CancellationToken.None);
+            Check("Web: direct video link downloads", File.ReadAllBytes(direct).SequenceEqual(payload), direct);
+            string fromPage = await WebVideo.DownloadAsync($"http://127.0.0.1:{port}/page", Path.Combine(dir, "b"), null, () => false, CancellationToken.None);
+            Check("Web: video inside a page downloads", File.ReadAllBytes(fromPage).SequenceEqual(payload), fromPage);
+        }
+        catch (Exception ex) { Check("Web: downloads from a link", false, ex.ToString()); }
+        finally
+        {
+            stop.Cancel();
+            listener.Stop();
+            try { await server; } catch { /* stopped */ }
+            try { Directory.Delete(dir, true); } catch { /* ignore */ }
+        }
+    }
+
     // ----- PIN / password protection -----
 
     /// <summary>Encryption end to end in a temporary folder (never the real data).</summary>
@@ -216,11 +286,11 @@ public static class SelfTest
                 VideoPath = @"C:\videos\dashcam.mp4", State = ReviewState.Done, AnalyzedAt = DateTime.Now,
                 Report = new CrashReport
                 {
-                    Verdict = Verdicts.Camera, Confidence = 87, Headline = "Your vehicle was most likely at fault",
-                    Summary = "Your vehicle drifted across the yellow centre line into the oncoming lane.",
+                    Verdict = Verdicts.Camera, Confidence = 87, Headline = "The camera vehicle was most likely at fault",
+                    Summary = "The camera vehicle drifted across the yellow centre line into the oncoming lane.",
                     CollisionType = "Head-on (crossed the centre line)", CameraKind = "Dashcam (moving)", SplitScreen = true,
-                    ImpactSeconds = 8.5, DurationSeconds = 21, Parties = ["your vehicle", "white truck"], FaultShares = [94, 6],
-                    Findings = [new(5.5, "The yellow centre line was on your left."), new(7.5, "Your vehicle drifted across it."), new(8.5, "Head-on.")],
+                    ImpactSeconds = 8.5, DurationSeconds = 21, Parties = ["camera vehicle", "white truck"], FaultShares = [94, 6],
+                    Findings = [new(5.5, "The yellow centre line was on the camera vehicle's left."), new(7.5, "The camera vehicle drifted across it."), new(8.5, "Head-on.")],
                     KeyFrames = [new(6.5, "key1.jpg", "2 seconds before"), new(8.5, "key3.jpg", "Impact")],
                     SpeedTrace = Enumerable.Range(0, 100).Select(i => 3.0 + Math.Sin(i / 9.0)).ToList(), TraceStepSeconds = 0.2,
                 },
@@ -505,6 +575,7 @@ public static class SelfTest
 
         await CrashAiChecks();
         LockChecks();
+        await WebVideoChecks();
         await LockAndLocationUiChecks(window);
 
         await Step("Back to Dashboard", () => window.GoTo(ModuleCatalog.Dashboard.Key));

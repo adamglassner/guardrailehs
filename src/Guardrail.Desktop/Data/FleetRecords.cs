@@ -273,7 +273,7 @@ public sealed class FleetAccident : RecordBase
     [JsonIgnore] public string RecordableText => IsDotRecordable ? "DOT recordable" : "Not recordable";
     [JsonIgnore] public string DisplayStatus => Preventability;
 
-    /// <summary>Latest Crash Review AI result for this accident's video, e.g. "AI: Your vehicle at fault (87%)".</summary>
+    /// <summary>Latest Crash Review AI result for this accident's video, e.g. "AI: Camera vehicle at fault (87%)".</summary>
     [JsonIgnore]
     public string AiText
     {
