@@ -43,6 +43,7 @@ public partial class MainWindow : Window
         Loaded += async (_, _) =>
         {
             _dataTimer.Start();
+            if (!SelfTest.IsRunning) CrashReviewService.Start();
             if (App.StartPage == "settings") ShowSettings();
             else GoTo(App.StartPage ?? ModuleCatalog.Dashboard.Key);
 

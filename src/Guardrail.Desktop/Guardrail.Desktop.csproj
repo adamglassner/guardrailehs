@@ -28,6 +28,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Guardrail.CrashReview\Guardrail.CrashReview.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Assets\guardrail.ico" />
     <Resource Include="Assets\guardrail.png" />
   </ItemGroup>

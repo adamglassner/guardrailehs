@@ -3,153 +3,202 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel>
         <!-- Title -->
-        <Grid Margin="0,0,0,18">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <DockPanel Margin="0,0,0,18">
+            <Button DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}" Click="Choose_Click" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE710;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                    <TextBlock Text="Analyze videos" />
+                </StackPanel>
+            </Button>
             <Border Width="56" Height="56" CornerRadius="16" Margin="0,0,14,0" Background="{DynamicResource Brush.SurfaceWarm}"
                     BorderBrush="{DynamicResource Brush.BorderWarm}" BorderThickness="1">
                 <TextBlock Text="&#xE99A;" Style="{StaticResource Icon}" FontSize="24" HorizontalAlignment="Center"
                            Foreground="{DynamicResource Brush.Warm}" />
             </Border>
-            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <StackPanel VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Crash Review AI" Style="{StaticResource PageTitle}" />
-                    <Border Style="{StaticResource SoonPill}" Margin="12,0,6,0" Background="{DynamicResource Brush.Warm}">
+                    <Border Style="{StaticResource SoonPill}" Margin="12,0,0,0" Background="{DynamicResource Brush.Warm}" BorderBrush="{DynamicResource Brush.Warm}">
                         <TextBlock Text="NEW" Style="{StaticResource PillText}" Foreground="White" />
                     </Border>
-                    <Border Style="{StaticResource SoonPill}">
-                        <TextBlock Text="COMING SOON" Style="{StaticResource PillText}" />
-                    </Border>
                 </StackPanel>
-                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0"
-                           Text="Drop in dashcam, CCTV, body-cam or phone video. AI watches the footage and determines who was at fault — automatically, no human input required." />
+                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0" TextWrapping="Wrap"
+                           Text="Give it dashcam or CCTV video. The AI finds the collision, follows every vehicle and works out who was most likely at fault — automatically, on this PC." />
             </StackPanel>
-        </Grid>
+        </DockPanel>
 
-        <Grid>
+        <Grid Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.25*" />
-                <ColumnDefinition Width="18" />
+                <ColumnDefinition Width="1.35*" />
+                <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- ===== Left: upload + example output ===== -->
-            <StackPanel>
-                <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,16">
-                    <Grid x:Name="DropZone" AllowDrop="True" Drop="DropZone_Drop" DragOver="DropZone_DragOver"
-                          Background="Transparent" MinHeight="250">
-                        <Rectangle Margin="14" RadiusX="8" RadiusY="8" StrokeThickness="2" StrokeDashArray="5 4"
+            <!-- Drop zone + what's running now -->
+            <Border Style="{StaticResource Card}" Padding="0">
+                <StackPanel>
+                    <Grid x:Name="DropZone" AllowDrop="True" Drop="DropZone_Drop" DragOver="DropZone_DragOver" DragLeave="DropZone_DragLeave"
+                          Background="Transparent" MinHeight="200">
+                        <Rectangle x:Name="DropOutline" Margin="14" RadiusX="12" RadiusY="12" StrokeThickness="2" StrokeDashArray="5 4"
                                    Stroke="{DynamicResource Brush.Border}" />
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="30">
-                            <TextBlock Text="&#xE714;" Style="{StaticResource Icon}" FontSize="40" HorizontalAlignment="Center"
-                                       Foreground="{DynamicResource Brush.Accent}" />
-                            <TextBlock Text="Drop accident video here" FontSize="17" FontWeight="SemiBold"
+                            <Border Width="54" Height="54" CornerRadius="27" Background="{DynamicResource Brush.AccentSoft}" HorizontalAlignment="Center">
+                                <TextBlock Text="&#xE714;" Style="{StaticResource Icon}" FontSize="24" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource Brush.Accent}" />
+                            </Border>
+                            <TextBlock Text="Drop accident videos here" FontSize="17" FontWeight="SemiBold" FontFamily="{StaticResource DisplayFont}"
                                        HorizontalAlignment="Center" Margin="0,12,0,4" />
-                            <TextBlock Text="MP4, MOV, AVI or MKV · dashcam, CCTV, body-cam, phone" Style="{StaticResource Muted}"
-                                       HorizontalAlignment="Center" />
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                                <Button Style="{StaticResource PrimaryButton}" Click="Soon_Click" Tag="Video upload" Margin="0,0,8,0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="&#xE898;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
-                                        <TextBlock Text="Browse for video…" />
-                                    </StackPanel>
-                                </Button>
-                                <Button Style="{StaticResource GhostButton}" Click="Soon_Click" Tag="Linking video to an existing accident">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="&#xE71B;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
-                                        <TextBlock Text="Attach to accident…" />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
+                            <TextBlock Text="MP4, MOV, AVI, MKV or WebM · dashcam (including split-screen cab + road) or fixed camera"
+                                       Style="{StaticResource Muted}" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" />
+                            <Button Style="{StaticResource GhostButton}" Click="Choose_Click" HorizontalAlignment="Center" Margin="0,14,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE8E5;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                                    <TextBlock Text="Choose videos…" />
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
+                    </Grid>
+
+                    <Border x:Name="NowPanel" Background="{DynamicResource Brush.SurfaceAlt}" BorderBrush="{DynamicResource Brush.Border}"
+                            BorderThickness="0,1,0,0" CornerRadius="0,0,13,13" Padding="20,14" Visibility="Collapsed">
+                        <StackPanel>
+                            <DockPanel>
+                                <TextBlock x:Name="NowPercent" DockPanel.Dock="Right" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Accent}" />
+                                <TextBlock x:Name="NowTitle" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                            </DockPanel>
+                            <Grid Margin="0,8,0,6" Height="6">
+                                <Border x:Name="NowTrack" CornerRadius="3" Background="{DynamicResource Brush.Track}" />
+                                <Border x:Name="NowFill" CornerRadius="3" Background="{DynamicResource Brush.Accent}" HorizontalAlignment="Left" Width="0" />
+                            </Grid>
+                            <TextBlock x:Name="NowStage" Style="{StaticResource Muted}" FontSize="12" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Automatic mode -->
+            <Border Grid.Column="2" Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="AUTOMATIC MODE" Style="{StaticResource SectionLabel}" />
+                    <TextBlock Text="Watch a folder" FontWeight="SemiBold" />
+                    <TextBlock x:Name="WatchText" Style="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,8" />
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <Button Style="{StaticResource SmallButton}" Click="WatchFolder_Click" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8B7;" Style="{StaticResource Icon}" FontSize="11" Margin="0,0,5,0" />
+                                <TextBlock x:Name="WatchButtonText" Text="Choose folder…" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="StopWatchButton" Style="{StaticResource SmallButton}" Click="StopWatch_Click" Content="Stop watching" />
+                    </StackPanel>
+                    <CheckBox x:Name="AccidentsCheck" Click="Option_Click" Margin="0,0,0,8"
+                              Content="Analyze videos attached to accidents in the Accident Register" />
+                    <CheckBox x:Name="PreventCheck" Click="Option_Click"
+                              Content="Set preventability on those accidents when the AI is at least 70% sure" />
+                    <Border Background="{DynamicResource Brush.AccentSoft}" CornerRadius="10" Padding="12,9" Margin="0,14,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72E;" Style="{StaticResource Icon}" FontSize="13" Foreground="{DynamicResource Brush.Accent}" Margin="0,1,8,0" VerticalAlignment="Top" />
+                            <TextBlock x:Name="PrivacyText" FontSize="12" TextWrapping="Wrap" Width="280"
+                                       Text="Runs entirely on this PC. Video never leaves it, and there are no per-video fees." />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- KPIs -->
+        <UniformGrid Rows="1" Margin="0,0,-12,16">
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock x:Name="KpiTotal" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Accent}" />
+                    <TextBlock Text="Videos reviewed" Style="{StaticResource Muted}" FontSize="12" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock x:Name="KpiCamera" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Danger}" />
+                    <TextBlock Text="Our vehicle at fault" Style="{StaticResource Muted}" FontSize="12" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock x:Name="KpiOther" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Success}" />
+                    <TextBlock Text="Other party at fault" Style="{StaticResource Muted}" FontSize="12" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock x:Name="KpiUnclear" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Warm}" />
+                    <TextBlock Text="Shared, unclear or no collision" Style="{StaticResource Muted}" FontSize="12" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <!-- Reviews table -->
+        <Border Style="{StaticResource Card}" Padding="0" ClipToBounds="True">
+            <StackPanel>
+                <Border Background="{DynamicResource Brush.SurfaceAlt}" Padding="16,10" CornerRadius="14,14,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="160" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="180" />
+                            <ColumnDefinition Width="70" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="CR #" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="1" Text="ADDED" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="2" Text="VIDEO" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="3" Text="WHAT HAPPENED" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="4" Text="VERDICT" Style="{StaticResource TableHeader}" />
+                        <TextBlock Grid.Column="5" Text="SURE" Style="{StaticResource TableHeader}" />
                     </Grid>
                 </Border>
 
-                <!-- Example output (clearly not real) -->
-                <Border Style="{StaticResource Card}">
-                    <StackPanel>
-                        <DockPanel Margin="0,0,0,10">
-                            <Border DockPanel.Dock="Right" Style="{StaticResource SoonPill}">
-                                <TextBlock Text="EXAMPLE OUTPUT · NOT REAL" Style="{StaticResource PillText}" />
-                            </Border>
-                            <TextBlock Text="FAULT DETERMINATION" Style="{StaticResource SectionLabel}" Margin="0" VerticalAlignment="Center" />
-                        </DockPanel>
+                <ItemsControl x:Name="Rows">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource TableRow}" Click="Row_Click" ToolTip="Open the report">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="160" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="190" />
+                                        <ColumnDefinition Width="180" />
+                                        <ColumnDefinition Width="70" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Number, Mode=OneWay}" Foreground="{DynamicResource Brush.Accent}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{Binding DateText, Mode=OneWay}" VerticalAlignment="Center" Margin="0,0,8,0" TextTrimming="CharacterEllipsis" />
+                                    <StackPanel Grid.Column="2" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding VideoName, Mode=OneWay}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Source, Mode=OneWay}" FontSize="11" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3" Margin="0,0,12,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding TypeText, Mode=OneWay}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding CameraText, Mode=OneWay}" FontSize="11" Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                                                   Visibility="{Binding CameraText, Converter={StaticResource NonEmptyToVis}}" />
+                                    </StackPanel>
+                                    <Border Grid.Column="4" Style="{StaticResource StatusPill}" Tag="{Binding DisplayStatus, Mode=OneWay}">
+                                        <TextBlock Text="{Binding DisplayStatus, Mode=OneWay}" />
+                                    </Border>
+                                    <TextBlock Grid.Column="5" Text="{Binding ConfidenceText, Mode=OneWay}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                </Grid>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
-                        <Grid Margin="0,4,0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="80*" />
-                                <ColumnDefinition Width="20*" />
-                            </Grid.ColumnDefinitions>
-                            <Border Background="{DynamicResource Brush.Danger}" CornerRadius="4,0,0,4" Padding="10,7">
-                                <TextBlock Text="Vehicle B · 80%" Foreground="White" FontWeight="SemiBold" />
-                            </Border>
-                            <Border Grid.Column="1" Background="{DynamicResource Brush.Skeleton}" CornerRadius="0,4,4,0" Padding="10,7">
-                                <TextBlock Text="A · 20%" FontWeight="SemiBold" />
-                            </Border>
-                        </Grid>
-                        <TextBlock Style="{StaticResource Muted}" FontSize="12" Margin="0,0,0,12"
-                                   Text="Confidence 91% · Analyzed 00:00:42 of footage · Preventability (FMCSA-style): Preventable for Vehicle B" />
-
-                        <TextBlock Text="KEY FACTORS" Style="{StaticResource SectionLabel}" />
-                        <StackPanel>
-                            <TextBlock Margin="0,2" TextWrapping="Wrap" Text="•  00:17 — Vehicle B enters intersection 1.4 s after signal turns red" />
-                            <TextBlock Margin="0,2" TextWrapping="Wrap" Text="•  00:19 — Vehicle B estimated 41 mph in a 30 mph zone" />
-                            <TextBlock Margin="0,2" TextWrapping="Wrap" Text="•  00:20 — Vehicle A braking begins 0.8 s before impact (reasonable reaction)" />
-                            <TextBlock Margin="0,2" TextWrapping="Wrap" Text="•  00:21 — Impact, Vehicle B front to Vehicle A passenger side" />
-                        </StackPanel>
-
-                        <!-- Timeline strip -->
-                        <Grid Margin="0,16,0,0" Height="28">
-                            <Border Height="6" CornerRadius="3" Background="{DynamicResource Brush.Skeleton}" VerticalAlignment="Center" />
-                            <Canvas x:Name="Timeline" VerticalAlignment="Center" Height="28" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                <StackPanel x:Name="EmptyState" HorizontalAlignment="Center" Margin="0,40,0,44">
+                    <TextBlock Text="&#xE714;" Style="{StaticResource Icon}" FontSize="28" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource Brush.TextMuted}" />
+                    <TextBlock Text="No videos reviewed yet" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,4" />
+                    <TextBlock Text="Drop a video above, pick a watch folder, or attach video to an accident in Fleet Hub." Style="{StaticResource Muted}" HorizontalAlignment="Center" />
+                </StackPanel>
             </StackPanel>
-
-            <!-- ===== Right: how it works + options ===== -->
-            <StackPanel Grid.Column="2">
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
-                    <StackPanel>
-                        <TextBlock Text="HOW IT WILL WORK" Style="{StaticResource SectionLabel}" />
-                        <ItemsControl x:Name="Steps">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="38" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Top"
-                                                HorizontalAlignment="Left" Background="{DynamicResource Brush.AccentSoft}">
-                                            <TextBlock Text="{Binding Number}" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center" Foreground="{DynamicResource Brush.Accent}" />
-                                        </Border>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                                            <TextBlock Text="{Binding Detail}" Style="{StaticResource Muted}" FontSize="12" Margin="0,2,0,0" />
-                                        </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource Card}">
-                    <StackPanel>
-                        <TextBlock Text="OPTIONS (COMING SOON)" Style="{StaticResource SectionLabel}" />
-                        <CheckBox IsChecked="True" IsEnabled="False" Content="Fully automatic — no human review required" />
-                        <CheckBox IsChecked="True" IsEnabled="False" Content="Run AI models locally on your own hardware" />
-                        <CheckBox IsChecked="True" IsEnabled="False" Content="Attach report to the Accident Register automatically" />
-                        <CheckBox IsChecked="False" IsEnabled="False" Content="Blur faces and license plates in exported clips" />
-                        <TextBlock Style="{StaticResource Muted}" FontSize="12" Margin="0,10,0,0"
-                                   Text="Video never leaves your server. No cloud fees, no per-video charges — free and open source like the rest of Guardrail." />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Grid>
+        </Border>
+        <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="2,10,0,0" TextWrapping="Wrap"
+                   Text="How it works: an object detector (YOLOX-S) finds every vehicle, rider and pedestrian; Guardrail tracks them, measures how the camera vehicle moved, finds the impact and applies rules of the road (following distance, lane changes, centre lines, signals). Results are estimates from the video alone." />
     </StackPanel>
 </UserControl>

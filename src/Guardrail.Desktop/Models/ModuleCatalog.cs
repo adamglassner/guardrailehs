@@ -196,7 +196,7 @@ public static class ModuleCatalog
         },
         new()
         {
-            Key = "ai", Title = "Crash Review AI", ToolbarLabel = "CRASH REVIEW AI", Glyph = "", IsNew = true, IsComingSoon = true,
+            Key = "ai", Title = "Crash Review AI", ToolbarLabel = "CRASH REVIEW AI", Glyph = "", IsNew = true,
             Tagline = "AI watches the video and determines who was at fault.",
         },
     ];

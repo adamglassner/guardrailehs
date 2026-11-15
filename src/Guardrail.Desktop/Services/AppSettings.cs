@@ -15,6 +15,14 @@ public sealed class AppSettings
 {
     public string Theme { get; set; } = AppTheme.System;
 
+    // ----- Crash Review AI -----
+    /// <summary>Folder watched for new accident videos ("" = off).</summary>
+    public string CrashWatchFolder { get; set; } = "";
+    /// <summary>Analyze videos attached to Accident Register entries automatically.</summary>
+    public bool CrashAnalyzeAccidents { get; set; } = true;
+    /// <summary>Let the AI fill in preventability on accidents still pending review, when it's confident.</summary>
+    public bool CrashSetPreventability { get; set; } = true;
+
     private static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "Guardrail", "settings.json");
