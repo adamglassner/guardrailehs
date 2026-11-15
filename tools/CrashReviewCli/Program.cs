@@ -62,7 +62,8 @@ static class Probe
             if (i + 1 >= ex.Samples.Count) break;
             using var g0 = OpenCvSharp.Cv2.ImDecode(ex.Samples[i].Jpeg, OpenCvSharp.ImreadModes.Grayscale);
             using var g1 = OpenCvSharp.Cv2.ImDecode(ex.Samples[i + 1].Jpeg, OpenCvSharp.ImreadModes.Grayscale);
-            var all = OpenCvSharp.Cv2.GoodFeaturesToTrack(g0, 300, 0.01, 8, null, 3, false, 0.04);
+            using var full = new OpenCvSharp.Mat(g0.Rows, g0.Cols, OpenCvSharp.MatType.CV_8UC1, OpenCvSharp.Scalar.All(255));
+            var all = CameraMotion.GridFeatures(g0, full);
             var p1 = Array.Empty<OpenCvSharp.Point2f>();
             OpenCvSharp.Cv2.CalcOpticalFlowPyrLK(g0, g1, all, ref p1, out byte[] st, out _, new OpenCvSharp.Size(21, 21), 3);
             OpenCvSharp.Cv2.MeanStdDev(g0, out var mean, out var sd);

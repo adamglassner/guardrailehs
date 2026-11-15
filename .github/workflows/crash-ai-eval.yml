@@ -30,7 +30,6 @@ jobs:
           New-Item -ItemType Directory -Force (Join-Path $env:RUNNER_TEMP 'eval') | Out-Null
           Copy-Item probe -Destination (Join-Path $env:RUNNER_TEMP 'eval') -Recurse
       - name: Engine on test videos (with per-frame dump)
-        if: false
         shell: pwsh
         env:
           GUARDRAIL_DUMP: '1'
