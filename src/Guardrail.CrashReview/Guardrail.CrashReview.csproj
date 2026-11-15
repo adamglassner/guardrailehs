@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="CrashReviewCli" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- OpenCV (Apache-2.0): video decoding, image processing and the neural-network runtime. -->
     <PackageReference Include="OpenCvSharp4" Version="4.10.0.20241108" />
     <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />

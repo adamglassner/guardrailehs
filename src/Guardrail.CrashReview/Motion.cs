@@ -42,7 +42,7 @@ public sealed class CameraMotion : IDisposable
                 var r = Clip(new Rect((int)(b.X1 * w) - 4, (int)(b.Y1 * h) - 4, (int)(b.W * w) + 8, (int)(b.H * h) + 8), w, h);
                 if (r.Width > 0 && r.Height > 0) using (var sub = new Mat(mask, r)) sub.SetTo(Scalar.All(0));
             }
-            var p0 = Cv2.GoodFeaturesToTrack(_prev, 300, 0.01, 8, mask, 3, false, 0.04);
+            var p0 = GridFeatures(_prev, mask);
             if (p0.Length >= 12)
             {
                 var p1 = Array.Empty<Point2f>();
@@ -76,6 +76,42 @@ public sealed class CameraMotion : IDisposable
         }
         _prev = gray.Clone();
         return res;
+    }
+
+    /// <summary>
+    /// The strongest corner (minimum eigenvalue) in each 8×8 cell, above 1% of the strongest in the image, at most 300.
+    /// Used instead of goodFeaturesToTrack, which picks far fewer points in some OpenCV builds.
+    /// </summary>
+    internal static Point2f[] GridFeatures(Mat gray, Mat mask, int cell = 8, int maxPoints = 300)
+    {
+        int w = gray.Cols, h = gray.Rows;
+        using var eig = new Mat();
+        Cv2.CornerMinEigenVal(gray, eig, 3, 3);
+        var e = new float[w * h];
+        using (var cont = eig.IsContinuous() ? null : eig.Clone())
+            System.Runtime.InteropServices.Marshal.Copy((cont ?? eig).Data, e, 0, e.Length);
+        var m = Scene.Bytes(mask);
+        float max = 0;
+        for (int i = 0; i < e.Length; i++)
+        {
+            if (m[i] == 0) e[i] = 0;
+            if (e[i] > max) max = e[i];
+        }
+        double thr = max > 0 ? 0.01 * max : 1;
+        var found = new List<(float V, int X, int Y)>();
+        for (int by = 0; by + cell <= h; by += cell)
+            for (int bx = 0; bx + cell <= w; bx += cell)
+            {
+                float best = -1; int bxx = 0, byy = 0;
+                for (int dy = 0; dy < cell; dy++)
+                    for (int dx = 0; dx < cell; dx++)
+                    {
+                        float v = e[(by + dy) * w + bx + dx];
+                        if (v > best) { best = v; bxx = bx + dx; byy = by + dy; }
+                    }
+                if (best > thr) found.Add((best, bxx, byy));
+            }
+        return found.OrderByDescending(f => f.V).Take(maxPoints).Select(f => new Point2f(f.X, f.Y)).ToArray();
     }
 
     /// <summary>RANSAC fit of q = a·p + t with a complex a (rotation + scale) — a 2-D similarity transform.</summary>
