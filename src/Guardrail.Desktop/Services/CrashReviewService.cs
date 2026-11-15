@@ -52,12 +52,38 @@ public static class CrashReviewService
         var review = new VideoReview
         {
             VideoPath = info.FullName, VideoSize = info.Length, VideoModified = info.LastWriteTimeUtc,
-            Source = source, AccidentId = accidentId,
+            Source = source, AccidentId = accidentId, CameraName = GuessCameraName(info.Name, accidentId),
         };
         DataStore.CrashReviews.Add(review);
         Signal.Release();
         Changed?.Invoke();
         return review;
+    }
+
+    /// <summary>
+    /// Names the camera vehicle when it can be told: the unit on the linked accident, or a fleet unit number
+    /// that appears in the file name (dashcams often name files after the truck).
+    /// </summary>
+    public static string GuessCameraName(string fileName, Guid? accidentId)
+    {
+        if (accidentId is { } id && DataStore.FleetAccidents.Items.FirstOrDefault(a => a.Id == id) is { UnitNumber.Length: > 0 } acc)
+            return VideoReview.NameForUnit(acc.UnitNumber);
+        string name = Path.GetFileNameWithoutExtension(fileName);
+        var match = DataStore.Vehicles.Items
+            .Where(v => v.UnitNumber.Trim().Length >= 2)
+            .OrderByDescending(v => v.UnitNumber.Length)
+            .FirstOrDefault(v => System.Text.RegularExpressions.Regex.IsMatch(name,
+                $@"(?<![A-Za-z0-9]){System.Text.RegularExpressions.Regex.Escape(v.UnitNumber.Trim())}(?![A-Za-z0-9])",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase));
+        return match is null ? "" : VideoReview.NameForUnit(match.UnitNumber.Trim());
+    }
+
+    /// <summary>Renames the camera vehicle on a review.</summary>
+    public static void SetCameraName(VideoReview review, string name)
+    {
+        review.CameraName = name.Trim();
+        DataStore.CrashReviews.Update(review);
+        Changed?.Invoke();
     }
 
     /// <summary>Queues a web link: the video is downloaded, kept with the review, then analyzed. Call on the UI thread.</summary>
@@ -189,7 +215,7 @@ public static class CrashReviewService
         var accident = DataStore.FleetAccidents.Items.FirstOrDefault(a => a.Id == id);
         if (accident is null || accident.Notes.Contains(review.Number)) return;
 
-        string line = $"Crash Review AI ({review.Number}): {rep.Headline}";
+        string line = $"Crash Review AI ({review.Number}): {review.Describe(rep.Headline)}";
         if (rep.Verdict != Verdicts.NoCollision) line += $" ({rep.Confidence}% confidence)";
         line += ".";
         if (App.Settings.CrashSetPreventability && accident.Preventability == FleetStatus.PendingReview && rep.Confidence >= 70)
@@ -272,7 +298,7 @@ public static class CrashReviewService
                         Changed?.Invoke();
                         Toaster.Show(report.Verdict == Verdicts.NoCollision
                             ? $"{next.Number}: no collision found in {next.VideoName}."
-                            : $"{next.Number}: {report.Headline} ({report.Confidence}% confidence).");
+                            : $"{next.Number}: {next.Describe(report.Headline)} ({report.Confidence}% confidence).");
                     });
                 }
                 catch (OperationCanceledException)

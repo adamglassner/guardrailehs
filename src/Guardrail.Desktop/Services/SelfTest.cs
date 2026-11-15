@@ -55,6 +55,14 @@ public static class SelfTest
 
     private static async Task WebVideoChecks()
     {
+        var named = new VideoReview { CameraName = "Unit 104" };
+        Check("Crash AI: camera vehicle named in the report",
+            named.Describe("Your vehicle drifted across the yellow centre line.") == "Unit 104 drifted across the yellow centre line."
+            && named.Describe("The white car moved into your vehicle's lane.") == "The white car moved into Unit 104's lane."
+            && named.Describe("The black car was ahead of you, in your lane, for 3.0+ s.") == "The black car was ahead of Unit 104, in its lane, for 3.0+ s."
+            && new VideoReview().Describe("Your vehicle was most likely at fault") == "Your vehicle was most likely at fault");
+        Check("Crash AI: unit numbers become names", VideoReview.NameForUnit("104") == "Unit 104" && VideoReview.NameForUnit("Truck 12") == "Truck 12");
+
         Check("Web: links recognized", WebVideo.LooksLikeUrl("https://youtu.be/abc") && !WebVideo.LooksLikeUrl("C:\\videos\\a.mp4") && !WebVideo.LooksLikeUrl("hello"));
         Check("Web: Dropbox share link becomes a download", WebVideo.Normalize("https://www.dropbox.com/s/abc/crash.mp4?dl=0").Contains("dl=1"));
         Check("Web: Google Drive share link becomes a download",

@@ -47,6 +47,14 @@ public sealed class CrashReportDialog : DialogFrame
         var close = MakeButton("Close", "PrimaryButton");
         close.IsCancel = true;
         close.Click += (_, _) => Close();
+        if (_report.CameraKind.StartsWith("Dashcam"))
+        {
+            var rename = MakeButton(review.CameraName.Length > 0 ? "Rename vehicle…" : "Name vehicle…", "GhostButton", "\uE8AC");
+            rename.Margin = new Thickness(0, 0, 10, 0);
+            rename.ToolTip = "Say which of your vehicles the camera was in, e.g. Unit 104";
+            rename.Click += (_, _) => NameVehicle();
+            right.Children.Insert(0, rename);
+        }
         right.Children.Add(open);
         if (review.IsWeb)
         {
@@ -75,7 +83,7 @@ public sealed class CrashReportDialog : DialogFrame
         }
         if (_report.SpeedTrace.Count > 4 && _report.CameraKind.StartsWith("Dashcam"))
         {
-            body.Children.Add(SectionTitle("YOUR VEHICLE'S MOVEMENT"));
+            body.Children.Add(SectionTitle(_review.CameraName.Length > 0 ? $"{_review.CameraName.ToUpperInvariant()}'S MOVEMENT" : "YOUR VEHICLE'S MOVEMENT"));
             body.Children.Add(Timeline());
         }
         if (_report.Findings.Count > 0)
@@ -108,11 +116,11 @@ public sealed class CrashReportDialog : DialogFrame
         left.Children.Add(Hero(new TextBlock { Text = "VERDICT", FontSize = 11, FontWeight = FontWeights.Bold }, "Brush.Highlight"));
         left.Children.Add(Hero(new TextBlock
         {
-            Text = _report.Headline.Length > 0 ? _report.Headline : "No collision found",
+            Text = _report.Headline.Length > 0 ? _review.Describe(_report.Headline) : "No collision found",
             FontFamily = (FontFamily)FindResource("DisplayFont"), FontSize = 25, FontWeight = FontWeights.Bold,
             TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0),
         }, "Brush.HeroText"));
-        left.Children.Add(Hero(new TextBlock { Text = _report.Summary, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0), LineHeight = 19 }, "Brush.HeroMuted"));
+        left.Children.Add(Hero(new TextBlock { Text = _review.Describe(_report.Summary), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0), LineHeight = 19 }, "Brush.HeroMuted"));
         grid.Children.Add(left);
 
         if (_report.Verdict != Verdicts.NoCollision)
@@ -136,7 +144,7 @@ public sealed class CrashReportDialog : DialogFrame
             int a = Math.Clamp(_report.FaultShares[0], 0, 100), b = 100 - a;
             split.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Max(a, 12), GridUnitType.Star) });
             split.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(Math.Max(b, 12), GridUnitType.Star) });
-            split.Children.Add(Share($"{Capital(_report.Parties[0])} · {a}%", a >= b, new CornerRadius(8, 0, 0, 8), 0));
+            split.Children.Add(Share($"{Capital(_review.Describe(_report.Parties[0]))} · {a}%", a >= b, new CornerRadius(8, 0, 0, 8), 0));
             split.Children.Add(Share($"{Capital(_report.Parties[1])} · {b}%", b > a, new CornerRadius(0, 8, 8, 0), 1));
             grid.Children.Add(split);
         }
@@ -259,7 +267,7 @@ public sealed class CrashReportDialog : DialogFrame
 
         foreach (var f in _report.Findings)
         {
-            var dot = new Ellipse { Width = 7, Height = 7, ToolTip = $"{Clock(f.Seconds)} — {f.Text}" };
+            var dot = new Ellipse { Width = 7, Height = 7, ToolTip = $"{Clock(f.Seconds)} — {_review.Describe(f.Text)}" };
             dot.SetResourceReference(Shape.FillProperty, "Brush.Warm");
             Canvas.SetLeft(dot, X(f.Seconds) - 3.5);
             Canvas.SetTop(dot, h - 9);
@@ -288,7 +296,7 @@ public sealed class CrashReportDialog : DialogFrame
             time.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Accent");
             chip.Child = time;
             row.Children.Add(chip);
-            var text = new TextBlock { Text = f.Text, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) };
+            var text = new TextBlock { Text = _review.Describe(f.Text), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0) };
             Grid.SetColumn(text, 1);
             row.Children.Add(text);
             list.Children.Add(row);
@@ -315,6 +323,20 @@ public sealed class CrashReportDialog : DialogFrame
         if (seconds < 0) seconds = 0;
         int m = (int)(seconds / 60);
         return $"{m}:{seconds - m * 60:00.0}";
+    }
+
+    /// <summary>Names the camera vehicle (suggesting fleet units), then reopens the report with the new wording.</summary>
+    private void NameVehicle()
+    {
+        var units = DataStore.Vehicles.Items.Select(v => VideoReview.NameForUnit(v.UnitNumber.Trim())).Where(n => n.Length > 0).Distinct().OrderBy(n => n).ToArray();
+        var dialog = new FormDialog("Name the camera vehicle",
+            "The report will say this instead of \"your vehicle\" (for example \"Unit 104 drifted across the centre line\").",
+            [new FormField { Key = "name", Label = "Vehicle", Value = _review.CameraName, Suggestions = units, Hint = units.Length > 0 ? "Pick a fleet unit or type any name. Leave blank for \"your vehicle\"." : "e.g. Unit 104, Truck 12, Service van 3. Leave blank for \"your vehicle\"." }],
+            allowDelete: false, saveText: "Save");
+        if (dialog.ShowDialog() != true) return;
+        CrashReviewService.SetCameraName(_review, dialog.Text("name"));
+        Close();
+        new CrashReportDialog(_review).ShowDialog();
     }
 
     private void OpenVideo()

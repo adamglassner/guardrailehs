@@ -18,6 +18,8 @@ public sealed class VideoReview : RecordBase
     public string VideoPath { get; set; } = "";
     /// <summary>The web link the video came from (empty for files on this PC).</summary>
     public string SourceUrl { get; set; } = "";
+    /// <summary>What the camera vehicle is called in the report, e.g. "Unit 104" (empty = "your vehicle").</summary>
+    public string CameraName { get; set; } = "";
     public long VideoSize { get; set; }
     public DateTime VideoModified { get; set; }
     /// <summary>"Added by hand", "Watch folder" or "Accident ACC-0003".</summary>
@@ -55,5 +57,25 @@ public sealed class VideoReview : RecordBase
 
     [JsonIgnore] public string ConfidenceText => IsDone && Report!.Verdict != Verdicts.NoCollision ? $"{Report.Confidence}%" : "—";
     [JsonIgnore] public string TypeText => IsDone ? (Report!.CollisionType.Length > 0 ? Report.CollisionType : "—") : State == ReviewState.Failed ? Error : Stage;
-    [JsonIgnore] public string CameraText => IsDone ? Report!.CameraKind : "";
+    [JsonIgnore] public string CameraText => !IsDone ? "" : CameraName.Length > 0 ? $"{Report!.CameraKind} · {CameraName}" : Report!.CameraKind;
+
+    /// <summary>
+    /// Puts the camera vehicle's name into report text: "Your vehicle drifted across…" → "Unit 104 drifted across…".
+    /// Also handles wording from reports made before vehicles could be named.
+    /// </summary>
+    public string Describe(string text)
+    {
+        if (CameraName.Length == 0 || text.Length == 0) return text;
+        string n = CameraName;
+        return text
+            .Replace("ahead of you, in your lane", $"ahead of {n}, in its lane")
+            .Replace("into your stopped vehicle", $"into {n} while it was stopped")
+            .Replace("Your vehicle's", $"{n}'s").Replace("your vehicle's", $"{n}'s")
+            .Replace("Your vehicle", n).Replace("your vehicle", n)
+            .Replace("on your left", $"on {n}'s left").Replace("your path", $"{n}'s path").Replace("your lane", $"{n}'s lane");
+    }
+
+    /// <summary>A name from a fleet unit number: "104" → "Unit 104"; "Truck 12" stays as it is.</summary>
+    public static string NameForUnit(string unit) =>
+        unit.Length == 0 ? "" : char.IsLetter(unit[0]) ? unit : $"Unit {unit}";
 }

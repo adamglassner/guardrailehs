@@ -256,7 +256,7 @@ public static class Reasoner
                 if (crossedCenter && tr.Kind is Kind.Vehicle or Kind.TwoWheeler)
                 {
                     report.CollisionType = "Head-on (crossed the centre line)";
-                    if (ylEarly is not null) notes.Add(tImp - 3.0, "The yellow centre line was on your left, where it belongs.");
+                    if (ylEarly is not null) notes.Add(tImp - 3.0, "The yellow centre line was on your vehicle's left, where it belongs.");
                     notes.Add(tImp - 1.0, "Your vehicle drifted across the yellow centre line into the oncoming lane" + (drift > 0.02 ? " (steering left)" : "") + ".", key: true);
                     notes.Add(tImp, $"It collided head-on with the oncoming {tr.Name}.");
                     faultFirst += 0.95;
@@ -266,12 +266,12 @@ public static class Reasoner
                     report.CollisionType = "Pedestrian struck";
                     if (enteredFrom != null && inPath.Count > 0 && tImp - inPath[0] < 1.2)
                     {
-                        notes.Add(inPath[0], $"The pedestrian stepped into your path from the {enteredFrom} {tImp - inPath[0]:0.0} s before impact.", key: true);
+                        notes.Add(inPath[0], $"The pedestrian stepped into your vehicle's path from the {enteredFrom} {tImp - inPath[0]:0.0} s before impact.", key: true);
                         faultFirst += 0.3; faultSecond += 0.4;
                     }
                     else
                     {
-                        notes.Add(tImp - Math.Min(timeInPath, 4), $"The pedestrian was in your path for at least {Math.Min(timeInPath, 4):0.0} s before your vehicle struck them.", key: true);
+                        notes.Add(tImp - Math.Min(timeInPath, 4), $"The pedestrian was in your vehicle's path for at least {Math.Min(timeInPath, 4):0.0} s before your vehicle struck them.", key: true);
                         faultFirst += 0.7;
                     }
                 }
@@ -279,7 +279,7 @@ public static class Reasoner
                 {
                     report.CollisionType = "Crossing paths (intersection / angle)";
                     string side = enteredFrom ?? (lat > 0 ? "left" : "right");
-                    notes.Add(tImp - 1.0, $"The {tr.Name} crossed your path from the {side}.", key: true);
+                    notes.Add(tImp - 1.0, $"The {tr.Name} crossed your vehicle's path from the {side}.", key: true);
                     string? light = LightState(S, tImp - 4, tImp - 0.5);
                     if (light == "red") { notes.Add(tImp - 2.0, "The traffic light ahead of your vehicle was red.", key: true); faultFirst += 0.8; }
                     else if (light == "green") { notes.Add(tImp - 2.0, "The traffic light ahead of your vehicle was green.", key: true); faultSecond += 0.7; }
@@ -290,7 +290,7 @@ public static class Reasoner
                 else if (enteredFrom != null && timeInPath < 2.5)
                 {
                     report.CollisionType = "Lane change / cut-in";
-                    notes.Add(inPath[0], $"The {tr.Name} moved into your lane from the {enteredFrom} only {timeInPath:0.0} s before impact.", key: true);
+                    notes.Add(inPath[0], $"The {tr.Name} moved into your vehicle's lane from the {enteredFrom} only {timeInPath:0.0} s before impact.", key: true);
                     faultSecond += 0.75;
                     if (timeInPath > 1.6 && !braking) { notes.Add(tImp - 0.5, "Your vehicle didn't visibly slow down after it moved in."); faultFirst += 0.2; }
                 }
@@ -298,7 +298,7 @@ public static class Reasoner
                 {
                     report.CollisionType = "Rear-end";
                     double shown = Math.Min(Math.Min(timeInPath, seenFor), 4);
-                    notes.Add(tImp - Math.Min(timeInPath, 4), $"The {tr.Name} was ahead of you, in your lane, for {shown:0.0}+ s before the impact.");
+                    notes.Add(tImp - Math.Min(timeInPath, 4), $"The {tr.Name} was ahead of your vehicle, in its lane, for {shown:0.0}+ s before the impact.");
                     double? gLate = GrowthRate(tr, tImp - 1.0, tImp), gEarly = GrowthRate(tr, tImp - 3.0, tImp - 1.2);
                     if (!stopped)
                     {
@@ -309,7 +309,7 @@ public static class Reasoner
                     }
                     else
                     {
-                        notes.Add(tImp, "The vehicle ahead backed or rolled into your stopped vehicle.", key: true);
+                        notes.Add(tImp, "The vehicle ahead backed or rolled into your vehicle while it was stopped.", key: true);
                         faultSecond += 0.4;
                     }
                 }
