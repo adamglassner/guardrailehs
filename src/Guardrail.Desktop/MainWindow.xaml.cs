@@ -124,6 +124,7 @@ public partial class MainWindow : Window
             "reports" => new ReportsView(),
             "fleet" => new FleetView(),
             "ai" => new AiReviewView(),
+            "references" => new ReferencesView(),
             _ => new ComingSoonView(module),
         });
     }
