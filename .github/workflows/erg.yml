@@ -18,11 +18,10 @@ jobs:
           curl -sSL -A "$UA" "$URL" -o erg.pdf
           head -c 300 erg.pdf | strings | head
           ls -la erg.pdf; sha256sum erg.pdf | tee out/sha256.txt
-          pdfinfo erg.pdf | tee out/info.txt
-          pdftotext -layout erg.pdf out/erg-layout.txt
-          pdftotext erg.pdf out/erg-raw.txt
-          wc -l out/*.txt
+          pdftoppm -f 10 -l 11 -r 110 -png erg.pdf out/placards
+          pdftoppm -f 19 -l 19 -r 90 -png erg.pdf out/ghs
+          ls -la out
       - name: Commit
         run: |
           git config user.name ci; git config user.email ci@example.com
-          git add out; git commit -m "ERG text"; git push
+          git add out; git commit -m "ERG pages"; git push
