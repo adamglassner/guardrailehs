@@ -33,6 +33,7 @@ public static class DataStore
     public static readonly JsonStore<MaintenanceOrder> Maintenance = new(Folder, "fleet-maintenance");
     public static readonly JsonStore<HosLog> Hos = new(Folder, "fleet-hos");
     public static readonly JsonStore<FleetAccident> FleetAccidents = new(Folder, "fleet-accidents");
+    public static readonly JsonStore<VideoReview> CrashReviews = new(Folder, "crash-reviews");
 
     /// <summary>Where Library files are kept: data\library\&lt;document id&gt;\&lt;file&gt;.</summary>
     public static string LibraryFolder => Path.Combine(Folder, "library");

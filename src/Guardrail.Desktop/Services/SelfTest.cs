@@ -2,6 +2,7 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
+using Guardrail.CrashAi;
 using Guardrail.Data;
 using Guardrail.Models;
 using Guardrail.Views;
@@ -48,6 +49,114 @@ public static class SelfTest
         {
             Check(name, false, ex.ToString());
         }
+    }
+
+    // ----- Crash Review AI -----
+
+    private static Sample FakeSample(double t, CameraStep cam, params Detection[] dets) =>
+        new() { T = t, Camera = cam, Detections = dets.ToList(), Jpeg = [] };
+
+    /// <summary>Scripted scenes for the fault rules, the real engine on a generated video, and the report dialog.</summary>
+    private static async Task CrashAiChecks()
+    {
+        // 1) Dashcam rear-end: a car ahead in our lane grows until we hit it; jolt, then we stop.
+        try
+        {
+            var samples = new List<Sample>();
+            for (int i = 0; i <= 70; i++)
+            {
+                double t = i / 10.0, k = Math.Min(t, 5.0);
+                double w = 0.12 * Math.Exp(0.33 * k), h = 0.08 * Math.Exp(0.33 * k), y2 = 0.55 + 0.4 * k / 5.0;
+                var cam = new CameraStep
+                {
+                    Mag = t < 5.2 ? 0.003 + 0.0002 * Math.Sin(i) : 0.00005, Expand = t < 5.2 ? 0.002 : 0, Tx = i == 50 ? 0.03 : 0.0004 * Math.Sin(i * 1.7),
+                    Inliers = 0.8, Points = 120,
+                };
+                samples.Add(FakeSample(t, cam, new Detection(new Guardrail.CrashAi.Box(0.5 - w / 2, y2 - h, 0.5 + w / 2, y2), 0.9f, Classes.Car)));
+            }
+            var (rep, plan) = Reasoner.Analyze(new Extraction { Samples = samples, Duration = 7 }, 0.1);
+            Check("Crash AI: rear-ending the car ahead is our fault", rep.Verdict == Verdicts.Camera && rep.CollisionType == "Rear-end",
+                $"{rep.Verdict} {rep.CollisionType} {rep.Confidence}% at {rep.ImpactSeconds}");
+            Check("Crash AI: impact time found", rep.ImpactSeconds is > 4.5 and < 5.3, rep.ImpactSeconds?.ToString() ?? "none");
+            Check("Crash AI: key moments planned", plan.Moments.Count >= 3 && rep.FaultShares.Sum() == 100);
+        }
+        catch (Exception ex) { Check("Crash AI: rear-end scene", false, ex.ToString()); }
+
+        // 2) Fixed camera: car A drives into stopped car B.
+        try
+        {
+            var samples = new List<Sample>();
+            for (int i = 0; i <= 60; i++)
+            {
+                double t = i / 10.0;
+                double ax = Math.Min(0.1 + 0.12 * t, 0.46);
+                var a = new Detection(new Guardrail.CrashAi.Box(ax, 0.6, ax + 0.15, 0.7), 0.9f, Classes.Car);
+                var b = new Detection(new Guardrail.CrashAi.Box(0.5, 0.6, 0.65, 0.7), 0.9f, Classes.Car);
+                samples.Add(FakeSample(t, new CameraStep { Points = 300, Inliers = 1 }, a, b));
+            }
+            var (rep, _) = Reasoner.Analyze(new Extraction { Samples = samples, Duration = 6 }, 0.9);
+            Check("Crash AI: fixed camera, moving car hits a stopped car", rep.CameraKind == "Fixed camera" && rep.Verdict == Verdicts.A,
+                $"{rep.CameraKind} {rep.Verdict} {rep.CollisionType} {rep.Confidence}%");
+        }
+        catch (Exception ex) { Check("Crash AI: fixed camera scene", false, ex.ToString()); }
+
+        // 3) Nothing happening: no collision.
+        try
+        {
+            var samples = Enumerable.Range(0, 50).Select(i => FakeSample(i / 10.0, new CameraStep { Mag = 0.003, Expand = 0.002, Points = 100, Inliers = 0.9 },
+                new Detection(new Guardrail.CrashAi.Box(0.45, 0.5, 0.55, 0.58), 0.9f, Classes.Car))).ToList();
+            var (rep, _) = Reasoner.Analyze(new Extraction { Samples = samples, Duration = 5 }, 0.1);
+            Check("Crash AI: steady traffic is not a collision", rep.Verdict == Verdicts.NoCollision, rep.Verdict);
+        }
+        catch (Exception ex) { Check("Crash AI: quiet scene", false, ex.ToString()); }
+
+        // 4) The real engine (model + OpenCV + video decoding) on a generated video.
+        Check("Crash AI: model is built in", CrashAnalyzer.ModelAvailable);
+        string dir = Path.Combine(Path.GetTempPath(), "guardrail-crash-selftest-" + Guid.NewGuid().ToString("N")[..8]);
+        try
+        {
+            Directory.CreateDirectory(dir);
+            string video = Path.Combine(dir, "synthetic.avi");
+            using (var writer = new OpenCvSharp.VideoWriter(video, OpenCvSharp.FourCC.MJPG, 15, new OpenCvSharp.Size(640, 360)))
+            {
+                Check("Crash AI: can write a test video", writer.IsOpened());
+                for (int f = 0; f < 45; f++)
+                {
+                    using var frame = new OpenCvSharp.Mat(360, 640, OpenCvSharp.MatType.CV_8UC3, new OpenCvSharp.Scalar(90, 110, 120));
+                    OpenCvSharp.Cv2.Rectangle(frame, new OpenCvSharp.Rect(40 + f * 6, 200, 60, 40), new OpenCvSharp.Scalar(30, 30, 200), -1);
+                    OpenCvSharp.Cv2.Line(frame, new OpenCvSharp.Point(320, 360), new OpenCvSharp.Point(320 + f, 180), new OpenCvSharp.Scalar(255, 255, 255), 3);
+                    writer.Write(frame);
+                }
+            }
+            var report = await Task.Run(() => CrashAnalyzer.Analyze(video, Path.Combine(dir, "out")));
+            Check("Crash AI: engine analyzes a video end to end", report.DurationSeconds > 2 && report.Engine.Length > 0,
+                $"{report.Verdict} · {report.DurationSeconds}s · {report.AnalysisSeconds}s to analyze");
+        }
+        catch (Exception ex) { Check("Crash AI: engine on a generated video", false, ex.ToString()); }
+        finally { try { Directory.Delete(dir, true); } catch { /* ignore */ } }
+
+        // 5) Report dialog with every section.
+        await Step("Crash AI: report dialog builds and shows", () =>
+        {
+            var review = new VideoReview
+            {
+                VideoPath = @"C:\videos\dashcam.mp4", State = ReviewState.Done, AnalyzedAt = DateTime.Now,
+                Report = new CrashReport
+                {
+                    Verdict = Verdicts.Camera, Confidence = 87, Headline = "Your vehicle was most likely at fault",
+                    Summary = "Your vehicle drifted across the yellow centre line into the oncoming lane.",
+                    CollisionType = "Head-on (crossed the centre line)", CameraKind = "Dashcam (moving)", SplitScreen = true,
+                    ImpactSeconds = 8.5, DurationSeconds = 21, Parties = ["your vehicle", "white truck"], FaultShares = [94, 6],
+                    Findings = [new(5.5, "The yellow centre line was on your left."), new(7.5, "Your vehicle drifted across it."), new(8.5, "Head-on.")],
+                    KeyFrames = [new(6.5, "key1.jpg", "2 seconds before"), new(8.5, "key3.jpg", "Impact")],
+                    SpeedTrace = Enumerable.Range(0, 100).Select(i => 3.0 + Math.Sin(i / 9.0)).ToList(), TraceStepSeconds = 0.2,
+                },
+            };
+            var dialog = new CrashReportDialog(review);
+            dialog.Show();
+            dialog.UpdateLayout();
+            dialog.Close();
+        });
     }
 
     public static async Task<int> RunAsync(MainWindow window)
@@ -310,6 +419,8 @@ public static class SelfTest
         {
             try { Directory.Delete(temp, recursive: true); } catch { /* ignore */ }
         }
+
+        await CrashAiChecks();
 
         await Step("Back to Dashboard", () => window.GoTo(ModuleCatalog.Dashboard.Key));
 

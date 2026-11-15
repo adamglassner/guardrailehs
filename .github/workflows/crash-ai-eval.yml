@@ -1,0 +1,33 @@
+name: Crash Review AI eval (temporary)
+on:
+  push:
+    branches: [crash-ai]
+jobs:
+  eval:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-testdata
+          path: testdata
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build app (exe only)
+        shell: pwsh
+        run: ./build.ps1 -SkipInstaller
+      - name: Self-test
+        shell: pwsh
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'selftest.txt'
+          $p = Start-Process dist/Guardrail.exe -ArgumentList '--self-test', "`"$out`"" -PassThru
+          if (-not $p.WaitForExit(300000)) { Stop-Process -Id $p.Id -Force; Write-Host 'TIMEOUT' }
+          if (Test-Path $out) { Get-Content $out | Where-Object { $_ -like 'FAIL*' -or $_ -like '*Crash AI*' -or $_ -like '*PASSED*' -or $_ -like '*FAILED*' } }
+      - name: Engine on test videos
+        shell: pwsh
+        run: |
+          dotnet build tools/CrashReviewCli -c Release -v q -nologo
+          $exe = Get-ChildItem tools/CrashReviewCli/bin/Release -Recurse -Filter CrashReviewCli.exe | Select-Object -First 1
+          $vids = Get-ChildItem testdata/videos/*.mp4 | Sort-Object Name | ForEach-Object { $_.FullName }
+          & $exe.FullName (Join-Path $env:RUNNER_TEMP 'eval') @vids

@@ -34,6 +34,18 @@ if (-not $dotnet) { throw '.NET 8 SDK not found. Install it with: winget install
 
 New-Item -ItemType Directory -Force $dist | Out-Null
 
+# Crash Review AI model: YOLOX-S (Apache-2.0, Megvii). Downloaded once, checked, then embedded in the exe.
+$modelDir = Join-Path $root 'src\Guardrail.CrashReview\Models'
+$model = Join-Path $modelDir 'yolox_s.onnx'
+$modelSha = 'c5c2d13e59ae883e6af3b45daea64af4833a4951c92d116ec270d9ddbe998063'
+if (-not (Test-Path $model) -or (Get-FileHash $model -Algorithm SHA256).Hash.ToLower() -ne $modelSha) {
+    Write-Host '== Downloading the Crash Review AI model (35 MB) ==' -ForegroundColor Cyan
+    New-Item -ItemType Directory -Force $modelDir | Out-Null
+    $ProgressPreference = 'SilentlyContinue'
+    Invoke-WebRequest 'https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.onnx' -OutFile $model
+    if ((Get-FileHash $model -Algorithm SHA256).Hash.ToLower() -ne $modelSha) { Remove-Item $model; throw 'AI model download failed its checksum' }
+}
+
 Write-Host '== Publishing single-file exe ==' -ForegroundColor Cyan
 if (Test-Path $publish) { Remove-Item $publish -Recurse -Force }
 & $dotnet publish $project -c Release -r win-x64 --self-contained true `

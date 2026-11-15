@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Crash Review AI engine: watches accident video and works out who was at fault. Runs fully offline. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Guardrail.CrashAi</RootNamespace>
+    <AssemblyName>Guardrail.CrashReview</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- OpenCV (Apache-2.0): video decoding, image processing and the neural-network runtime. -->
+    <PackageReference Include="OpenCvSharp4" Version="4.10.0.20241108" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.10.0.20241108" />
+  </ItemGroup>
+
+  <!-- YOLOX-S object detector (Apache-2.0, Megvii). Downloaded by build.ps1 / CI into Models\ and embedded in the exe. -->
+  <ItemGroup Condition="Exists('Models\yolox_s.onnx')">
+    <EmbeddedResource Include="Models\yolox_s.onnx" LogicalName="yolox_s.onnx" />
+  </ItemGroup>
+
+</Project>

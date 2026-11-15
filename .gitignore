@@ -5,3 +5,6 @@ publish/
 .vs/
 *.user
 *.suo
+
+# Crash Review AI model is downloaded at build time (build.ps1 / CI), not committed
+src/Guardrail.CrashReview/Models/*.onnx
