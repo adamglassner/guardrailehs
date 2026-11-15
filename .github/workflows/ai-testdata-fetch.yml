@@ -1,0 +1,62 @@
+name: AI test data fetch (temporary)
+on:
+  push:
+    branches: [ai-testdata-fetch]
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg jq >/dev/null
+      - name: Model
+        run: |
+          mkdir -p out/model
+          curl -sSfL -o out/model/yolox_s.onnx https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.onnx
+          sha256sum out/model/yolox_s.onnx | tee out/model/SHA256
+          ls -la out/model
+      - name: Videos from Wikimedia Commons
+        env:
+          UA: "GuardrailEHS-test-fetch/1.0 (https://github.com/adamglassner/guardrailehs)"
+        run: |
+          mkdir -p out/videos raw
+          : > names.txt
+          for cat in "Videos_of_traffic_collisions" "Videos_of_road_accidents" "Videos_of_car_crashes" "Dashcam_videos" "Videos_from_automobile_cameras" "Videos_of_traffic_accidents" "Traffic_collisions_in_videos"; do
+            curl -sS -A "$UA" "https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:${cat}&cmtype=file&cmlimit=200&format=json" \
+              | jq -r '.query.categorymembers[]?.title' | sed "s|^|$cat\t|" >> names.txt || true
+          done
+          for f in "File:Dashcam Video Shows Florida Trooper Hit By Car.webm" "File:Dashcam Shows Trooper Chasing Down Driver Who Hit Her Patrol Car.webm" "File:Video Shows Suspect Crash Stolen Amazon Truck Into Cars During Wild Police Pursuit.webm" "File:Parking Gate Crash.webm" "File:Las Vegas Boulevard 4 Car Accident No.2.webm" "File:2ES6 car crash.webm" "File:Wild Police Chase Ends in Crash After TVI Maneuver on Pickup Truck.webm" "File:Dash cam footage shows driver ignoring barricades, nearly hitting people.webm" "File:Dashcam film.webm"; do
+            printf 'manual\t%s\n' "$f" >> names.txt
+          done
+          echo "== candidates =="; cat names.txt
+          n=0
+          cut -f2 names.txt | grep -iE '\.(webm|ogv|mp4|mpg|mpeg)$' | sort -u | while read -r title; do
+            [ $n -ge 30 ] && break
+            enc=$(jq -rn --arg t "$title" '$t|@uri')
+            info=$(curl -sS -A "$UA" "https://commons.wikimedia.org/w/api.php?action=query&titles=${enc}&prop=imageinfo&iiprop=url|size|mediatype|extmetadata&format=json")
+            url=$(echo "$info" | jq -r '.query.pages[].imageinfo[0].url // empty')
+            size=$(echo "$info" | jq -r '.query.pages[].imageinfo[0].size // 0')
+            dur=$(echo "$info" | jq -r '.query.pages[].imageinfo[0].duration // 0')
+            lic=$(echo "$info" | jq -r '.query.pages[].imageinfo[0].extmetadata.LicenseShortName.value // "?"')
+            desc=$(echo "$info" | jq -r '.query.pages[].imageinfo[0].extmetadata.ImageDescription.value // ""' | sed 's/<[^>]*>//g' | tr '\n\t' '  ' | cut -c1-400)
+            echo "$title | $size bytes | ${dur}s | $lic"
+            [ -z "$url" ] && continue
+            [ "$size" -gt 150000000 ] && continue
+            n=$((n+1))
+            safe=$(printf '%02d' $n)_$(echo "$title" | sed 's/^File://; s/\.[a-z0-9]*$//; s/[^A-Za-z0-9]\+/_/g' | cut -c1-60)
+            curl -sSfL -A "$UA" -o "raw/$safe.src" "$url" || continue
+            ffmpeg -nostdin -loglevel error -y -i "raw/$safe.src" -t 120 -vf "scale='min(960,iw)':-2" -an -c:v libx264 -preset veryfast -crf 27 "out/videos/$safe.mp4" || continue
+            printf '%s\t%s\t%s\t%s\t%s\n' "$safe.mp4" "$title" "$lic" "$dur" "$desc" >> out/videos/INDEX.tsv
+            rm -f "raw/$safe.src"
+          done
+          ls -la out/videos; du -sh out
+      - name: OpenCV sample (no crash)
+        run: curl -sSfL -o raw/vtest.avi https://github.com/opencv/opencv/raw/4.x/samples/data/vtest.avi && ffmpeg -nostdin -loglevel error -y -i raw/vtest.avi -c:v libx264 -preset veryfast -crf 27 out/videos/00_opencv_vtest_pedestrians.mp4 || true
+      - name: Push to orphan branch ai-testdata
+        run: |
+          cd out
+          git init -q -b ai-testdata
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -q -m "Temporary AI test data (YOLOX-S model, Apache-2.0; Wikimedia Commons videos, see INDEX.tsv)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ai-testdata
