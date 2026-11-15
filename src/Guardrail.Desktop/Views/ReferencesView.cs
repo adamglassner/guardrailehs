@@ -115,6 +115,7 @@ public sealed class ReferencesView : UserControl
             "workplace" => BuildWorkplace(),
             "fleet" => BuildFleet(),
             "osha" => BuildOsha(),
+            "topics" => BuildOshaTopics(),
             _ => BuildNumbers(),
         };
     }
@@ -686,6 +687,8 @@ public sealed class ReferencesView : UserControl
         ext.Children.Add(Label("USE IT: P.A.S.S."));
         ext.Children.Add(KeyRows([("Pull", "the pin"), ("Aim", "low, at the base of the fire"), ("Squeeze", "the handle"), ("Sweep", "side to side")]));
         ext.Children.Add(Para("Only fight a small, contained fire with a clear exit behind you. If in doubt, get out and call 911."));
+        ext.Children.Add(Label("UPKEEP (1910.157)"));
+        ext.Children.Add(KeyRows([("Monthly", "Visual inspection"), ("Yearly", "Maintenance check, recorded on the tag"), ("Yearly", "Training for employees expected to use them")]));
 
         page.Children.Add(TwoColumns(Section("Hierarchy of controls (NIOSH)", hier), Section("Fire extinguisher classes", ext)));
 
@@ -851,6 +854,198 @@ public sealed class ReferencesView : UserControl
                 Formula("Accident frequency", "Vehicle accidents × 1,000,000 ÷ miles driven"),
                 Para("200,000 hours = 100 full-time employees working 40 hours a week for 50 weeks. Guardrail calculates these for you on the Dashboard from Monthly Data.")))));
         page.Children.Add(SourceNote("Summaries of 29 CFR 1904. Electronic submission rules depend on establishment size and industry — check osha.gov/injuryreporting."));
+        return page;
+    }
+
+    // =====================================================================
+    // OSHA topics
+    // =====================================================================
+
+    private FrameworkElement BuildOshaTopics()
+    {
+        var page = new StackPanel();
+
+        page.Children.Add(TwoColumns(
+            Section("Fall protection", Stack(
+                Label("WHEN IT'S REQUIRED"),
+                KeyRows([
+                    ("General industry", "4 ft (1910.28)"),
+                    ("Construction", "6 ft (1926.501)"),
+                    ("Scaffolds", "10 ft (1926.451)"),
+                    ("Any height", "Over dangerous equipment or machinery"),
+                ]),
+                Label("GUARDRAILS AND ARREST SYSTEMS"),
+                Bullets([
+                    "Top rail 42 in (±3 in) high, holds 200 lb; midrail about halfway; toeboard at least 3.5 in.",
+                    "Personal fall arrest anchors hold 5,000 lb per person (or are designed by a qualified person).",
+                    "Free fall no more than 6 ft, and the worker must not hit a lower level.",
+                    "Plan rescue — suspension trauma can set in within minutes.",
+                ]),
+                Label("LADDERS"),
+                Bullets([
+                    "Set extension ladders at 4:1 — 1 ft out for every 4 ft up.",
+                    "Side rails extend 3 ft above the landing.",
+                    "Keep three points of contact; face the ladder; don't stand on the top cap or top step.",
+                    "Inspect before use; tag out damaged ladders.",
+                    "New fixed ladders over 24 ft need a ladder safety or fall arrest system (cages phase out by 2036).",
+                ]))),
+            Section("Training — who needs it and how often", KeyRows([
+                ("Hazard Communication", "Before first assignment and whenever a new hazard is introduced"),
+                ("Lockout / tagout", "At hire, when jobs or equipment change; procedures inspected yearly"),
+                ("Forklifts", "Before operating; evaluated at least every 3 years"),
+                ("Respirators", "Medical evaluation, then fit test before first use and every year"),
+                ("Hearing conservation", "Every year for anyone at or above 85 dBA"),
+                ("Bloodborne pathogens", "At hire and every year"),
+                ("Fire extinguishers", "At hire and every year (if expected to use them)"),
+                ("Emergency action plan", "At hire, when the plan or their role changes"),
+                ("Confined space", "Before entry duties and when duties change"),
+                ("Fall protection", "Before exposure (construction); retrain when needed"),
+                ("PPE", "Before use: when, what, how to wear, limits, care"),
+                ("First aid", "Required where no clinic or hospital is near; keep certifications current"),
+            ]))));
+
+        page.Children.Add(TwoColumns(
+            Section("Noise (1910.95)", Stack(
+                KeyRows([
+                    ("85 dBA (8-hr avg)", "Action level — hearing conservation program, free hearing protection, baseline audiogram within 6 months, yearly audiograms and training"),
+                    ("90 dBA (8-hr avg)", "Permissible exposure limit — engineering or administrative controls, hearing protection required"),
+                    ("Every +5 dB", "Halves the allowed time (95 dBA = 4 hours, 100 dBA = 2 hours)"),
+                    ("115 dBA", "Never exceed (continuous noise)"),
+                ]),
+                Para("Rule of thumb: if you have to raise your voice to talk to someone an arm's length away, it's probably over 85 dBA."))),
+            Section("Heat and cold stress", Stack(
+                Label("HEAT — WATER, REST, SHADE"),
+                Bullets([
+                    "Drink about 1 cup of water every 15–20 minutes, even if not thirsty.",
+                    "Acclimatize new and returning workers: about 20% of a normal workload on day one, building up over 1–2 weeks.",
+                    "Heat exhaustion: heavy sweating, weakness, dizziness, nausea, headache — move to shade, cool down, give water.",
+                    "Heat stroke: confusion, slurred speech, fainting or seizures, very high body temperature — CALL 911 and cool the person immediately (ice, cold water, wet cloths).",
+                ]),
+                Label("COLD"),
+                Bullets([
+                    "Hypothermia: shivering, confusion, slurred speech — get them warm and dry, call 911 if severe.",
+                    "Frostbite: numbness, white or grayish skin — don't rub it; warm slowly and get medical care.",
+                ])))));
+
+        page.Children.Add(TwoColumns(
+            Section("Confined spaces (1910.146)", Stack(
+                Para("A confined space is large enough to enter, has limited ways in or out, and isn't designed for continuous occupancy. It's permit-required if it also has (or could have) a hazardous atmosphere, engulfment hazard, inward-sloping walls that could trap someone, or any other serious hazard."),
+                KeyRows([
+                    ("Entry supervisor", "Signs the permit, makes sure tests and rescue are in place"),
+                    ("Attendant", "Stays outside, keeps a count, summons rescue — never enters"),
+                    ("Entrant", "Knows the hazards, communicates, gets out when told"),
+                ]),
+                Label("TEST THE AIR — IN THIS ORDER"),
+                KeyRows([
+                    ("1. Oxygen", "19.5% – 23.5%"),
+                    ("2. Flammables", "Below 10% of the LEL"),
+                    ("3. Toxics", "Below the exposure limits (e.g. H2S, CO)"),
+                ]),
+                Para("Most confined-space deaths are would-be rescuers. Don't enter to rescue unless you're trained, equipped and part of the plan."))),
+            Section("Excavations and trenches (1926 Subpart P)", Stack(
+                Bullets([
+                    "5 ft or deeper: a protective system — sloping, benching, shoring or a trench box (unless it's all stable rock).",
+                    "20 ft or deeper: the protective system must be designed by a registered professional engineer.",
+                    "4 ft or deeper: a ladder, ramp or stairway within 25 ft of lateral travel.",
+                    "Keep spoil piles and equipment at least 2 ft back from the edge.",
+                    "A competent person inspects daily, before each shift and after rain or anything that changes conditions.",
+                    "Call 811 before you dig.",
+                ]),
+                Label("MAXIMUM SLOPES (UNDER 20 FT)"),
+                KeyRows([
+                    ("Stable rock", "Vertical (90°)"),
+                    ("Type A soil", "¾ : 1 (53°)"),
+                    ("Type B soil", "1 : 1 (45°)"),
+                    ("Type C soil", "1½ : 1 (34°)"),
+                ])))));
+
+        page.Children.Add(TwoColumns(
+            Section("Electrical", Stack(
+                KeyRows([
+                    ("Overhead lines", "Keep people and conductive objects at least 10 ft from lines up to 50 kV, plus 4 in for every 10 kV above that"),
+                    ("Cranes", "20 ft from lines up to 350 kV (1926.1408) unless the line is de-energized"),
+                    ("GFCIs", "On temporary power and all 120 V, 15/20/30 A receptacles at construction sites"),
+                    ("Cords", "No splices, no missing ground pins; don't run through doors or walls"),
+                    ("Panels", "Keep 3 ft of clear working space in front of electrical panels"),
+                ]),
+                Para("Arc-flash boundaries, labels and PPE categories come from NFPA 70E — only qualified workers work on or near exposed energized parts."))),
+            Section("Forklifts (1910.178)", Stack(
+                Bullets([
+                    "Only trained, evaluated operators — evaluated at least every 3 years.",
+                    "Refresher training after an accident or near miss, unsafe driving, a bad evaluation, or a new type of truck or workplace.",
+                    "Inspect before every shift (every shift if run around the clock); take defective trucks out of service.",
+                    "No one under 18 may operate a forklift (U.S. child labor rules).",
+                    "Wear the seat belt; forks low when traveling; look in the direction of travel; no riders.",
+                    "Know the stability triangle — tip-overs happen turning with a raised load.",
+                ])))));
+
+        page.Children.Add(TwoColumns(
+            Section("PPE (1910.132)", Stack(
+                Bullets([
+                    "Do a written, certified hazard assessment to decide what PPE each job needs.",
+                    "The employer pays for required PPE — except ordinary safety-toe shoes, prescription safety glasses and everyday clothing.",
+                    "Train before use and replace damaged PPE.",
+                ]),
+                Label("STANDARDS TO LOOK FOR"),
+                KeyRows([
+                    ("Eye / face", "ANSI Z87.1 — \"Z87+\" means impact rated"),
+                    ("Hard hats", "ANSI Z89.1 — Type I (top) or II (top and side); Class G 2,200 V, E 20,000 V, C no electrical protection"),
+                    ("High visibility", "ANSI/ISEA 107 — Class 2 or 3 near traffic"),
+                    ("Cut gloves", "ANSI/ISEA 105 — levels A1 (lowest) to A9"),
+                    ("Safety footwear", "ASTM F2413"),
+                ]))),
+            Section("Eyewash and first aid", Stack(
+                KeyRows([
+                    ("Eyewash reach", "Within 10 seconds (about 55 ft) of the hazard, on the same level, unobstructed"),
+                    ("Flush", "15 minutes of tepid water (60–100°F)"),
+                    ("Upkeep", "Activate plumbed units weekly; inspect all yearly (ANSI Z358.1)"),
+                    ("First aid", "If no clinic or hospital is near, have trained first-aiders and supplies (1910.151)"),
+                    ("Kits", "ANSI/ISEA Z308.1 Class A (common injuries) or Class B (higher-risk sites)"),
+                ]),
+                Para("OSHA requires suitable eyewash facilities wherever corrosive materials are used (1910.151(c))."))));
+
+        page.Children.Add(TwoColumns(
+            Section("Written programs most sites need", KeyRows([
+                ("Emergency action plan", "1910.38 — may be verbal with 10 or fewer employees"),
+                ("Fire prevention plan", "1910.39 — same 10-employee rule"),
+                ("Hazard Communication", "1910.1200 — chemical list, labels, SDSs, training"),
+                ("Energy control (LOTO)", "1910.147 — plus machine-specific procedures"),
+                ("Respiratory protection", "1910.134 — when respirators are required"),
+                ("Bloodborne pathogens", "1910.1030 — exposure control plan reviewed yearly; hepatitis B vaccine offered free within 10 working days"),
+                ("Hearing conservation", "1910.95 — at or above 85 dBA"),
+                ("Permit-required confined spaces", "1910.146 — if workers enter them"),
+                ("PPE hazard assessment", "1910.132(d) — written certification"),
+            ])),
+            Section("Postings and other quick rules", Stack(
+                Bullets([
+                    "Display the OSHA \"Job Safety and Health — It's the Law\" poster where employees will see it.",
+                    "Post the OSHA 300A summary February 1 – April 30.",
+                    "Post any OSHA citation at or near the hazard for 3 working days or until it's fixed, whichever is longer.",
+                    "Tell employees each year about their right to see exposure and medical records (1910.1020).",
+                    "Exit routes stay clear, marked and unlocked from the inside; at least 28 in wide.",
+                    "Compressed air for cleaning must be reduced below 30 psi, with chip guarding and PPE.",
+                    "Employees can't be retaliated against for reporting an injury or a hazard (Section 11(c)).",
+                ])))));
+
+        page.Children.Add(TwoColumns(
+            Section("OSHA penalties (2026 maximums)", Stack(
+                KeyRows([
+                    ("Serious", "$16,550 per violation"),
+                    ("Other-than-serious", "$16,550 per violation"),
+                    ("Failure to abate", "$16,550 per day past the abatement date"),
+                    ("Willful or repeated", "$165,514 per violation"),
+                ]),
+                Para("No inflation increase was applied for 2026, so these are the 2025 amounts. State-plan states set their own (at least as high)."))),
+            Section("What OSHA inspects first", Numbered([
+                "Imminent danger",
+                "Severe injuries and illnesses — fatalities, hospitalizations, amputations, eye losses",
+                "Worker complaints",
+                "Referrals from other agencies, organizations or the media",
+                "Targeted inspections — high-hazard industries and emphasis programs",
+                "Follow-up inspections",
+            ]))));
+
+        page.Children.Add(SourceNote("Quick summaries of OSHA standards (29 CFR 1910 and 1926) and consensus standards (ANSI, NFPA). State-plan states may be stricter. Check the full standard at osha.gov before relying on a detail."));
         return page;
     }
 
