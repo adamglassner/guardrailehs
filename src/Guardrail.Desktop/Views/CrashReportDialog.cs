@@ -48,6 +48,18 @@ public sealed class CrashReportDialog : DialogFrame
         close.IsCancel = true;
         close.Click += (_, _) => Close();
         right.Children.Add(open);
+        if (review.IsWeb)
+        {
+            var web = MakeButton("Open link", "GhostButton", "\uE774");
+            web.Margin = new Thickness(0, 0, 10, 0);
+            web.ToolTip = review.SourceUrl;
+            web.Click += (_, _) =>
+            {
+                try { Process.Start(new ProcessStartInfo(review.SourceUrl) { UseShellExecute = true }); }
+                catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { Toaster.Show($"Couldn't open the link: {ex.Message}"); }
+            };
+            right.Children.Add(web);
+        }
         right.Children.Add(again);
         right.Children.Add(close);
         Footer.Children.Add(right);

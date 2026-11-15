@@ -16,6 +16,8 @@ public static class ReviewState
 public sealed class VideoReview : RecordBase
 {
     public string VideoPath { get; set; } = "";
+    /// <summary>The web link the video came from (empty for files on this PC).</summary>
+    public string SourceUrl { get; set; } = "";
     public long VideoSize { get; set; }
     public DateTime VideoModified { get; set; }
     /// <summary>"Added by hand", "Watch folder" or "Accident ACC-0003".</summary>
@@ -31,7 +33,8 @@ public sealed class VideoReview : RecordBase
     [JsonIgnore] public string Stage { get; set; } = "";
 
     [JsonIgnore] public override string Prefix => "CR";
-    [JsonIgnore] public string VideoName => Path.GetFileName(VideoPath);
+    [JsonIgnore] public bool IsWeb => SourceUrl.Length > 0;
+    [JsonIgnore] public string VideoName => IsWeb ? Guardrail.Services.WebVideo.DisplayName(SourceUrl) : Path.GetFileName(VideoPath);
     [JsonIgnore] public string DateText => (AnalyzedAt ?? CreatedAt).ToString("MMM d, yyyy h:mm tt");
     [JsonIgnore] public bool IsDone => State == ReviewState.Done && Report != null;
     [JsonIgnore] public bool VideoExists => File.Exists(VideoPath);

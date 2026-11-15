@@ -59,6 +59,27 @@
                         </StackPanel>
                     </Grid>
 
+                    <Border BorderBrush="{DynamicResource Brush.Border}" BorderThickness="0,1,0,0" Padding="20,14">
+                        <StackPanel>
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Style="{StaticResource PrimaryButton}" Margin="10,0,0,0" Click="AnalyzeLink_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#xE71B;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                                        <TextBlock Text="Analyze link" />
+                                    </StackPanel>
+                                </Button>
+                                <Grid>
+                                    <TextBox x:Name="LinkBox" KeyDown="LinkBox_KeyDown" TextChanged="LinkBox_TextChanged" />
+                                    <TextBlock x:Name="LinkHint" IsHitTestVisible="False" Margin="12,0,12,0" VerticalAlignment="Center"
+                                               Style="{StaticResource Muted}" TextTrimming="CharacterEllipsis"
+                                               Text="…or paste a video link: YouTube, Facebook, Vimeo, Dropbox, Google Drive, OneDrive, a dashcam portal" />
+                                </Grid>
+                            </DockPanel>
+                            <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="2,6,0,0" TextWrapping="Wrap"
+                                       Text="The video is downloaded to this PC and kept with its report. Only analyze videos you have the right to use." />
+                        </StackPanel>
+                    </Border>
+
                     <Border x:Name="NowPanel" Background="{DynamicResource Brush.SurfaceAlt}" BorderBrush="{DynamicResource Brush.Border}"
                             BorderThickness="0,1,0,0" CornerRadius="0,0,13,13" Padding="20,14" Visibility="Collapsed">
                         <StackPanel>

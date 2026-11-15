@@ -60,6 +60,29 @@ public static class CrashReviewService
         return review;
     }
 
+    /// <summary>Queues a web link: the video is downloaded, kept with the review, then analyzed. Call on the UI thread.</summary>
+    public static VideoReview? AddUrl(string url, string source = "Web link")
+    {
+        if (!WebVideo.LooksLikeUrl(url)) return null;
+        var review = new VideoReview { SourceUrl = url.Trim(), Source = $"{source} · {new Uri(url.Trim()).Host.Replace("www.", "")}" };
+        DataStore.CrashReviews.Add(review);
+        Signal.Release();
+        Changed?.Invoke();
+        return review;
+    }
+
+    /// <summary>Asked (once) before yt-dlp is downloaded. Runs on the UI thread.</summary>
+    private static bool MayGetYtDlp() => OnUi(() =>
+    {
+        if (App.Settings.AllowYtDlp) return true;
+        bool ok = Views.MessageDialog.Confirm("Download yt-dlp?",
+            "This link is on a site like YouTube, Facebook or Vimeo. Guardrail uses yt-dlp, a free open-source downloader, to get the video. " +
+            "It's downloaded once (about 18 MB) from yt-dlp's official GitHub releases and checked before use.\n\n" +
+            "Only analyze videos you have the right to use.", "Download yt-dlp", "Not now");
+        if (ok) { App.Settings.AllowYtDlp = true; App.Settings.Save(); }
+        return ok;
+    });
+
     public static void Retry(VideoReview review)
     {
         review.State = ReviewState.Waiting;
@@ -213,7 +236,6 @@ public static class CrashReviewService
 
                 try
                 {
-                    if (!File.Exists(next.VideoPath)) throw new FileNotFoundException("The video file has been moved or deleted.");
                     var lastUi = DateTime.MinValue;
                     var progress = new InlineProgress<(string Stage, double Fraction)>(p =>
                     {
@@ -223,6 +245,19 @@ public static class CrashReviewService
                         lastUi = DateTime.UtcNow;
                         OnUiAsync(() => Changed?.Invoke());
                     });
+                    if (next.IsWeb && (next.VideoPath.Length == 0 || !File.Exists(next.VideoPath)))
+                    {
+                        string path = WebVideo.DownloadAsync(next.SourceUrl, next.Folder, progress, MayGetYtDlp, _cancel.Token).GetAwaiter().GetResult();
+                        var info = new FileInfo(path);
+                        OnUi(() =>
+                        {
+                            next.VideoPath = path;
+                            next.VideoSize = info.Length;
+                            next.VideoModified = info.LastWriteTimeUtc;
+                            if (DataStore.CrashReviews.Items.Contains(next)) DataStore.CrashReviews.Update(next);
+                        });
+                    }
+                    if (!File.Exists(next.VideoPath)) throw new FileNotFoundException("The video file has been moved or deleted.");
                     var report = CrashAnalyzer.Analyze(next.VideoPath, next.Folder, progress, _cancel.Token);
                     foreach (var key in report.KeyFrames) DataLock.ProtectFile(Path.Combine(next.Folder, key.FileName));
                     OnUi(() =>
@@ -263,6 +298,7 @@ public static class CrashReviewService
     private static string Friendly(Exception ex) => ex switch
     {
         FileNotFoundException => "The video file has been moved or deleted.",
+        System.Net.Http.HttpRequestException h => $"Couldn't reach that link: {h.Message}",
         InvalidDataException => ex.Message,
         OutOfMemoryException => "The computer ran out of memory on this video.",
         DllNotFoundException or TypeInitializationException => "The video engine couldn't start on this PC.",

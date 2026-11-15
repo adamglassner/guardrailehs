@@ -22,6 +22,8 @@ public sealed class AppSettings
     public bool CrashAnalyzeAccidents { get; set; } = true;
     /// <summary>Let the AI fill in preventability on accidents still pending review, when it's confident.</summary>
     public bool CrashSetPreventability { get; set; } = true;
+    /// <summary>Permission given to download yt-dlp (for links to YouTube and similar sites).</summary>
+    public bool AllowYtDlp { get; set; }
 
     private static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

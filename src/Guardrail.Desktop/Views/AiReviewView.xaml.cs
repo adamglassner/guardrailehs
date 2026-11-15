@@ -112,9 +112,35 @@ public partial class AiReviewView : UserControl
             Toaster.Show($"{skipped} file{(skipped == 1 ? " isn't a video" : "s aren't videos")} Guardrail can read.");
     }
 
+    // ----- Web links -----
+
+    private void AnalyzeLink_Click(object sender, RoutedEventArgs e) => AddLinks(LinkBox.Text);
+
+    private void LinkBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Enter) { e.Handled = true; AddLinks(LinkBox.Text); }
+    }
+
+    private void LinkBox_TextChanged(object sender, TextChangedEventArgs e) =>
+        LinkHint.Visibility = LinkBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>Queues every link in the text (one per line or space-separated).</summary>
+    private void AddLinks(string text)
+    {
+        var links = text.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries).Where(WebVideo.LooksLikeUrl).ToList();
+        if (links.Count == 0)
+        {
+            Toaster.Show("Paste a link that starts with http:// or https://.");
+            return;
+        }
+        foreach (var l in links) CrashReviewService.AddUrl(l);
+        LinkBox.Clear();
+        Toaster.Show(links.Count == 1 ? "Link added. Guardrail downloads the video, then analyzes it." : $"{links.Count} links added.");
+    }
+
     private void DropZone_DragOver(object sender, DragEventArgs e)
     {
-        e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetDataPresent(DataFormats.UnicodeText) ? DragDropEffects.Copy : DragDropEffects.None;
         DropOutline.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.Accent");
         e.Handled = true;
     }
@@ -125,6 +151,11 @@ public partial class AiReviewView : UserControl
     private void DropZone_Drop(object sender, DragEventArgs e)
     {
         DropZone_DragLeave(sender, e);
+        if (e.Data.GetData(DataFormats.FileDrop) is not string[] && e.Data.GetData(DataFormats.UnicodeText) is string dropped)
+        {
+            AddLinks(dropped); // a link dragged from a browser
+            return;
+        }
         if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
         {
             var all = files.SelectMany(f => Directory.Exists(f) ? Directory.EnumerateFiles(f) : new[] { f }).ToList();
