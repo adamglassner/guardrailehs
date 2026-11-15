@@ -14,6 +14,9 @@ public partial class SettingsView : UserControl
     public SettingsView()
     {
         InitializeComponent();
+        // Always the version this exe was built as (set from the .csproj by build.ps1 / CI).
+        var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        VersionText.Text = $"Guardrail EHS {version?.ToString(3) ?? ""} (preview)";
 
         (App.Settings.Theme switch
         {
