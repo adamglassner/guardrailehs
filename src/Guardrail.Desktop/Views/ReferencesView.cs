@@ -1002,7 +1002,7 @@ public sealed class ReferencesView : UserControl
                     ("First aid", "If no clinic or hospital is near, have trained first-aiders and supplies (1910.151)"),
                     ("Kits", "ANSI/ISEA Z308.1 Class A (common injuries) or Class B (higher-risk sites)"),
                 ]),
-                Para("OSHA requires suitable eyewash facilities wherever corrosive materials are used (1910.151(c))."))));
+                Para("OSHA requires suitable eyewash facilities wherever corrosive materials are used (1910.151(c)).")))));
 
         page.Children.Add(TwoColumns(
             Section("Written programs most sites need", KeyRows([
