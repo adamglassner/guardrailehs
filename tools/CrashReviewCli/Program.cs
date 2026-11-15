@@ -67,6 +67,9 @@ static class Probe
             OpenCvSharp.Cv2.CalcOpticalFlowPyrLK(g0, g1, all, ref p1, out byte[] st, out _, new OpenCvSharp.Size(21, 21), 3);
             OpenCvSharp.Cv2.MeanStdDev(g0, out var mean, out var sd);
             Console.WriteLine($"t={ex.Samples[i].T:0.00} size={g0.Cols}x{g0.Rows} mean={mean.Val0:0.0} sd={sd.Val0:0.0} corners(no mask)={all.Length} lkOk={st.Count(b => b == 1)}");
+            foreach (double q in new[] { 0.01, 0.005, 0.002, 0.001 })
+                foreach (int bs in new[] { 3, 5 })
+                    Console.WriteLine($"   quality={q} block={bs} corners={OpenCvSharp.Cv2.GoodFeaturesToTrack(g0, 300, q, 8, null, bs, false, 0.04).Length}");
             Directory.CreateDirectory("probe");
             File.WriteAllBytes(Path.Combine("probe", $"frame_{i}.jpg"), ex.Samples[i].Jpeg);
         }
