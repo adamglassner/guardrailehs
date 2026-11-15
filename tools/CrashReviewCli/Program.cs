@@ -65,7 +65,10 @@ static class Probe
             var all = OpenCvSharp.Cv2.GoodFeaturesToTrack(g0, 300, 0.01, 8, null, 3, false, 0.04);
             var p1 = Array.Empty<OpenCvSharp.Point2f>();
             OpenCvSharp.Cv2.CalcOpticalFlowPyrLK(g0, g1, all, ref p1, out byte[] st, out _, new OpenCvSharp.Size(21, 21), 3);
-            Console.WriteLine($"t={ex.Samples[i].T:0.00} size={g0.Cols}x{g0.Rows} type={g0.Type()} corners(no mask)={all.Length} lkOk={st.Count(b => b == 1)}");
+            OpenCvSharp.Cv2.MeanStdDev(g0, out var mean, out var sd);
+            Console.WriteLine($"t={ex.Samples[i].T:0.00} size={g0.Cols}x{g0.Rows} mean={mean.Val0:0.0} sd={sd.Val0:0.0} corners(no mask)={all.Length} lkOk={st.Count(b => b == 1)}");
+            Directory.CreateDirectory("probe");
+            File.WriteAllBytes(Path.Combine("probe", $"frame_{i}.jpg"), ex.Samples[i].Jpeg);
         }
         double frac = MotionPass.Run(ex.Samples, CancellationToken.None);
         Console.WriteLine($"static fraction {frac:0.000}");

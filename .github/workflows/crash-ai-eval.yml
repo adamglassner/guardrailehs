@@ -27,7 +27,10 @@ jobs:
           dotnet build tools/CrashReviewCli -c Release -v q -nologo
           $exe = Get-ChildItem tools/CrashReviewCli/bin/Release -Recurse -Filter CrashReviewCli.exe | Select-Object -First 1
           & $exe.FullName --probe (Get-ChildItem testdata/videos/03_*.mp4).FullName
+          New-Item -ItemType Directory -Force (Join-Path $env:RUNNER_TEMP 'eval') | Out-Null
+          Copy-Item probe -Destination (Join-Path $env:RUNNER_TEMP 'eval') -Recurse
       - name: Engine on test videos (with per-frame dump)
+        if: false
         shell: pwsh
         env:
           GUARDRAIL_DUMP: '1'
@@ -41,7 +44,7 @@ jobs:
         shell: bash
         run: |
           cd "$RUNNER_TEMP/eval"
-          find . -name '*.jpg' -delete
+          find . -name 'key*.jpg' -delete
           git init -q -b ai-debug
           git config user.name github-actions; git config user.email github-actions@users.noreply.github.com
           git add -A && git commit -q -m "Crash Review C# per-frame dumps"
