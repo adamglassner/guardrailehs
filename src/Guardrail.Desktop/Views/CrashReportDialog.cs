@@ -51,7 +51,7 @@ public sealed class CrashReportDialog : DialogFrame
         {
             var rename = MakeButton(review.CameraName.Length > 0 ? "Rename vehicle…" : "Name vehicle…", "GhostButton", "\uE8AC");
             rename.Margin = new Thickness(0, 0, 10, 0);
-            rename.ToolTip = "Say which of your vehicles the camera was in, e.g. Unit 104";
+            rename.ToolTip = "Say which vehicle the camera was in, e.g. Unit 104";
             rename.Click += (_, _) => NameVehicle();
             right.Children.Insert(0, rename);
         }
@@ -83,7 +83,7 @@ public sealed class CrashReportDialog : DialogFrame
         }
         if (_report.SpeedTrace.Count > 4 && _report.CameraKind.StartsWith("Dashcam"))
         {
-            body.Children.Add(SectionTitle(_review.CameraName.Length > 0 ? $"{_review.CameraName.ToUpperInvariant()}'S MOVEMENT" : "YOUR VEHICLE'S MOVEMENT"));
+            body.Children.Add(SectionTitle(_review.CameraName.Length > 0 ? $"{_review.CameraName.ToUpperInvariant()}'S MOVEMENT" : "CAMERA VEHICLE'S MOVEMENT"));
             body.Children.Add(Timeline());
         }
         if (_report.Findings.Count > 0)
@@ -330,8 +330,8 @@ public sealed class CrashReportDialog : DialogFrame
     {
         var units = DataStore.Vehicles.Items.Select(v => VideoReview.NameForUnit(v.UnitNumber.Trim())).Where(n => n.Length > 0).Distinct().OrderBy(n => n).ToArray();
         var dialog = new FormDialog("Name the camera vehicle",
-            "The report will say this instead of \"your vehicle\" (for example \"Unit 104 drifted across the centre line\").",
-            [new FormField { Key = "name", Label = "Vehicle", Value = _review.CameraName, Suggestions = units, Hint = units.Length > 0 ? "Pick a fleet unit or type any name. Leave blank for \"your vehicle\"." : "e.g. Unit 104, Truck 12, Service van 3. Leave blank for \"your vehicle\"." }],
+            "The report will say this instead of \"the camera vehicle\" (for example \"Unit 104 drifted across the centre line\").",
+            [new FormField { Key = "name", Label = "Vehicle", Value = _review.CameraName, Suggestions = units, Hint = units.Length > 0 ? "Pick a fleet unit or type any name. Leave blank for \"the camera vehicle\"." : "e.g. Unit 104, Truck 12, Service van 3. Leave blank for \"the camera vehicle\"." }],
             allowDelete: false, saveText: "Save");
         if (dialog.ShowDialog() != true) return;
         CrashReviewService.SetCameraName(_review, dialog.Text("name"));

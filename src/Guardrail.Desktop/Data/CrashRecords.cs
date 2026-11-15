@@ -18,7 +18,7 @@ public sealed class VideoReview : RecordBase
     public string VideoPath { get; set; } = "";
     /// <summary>The web link the video came from (empty for files on this PC).</summary>
     public string SourceUrl { get; set; } = "";
-    /// <summary>What the camera vehicle is called in the report, e.g. "Unit 104" (empty = "your vehicle").</summary>
+    /// <summary>What the camera vehicle is called in the report, e.g. "Unit 104" (empty = "the camera vehicle").</summary>
     public string CameraName { get; set; } = "";
     public long VideoSize { get; set; }
     public DateTime VideoModified { get; set; }
@@ -47,7 +47,7 @@ public sealed class VideoReview : RecordBase
     [JsonIgnore]
     public string DisplayStatus => !IsDone ? State : Report!.Verdict switch
     {
-        Verdicts.Camera => "Your vehicle at fault",
+        Verdicts.Camera => "Camera vehicle at fault",
         Verdicts.Other => "Other party at fault",
         Verdicts.A => "Vehicle A at fault",
         Verdicts.B => "Vehicle B at fault",
@@ -60,19 +60,19 @@ public sealed class VideoReview : RecordBase
     [JsonIgnore] public string CameraText => !IsDone ? "" : CameraName.Length > 0 ? $"{Report!.CameraKind} · {CameraName}" : Report!.CameraKind;
 
     /// <summary>
-    /// Puts the camera vehicle's name into report text: "Your vehicle drifted across…" → "Unit 104 drifted across…".
-    /// Also handles wording from reports made before vehicles could be named.
+    /// Puts the camera vehicle's name into report text ("The camera vehicle drifted across…" → "Unit 104 drifted across…").
+    /// Reports made by earlier versions said "your vehicle" / "you"; that wording is converted too.
     /// </summary>
     public string Describe(string text)
     {
-        if (CameraName.Length == 0 || text.Length == 0) return text;
-        string n = CameraName;
-        return text
-            .Replace("ahead of you, in your lane", $"ahead of {n}, in its lane")
-            .Replace("into your stopped vehicle", $"into {n} while it was stopped")
-            .Replace("Your vehicle's", $"{n}'s").Replace("your vehicle's", $"{n}'s")
-            .Replace("Your vehicle", n).Replace("your vehicle", n)
-            .Replace("on your left", $"on {n}'s left").Replace("your path", $"{n}'s path").Replace("your lane", $"{n}'s lane");
+        if (text.Length == 0) return text;
+        text = text
+            .Replace("ahead of you, in your lane", "ahead of the camera vehicle, in its lane")
+            .Replace("into your stopped vehicle", "into the camera vehicle while it was stopped")
+            .Replace("Your vehicle", "The camera vehicle").Replace("your vehicle", "the camera vehicle")
+            .Replace("on your left", "on the camera vehicle's left").Replace("your path", "the camera vehicle's path").Replace("your lane", "the camera vehicle's lane");
+        if (CameraName.Length == 0) return text;
+        return text.Replace("The camera vehicle", CameraName).Replace("the camera vehicle", CameraName).Replace("camera vehicle", CameraName);
     }
 
     /// <summary>A name from a fleet unit number: "104" → "Unit 104"; "Truck 12" stays as it is.</summary>

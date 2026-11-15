@@ -138,7 +138,7 @@
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock x:Name="KpiCamera" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Danger}" />
-                    <TextBlock Text="Our vehicle at fault" Style="{StaticResource Muted}" FontSize="12" />
+                    <TextBlock Text="Camera vehicle at fault" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">

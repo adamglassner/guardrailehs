@@ -57,10 +57,13 @@ public static class SelfTest
     {
         var named = new VideoReview { CameraName = "Unit 104" };
         Check("Crash AI: camera vehicle named in the report",
-            named.Describe("Your vehicle drifted across the yellow centre line.") == "Unit 104 drifted across the yellow centre line."
-            && named.Describe("The white car moved into your vehicle's lane.") == "The white car moved into Unit 104's lane."
-            && named.Describe("The black car was ahead of you, in your lane, for 3.0+ s.") == "The black car was ahead of Unit 104, in its lane, for 3.0+ s."
-            && new VideoReview().Describe("Your vehicle was most likely at fault") == "Your vehicle was most likely at fault");
+            named.Describe("The camera vehicle drifted across the yellow centre line.") == "Unit 104 drifted across the yellow centre line."
+            && named.Describe("The white car moved into the camera vehicle's lane.") == "The white car moved into Unit 104's lane."
+            && named.Describe("camera vehicle") == "Unit 104");
+        Check("Crash AI: no \"you\" wording, even in older reports",
+            new VideoReview().Describe("The black car was ahead of you, in your lane, for 3.0+ s.") == "The black car was ahead of the camera vehicle, in its lane, for 3.0+ s."
+            && new VideoReview().Describe("Your vehicle was most likely at fault") == "The camera vehicle was most likely at fault"
+            && named.Describe("Your vehicle crossed your path.") == "Unit 104 crossed Unit 104's path.");
         Check("Crash AI: unit numbers become names", VideoReview.NameForUnit("104") == "Unit 104" && VideoReview.NameForUnit("Truck 12") == "Truck 12");
 
         Check("Web: links recognized", WebVideo.LooksLikeUrl("https://youtu.be/abc") && !WebVideo.LooksLikeUrl("C:\\videos\\a.mp4") && !WebVideo.LooksLikeUrl("hello"));
@@ -283,11 +286,11 @@ public static class SelfTest
                 VideoPath = @"C:\videos\dashcam.mp4", State = ReviewState.Done, AnalyzedAt = DateTime.Now,
                 Report = new CrashReport
                 {
-                    Verdict = Verdicts.Camera, Confidence = 87, Headline = "Your vehicle was most likely at fault",
-                    Summary = "Your vehicle drifted across the yellow centre line into the oncoming lane.",
+                    Verdict = Verdicts.Camera, Confidence = 87, Headline = "The camera vehicle was most likely at fault",
+                    Summary = "The camera vehicle drifted across the yellow centre line into the oncoming lane.",
                     CollisionType = "Head-on (crossed the centre line)", CameraKind = "Dashcam (moving)", SplitScreen = true,
-                    ImpactSeconds = 8.5, DurationSeconds = 21, Parties = ["your vehicle", "white truck"], FaultShares = [94, 6],
-                    Findings = [new(5.5, "The yellow centre line was on your left."), new(7.5, "Your vehicle drifted across it."), new(8.5, "Head-on.")],
+                    ImpactSeconds = 8.5, DurationSeconds = 21, Parties = ["camera vehicle", "white truck"], FaultShares = [94, 6],
+                    Findings = [new(5.5, "The yellow centre line was on the camera vehicle's left."), new(7.5, "The camera vehicle drifted across it."), new(8.5, "Head-on.")],
                     KeyFrames = [new(6.5, "key1.jpg", "2 seconds before"), new(8.5, "key3.jpg", "Impact")],
                     SpeedTrace = Enumerable.Range(0, 100).Select(i => 3.0 + Math.Sin(i / 9.0)).ToList(), TraceStepSeconds = 0.2,
                 },

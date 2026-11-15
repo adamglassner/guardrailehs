@@ -345,7 +345,7 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Success}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Success}" />
             </Trigger>
-            <Trigger Property="Tag" Value="Your vehicle at fault">
+            <Trigger Property="Tag" Value="Camera vehicle at fault">
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Danger}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource Brush.Danger}" />
             </Trigger>
