@@ -6,7 +6,10 @@ namespace Guardrail.Views;
 /// <summary>A themed replacement for Windows' MessageBox: a message with OK, or a question with two choices.</summary>
 public sealed class MessageDialog : DialogFrame
 {
-    private MessageDialog(string title, string message, string okText, string? cancelText, bool danger)
+    /// <summary>Which button was picked in <see cref="Choose"/> (null when the dialog was closed).</summary>
+    private string? _picked;
+
+    private MessageDialog(string title, string message, string okText, string? cancelText, bool danger, string? extraText = null)
         : base(title, "", danger ? "" : "", 480)
     {
         if (danger) UseDangerTone();
