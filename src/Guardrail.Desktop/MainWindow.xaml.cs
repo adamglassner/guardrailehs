@@ -46,6 +46,12 @@ public partial class MainWindow : Window
             _dataTimer.Start();
             if (!SelfTest.IsRunning) CrashReviewService.Start();
             if (App.StartPage == "settings") ShowSettings();
+            else if (App.StartPage?.Split('/') is [var page, var tab])
+            {
+                // e.g. --page references/placards opens a tab inside a page
+                GoTo(page);
+                if (PageHost.Content is ReferencesView refs) refs.Select(tab);
+            }
             else GoTo(App.StartPage ?? ModuleCatalog.Dashboard.Key);
 
             if (SelfTest.IsRunning)
