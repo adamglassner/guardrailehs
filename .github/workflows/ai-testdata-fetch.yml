@@ -22,17 +22,40 @@ jobs:
         run: |
           mkdir -p out/videos raw
           : > names.txt
-          for cat in "Videos_of_traffic_collisions" "Videos_of_road_accidents" "Videos_of_car_crashes" "Dashcam_videos" "Videos_from_automobile_cameras" "Videos_of_traffic_accidents" "Traffic_collisions_in_videos"; do
-            curl -sS -A "$UA" "https://commons.wikimedia.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:${cat}&cmtype=file&cmlimit=200&format=json" \
-              | jq -r '.query.categorymembers[]?.title' | sed "s|^|$cat\t|" >> names.txt || true
-          done
-          for f in "File:Dashcam Video Shows Florida Trooper Hit By Car.webm" "File:Dashcam Shows Trooper Chasing Down Driver Who Hit Her Patrol Car.webm" "File:Video Shows Suspect Crash Stolen Amazon Truck Into Cars During Wild Police Pursuit.webm" "File:Parking Gate Crash.webm" "File:Las Vegas Boulevard 4 Car Accident No.2.webm" "File:2ES6 car crash.webm" "File:Wild Police Chase Ends in Crash After TVI Maneuver on Pickup Truck.webm" "File:Dash cam footage shows driver ignoring barricades, nearly hitting people.webm" "File:Dashcam film.webm"; do
-            printf 'manual\t%s\n' "$f" >> names.txt
-          done
+          printf 'manual\tFile:%s\n' 'Multiple cars rear-end collision on highway.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'The van in front suddenly changed lanes and caused the vehicle to rear-end collision.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'The speeding car rear-ended into the truck in front, and the front hood was blown open.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Speeding electric motorcycle crashes into silver-gray van.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'The car hit the woman crossing the zebra crossing and the white car on the left at the exit of the roundabout at the same time.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'The e-scooter rider hit the car and then rebounded and hit another e-scooter rider, 2024-11-18.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'White cars hit the lane divider at high speed on the highway.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'INSANE Car Crash caught on TeslaCam- Kia Soul flying through air!.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Distracted woman driver crashes Turo rental car into mailbox in Snohomish County, Washington (August 2025).webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Reckless Driver Yanked Out of Car After Swerving at Deputy During Chase.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Car accident in Kranj (Slovenia) Rover 400 vs Renault Clio.webm' >> names.txt
+          printf 'manual\tFile:%s\n' '400 SB Crash.webm' >> names.txt
+          printf 'manual\tFile:%s\n' '2ES6 car crash.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Parking Gate Crash.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Dashcam Video Shows Florida Trooper Hit By Car.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Dashcam Shows Trooper Chasing Down Driver Who Hit Her Patrol Car.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Video Shows Suspect Crash Stolen Amazon Truck Into Cars During Wild Police Pursuit.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Las Vegas Boulevard 4 Car Accident No.2.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Fatal Hit and Run Collision Involving Scooter.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Fatal Hit and Run Traffic Collision NR24134dm.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Felony Hit and Run Traffic Collision 1-22-2024 NR24209rc.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Pedestrian killed in Hit and Run Traffic Collision NR24121ktdm.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'EGM TEMMUZ 2022 Kaza 1.webm' >> names.txt
+          printf 'manual\tFile:%s\n' '80,000 pound truck loses brakes and heads for a school bus in Ohio (January 2021).webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Boxtruck carnage on Friday the 13th at the 11foot8 bridge.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Dash cam footage shows driver ignoring barricades, nearly hitting people.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Connect to the opposite lane and bypass the traffic accident section.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Cäcilienbrücke Oldenburg (Dashcam).webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Dashcam film.webm' >> names.txt
+          printf 'manual\tFile:%s\n' 'Speeding non-motorized vehicle crashes into gully next to road.webm' >> names.txt
           echo "== candidates =="; cat names.txt
           n=0
-          cut -f2 names.txt | grep -iE '\.(webm|ogv|mp4|mpg|mpeg)$' | sort -u | while read -r title; do
-            [ $n -ge 30 ] && break
+          cut -f2 names.txt | while read -r title; do
+            
             enc=$(jq -rn --arg t "$title" '$t|@uri')
             info=$(curl -sS -A "$UA" "https://commons.wikimedia.org/w/api.php?action=query&titles=${enc}&prop=imageinfo&iiprop=url|size|mediatype|extmetadata&format=json")
             url=$(echo "$info" | jq -r '.query.pages[].imageinfo[0].url // empty')
