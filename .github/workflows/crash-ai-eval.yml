@@ -1,0 +1,42 @@
+name: Crash Review AI eval (temporary)
+on:
+  push:
+    branches: [crash-ai-fix]
+permissions:
+  contents: write
+jobs:
+  eval:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-testdata
+          path: testdata
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Model
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force src/Guardrail.CrashReview/Models | Out-Null
+          Invoke-WebRequest 'https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.onnx' -OutFile src/Guardrail.CrashReview/Models/yolox_s.onnx
+      - name: Engine on test videos (with per-frame dump)
+        shell: pwsh
+        env:
+          GUARDRAIL_DUMP: '1'
+        run: |
+          dotnet build tools/CrashReviewCli -c Release -v q -nologo
+          $exe = Get-ChildItem tools/CrashReviewCli/bin/Release -Recurse -Filter CrashReviewCli.exe | Select-Object -First 1
+          $names = '02_*','03_*','05_*','07_*','18_*','26_*','27_*','28_*'
+          $vids = foreach ($n in $names) { Get-ChildItem "testdata/videos/$n.mp4" | ForEach-Object { $_.FullName } }
+          & $exe.FullName (Join-Path $env:RUNNER_TEMP 'eval') @vids
+      - name: Push dumps to branch ai-debug
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/eval"
+          find . -name '*.jpg' -delete
+          git init -q -b ai-debug
+          git config user.name github-actions; git config user.email github-actions@users.noreply.github.com
+          git add -A && git commit -q -m "Crash Review C# per-frame dumps"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ai-debug

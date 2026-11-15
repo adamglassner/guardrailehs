@@ -123,9 +123,9 @@ public static class Reasoner
                 double pre = Median(k => ts[k] >= t - 2.0 && ts[k] <= t - 0.3, speed);
                 double post = Median(k => ts[k] >= t + 0.8 && ts[k] <= t + 3.0, speed);
                 bool stops = !double.IsNaN(pre) && !double.IsNaN(post) && post < 0.4 * Math.Max(pre, 1e-6) && pre > 0.15 * Math.Max(cruise, 1e-6);
-                bool breakup = (inl[i] < 0.3 && npts[i] >= 10) || t >= ts[^1] - 0.3;
+                bool breakup = inl[i] < 0.3 && npts[i] >= 10;
                 bool wasStopped = !double.IsNaN(pre) && pre < Math.Max(0.0003, 0.1 * cruise);
-                bool impact = jolt[i] / joltBase >= 2.0 || (inl[i] < 0.3 && npts[i] >= 10) || t >= ts[^1] - 0.3;
+                bool impact = jolt[i] / joltBase >= 2.0 || breakup;
                 bool confirm = impact && (stops || breakup || (wasStopped && jz[i] > 8));
                 if (best is { } bb && bb.Score > 0.15 && confirm)
                 {
