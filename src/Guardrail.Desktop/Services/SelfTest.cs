@@ -115,7 +115,7 @@ public static class SelfTest
             var dialog = new FormDialog("Self-test", "Suggestions", new[]
             {
                 new FormField { Key = "location", Label = "Location", Value = "Typed Site", Suggestions = ["Dallas Plant", "North Terminal"] },
-            });
+            }, allowDelete: false, saveText: "Save");
             dialog.Show();
             dialog.UpdateLayout();
             dialog.Close();
