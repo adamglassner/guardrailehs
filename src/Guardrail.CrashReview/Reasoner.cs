@@ -22,16 +22,34 @@ public static class Reasoner
         }
     }
 
+    /// <summary>Edited videos can cut between cameras: each piece is analyzed and the clearest collision wins.</summary>
     public static (CrashReport Report, KeyPlan Plan) Analyze(Extraction ex, double staticFraction)
     {
-        var S = ex.Samples;
+        var all = ex.Samples;
+        var bounds = new List<int> { 0 };
+        for (int i = 1; i < all.Count; i++) if (all[i].Camera.Cut) bounds.Add(i);
+        bounds.Add(all.Count);
+        var pieces = new List<List<Sample>>();
+        for (int k = 0; k + 1 < bounds.Count; k++)
+        {
+            var piece = all.GetRange(bounds[k], bounds[k + 1] - bounds[k]);
+            if (piece.Count > 0 && piece[^1].T - piece[0].T >= 2.0) pieces.Add(piece);
+        }
+        if (pieces.Count <= 1) return AnalyzePiece(ex, pieces.Count == 1 ? pieces[0] : all, staticFraction).Result;
+        var results = pieces.Select(p => AnalyzePiece(ex, p, staticFraction)).ToList();
+        var hits = results.Where(r => r.Result.Report.Verdict != Verdicts.NoCollision).ToList();
+        return (hits.Count == 0 ? results[0] : hits.MaxBy(r => r.Score)).Result;
+    }
+
+    private static ((CrashReport Report, KeyPlan Plan) Result, double Score) AnalyzePiece(Extraction ex, List<Sample> S, double staticFraction)
+    {
         var report = new CrashReport { DurationSeconds = Math.Round(ex.Duration, 1), SplitScreen = ex.SplitScreen };
         var plan = new KeyPlan([], []);
         if (S.Count < 8)
         {
             report.Headline = "The video is too short to analyze";
             report.Summary = "Crash Review AI needs at least a second of video.";
-            return (report, plan);
+            return ((report, plan), 0);
         }
 
         // ----- Tracks -----
@@ -52,6 +70,10 @@ public static class Reasoner
         var npts = S.Select(s => s.Camera.Points).ToArray();
 
         bool isFixed = CameraMotion.Percentile(mag, 90) < 0.0005 || staticFraction > 0.8;
+        var expand = S.Select(s => s.Camera.Expand).ToArray();
+        var moving = Enumerable.Range(0, n).Where(i => mag[i] > 0.001).ToList();
+        bool handheld = !isFixed && moving.Count >= 5 &&
+            (CameraMotion.Median(moving.Select(i => Math.Abs(tx[i]))) > 0.03 || moving.Count(i => expand[i] > 0) < 0.45 * moving.Count);
         var speed = Smooth(mag, 5);
         double cruise = CameraMotion.Percentile(speed, 75);
         var jolt = new double[n];
@@ -61,7 +83,8 @@ public static class Reasoner
             jolt[i] = D2(tx) + 1.3 * D2(ty) + 0.6 * D2(rot);
         }
         var jz = RobustZ(jolt);
-        report.CameraKind = isFixed ? "Fixed camera" : "Dashcam (moving)";
+        double joltBase = Math.Max(CameraMotion.Percentile(jolt, 95), 0.005);
+        report.CameraKind = isFixed ? "Fixed camera" : handheld ? "Handheld / panning camera" : "Dashcam (moving)";
         int stride = Math.Max(1, n / 120);
         report.SpeedTrace = speed.Where((_, i) => i % stride == 0).Select(v => Math.Round(v * 1000, 3)).ToList();
         report.TraceStepSeconds = Math.Round(dt * stride, 3);
@@ -75,11 +98,12 @@ public static class Reasoner
 
         // ----- Candidate collisions -----
         var cands = new List<Candidate>();
-        if (!isFixed)
+        if (!isFixed && !handheld)
         {
             for (int i = 0; i < n; i++)
             {
                 double t = ts[i];
+                if (t < ts[0] + 1.0) continue; // the first second is often start-up shake
                 (double Score, Track Tr)? best = null;
                 foreach (var tr in tracks)
                 {
@@ -101,7 +125,8 @@ public static class Reasoner
                 bool stops = !double.IsNaN(pre) && !double.IsNaN(post) && post < 0.4 * Math.Max(pre, 1e-6) && pre > 0.15 * Math.Max(cruise, 1e-6);
                 bool breakup = (inl[i] < 0.3 && npts[i] >= 10) || t >= ts[^1] - 0.3;
                 bool wasStopped = !double.IsNaN(pre) && pre < Math.Max(0.0003, 0.1 * cruise);
-                bool confirm = stops || breakup || (wasStopped && jz[i] > 8);
+                bool impact = jolt[i] / joltBase >= 2.0 || (inl[i] < 0.3 && npts[i] >= 10) || t >= ts[^1] - 0.3;
+                bool confirm = impact && (stops || breakup || (wasStopped && jz[i] > 8));
                 if (best is { } bb && bb.Score > 0.15 && confirm)
                 {
                     double s = 0.55 * bb.Score + 0.45 * Math.Max(jscore, breakup ? 0.5 : 0);
@@ -127,6 +152,7 @@ public static class Reasoner
                 {
                     double t = common[k];
                     Box a = A.History[t], b = B.History[t];
+                    if (Math.Min(a.H, b.H) < 0.05) continue; // too far away to judge
                     if (Box.InterOverMin(a, b) < 0.2) continue;
                     double ha = a.H, hb = b.H;
                     if (Math.Abs(a.Y2 - b.Y2) > 0.25 * Math.Max(ha, hb)) continue; // different depths: just one in front of the other
@@ -147,7 +173,7 @@ public static class Reasoner
                         double sp = Math.Sqrt(vb.Value.X * vb.Value.X + vb.Value.Y * vb.Value.Y) + 1e-3;
                         jerk = Math.Max(jerk, Math.Min(1, Math.Sqrt(Math.Pow(va.Value.X - vb.Value.X, 2) + Math.Pow(va.Value.Y - vb.Value.Y, 2)) / sp));
                     }
-                    double score = (0.35 * Math.Min(1, approach) + 0.45 * jerk + 0.2 * Math.Min(1, Box.InterOverMin(a, b))) * (isFixed ? 1.1 : 0.8);
+                    double score = (0.35 * Math.Min(1, approach) + 0.45 * jerk + 0.2 * Math.Min(1, Box.InterOverMin(a, b))) * (isFixed || handheld ? 1.1 : 0.8);
                     cands.Add(new Candidate("pair", t, score, A: A, B: B));
                     break;
                 }
@@ -160,10 +186,12 @@ public static class Reasoner
             report.Summary = isFixed
                 ? "The AI followed every road user in view and didn't see two of them collide."
                 : "The AI didn't see your vehicle hit anything or get hit, and didn't see other road users collide.";
-            return (report, plan);
+            return ((report, plan), 0);
         }
-        double top = cands.Max(c => c.Score);
-        var strong = cands.Where(c => c.Score >= 0.8 * top && c.Score >= 0.35).ToList();
+        // Our own vehicle's first contact matters most for fault; otherwise take the clearest collision.
+        var egoC = cands.Where(c => c.Kind != "pair").ToList();
+        double top = egoC.Count > 0 ? egoC.Max(c => c.Score) : 0, overall = cands.Max(c => c.Score);
+        var strong = top >= 0.8 * overall ? egoC.Where(c => c.Score >= 0.8 * top && c.Score >= 0.35).ToList() : new List<Candidate>();
         var hit = strong.Count > 0 ? strong.MinBy(c => c.T)! : cands.MaxBy(c => c.Score)!;
         double tImp = hit.T;
         report.ImpactSeconds = Math.Round(tImp, 2);
@@ -369,7 +397,7 @@ public static class Reasoner
             double t = ts.MinBy(x => Math.Abs(x - k));
             if (plan.Moments.All(m => Math.Abs(m.T - t) > 1e-6)) plan.Moments.Add((t, cap));
         }
-        return (report, plan);
+        return ((report, plan), detection);
     }
 
     // ----- Geometry helpers -----

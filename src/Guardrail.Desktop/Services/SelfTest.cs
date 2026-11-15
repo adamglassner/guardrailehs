@@ -69,7 +69,7 @@ public static class SelfTest
                 double w = 0.12 * Math.Exp(0.33 * k), h = 0.08 * Math.Exp(0.33 * k), y2 = 0.55 + 0.4 * k / 5.0;
                 var cam = new CameraStep
                 {
-                    Mag = t < 5.2 ? 0.003 + 0.0002 * Math.Sin(i) : 0.00005, Tx = i == 50 ? 0.03 : 0.0004 * Math.Sin(i * 1.7),
+                    Mag = t < 5.2 ? 0.003 + 0.0002 * Math.Sin(i) : 0.00005, Expand = t < 5.2 ? 0.002 : 0, Tx = i == 50 ? 0.03 : 0.0004 * Math.Sin(i * 1.7),
                     Inliers = 0.8, Points = 120,
                 };
                 samples.Add(FakeSample(t, cam, new Detection(new Guardrail.CrashAi.Box(0.5 - w / 2, y2 - h, 0.5 + w / 2, y2), 0.9f, Classes.Car)));
@@ -103,7 +103,7 @@ public static class SelfTest
         // 3) Nothing happening: no collision.
         try
         {
-            var samples = Enumerable.Range(0, 50).Select(i => FakeSample(i / 10.0, new CameraStep { Mag = 0.003, Points = 100, Inliers = 0.9 },
+            var samples = Enumerable.Range(0, 50).Select(i => FakeSample(i / 10.0, new CameraStep { Mag = 0.003, Expand = 0.002, Points = 100, Inliers = 0.9 },
                 new Detection(new Guardrail.CrashAi.Box(0.45, 0.5, 0.55, 0.58), 0.9f, Classes.Car))).ToList();
             var (rep, _) = Reasoner.Analyze(new Extraction { Samples = samples, Duration = 5 }, 0.1);
             Check("Crash AI: steady traffic is not a collision", rep.Verdict == Verdicts.NoCollision, rep.Verdict);

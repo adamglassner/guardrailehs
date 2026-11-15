@@ -16,6 +16,8 @@ public sealed record CameraStep
     public double Mag { get; init; }
     public double Inliers { get; init; } = 1;
     public int Points { get; init; }
+    /// <summary>The video cuts to a different camera / scene at this frame.</summary>
+    public bool Cut { get; init; }
 }
 
 /// <summary>Background optical flow (Lucas–Kanade) with a robust similarity fit, ignoring moving road users.</summary>

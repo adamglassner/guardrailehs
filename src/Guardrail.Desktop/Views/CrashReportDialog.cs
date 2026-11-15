@@ -169,7 +169,7 @@ public sealed class CrashReportDialog : DialogFrame
 
     private UIElement KeyFrames()
     {
-        var grid = new UniformGrid { Rows = 1, Margin = new Thickness(0, 0, -10, 6) };
+        var grid = new System.Windows.Controls.Primitives.UniformGrid { Rows = 1, Margin = new Thickness(0, 0, -10, 6) };
         foreach (var k in _report.KeyFrames)
         {
             var cell = new StackPanel { Margin = new Thickness(0, 0, 10, 0) };

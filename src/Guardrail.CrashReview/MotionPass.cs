@@ -43,6 +43,21 @@ public static class MotionPass
         return drop.Count + phantoms;
     }
 
+    /// <summary>32-bin brightness histogram, for spotting cuts between cameras in edited videos.</summary>
+    private static double[] Histogram(Mat gray)
+    {
+        var h = new double[32];
+        foreach (var b in Scene.Bytes(gray)) h[b >> 3]++;
+        return h;
+    }
+
+    private static double Correlation(double[] a, double[] b)
+    {
+        double ma = a.Average(), mb = b.Average(), num = 0, da = 0, db = 0;
+        for (int i = 0; i < a.Length; i++) { num += (a[i] - ma) * (b[i] - mb); da += (a[i] - ma) * (a[i] - ma); db += (b[i] - mb) * (b[i] - mb); }
+        return da <= 0 || db <= 0 ? 1 : num / Math.Sqrt(da * db);
+    }
+
     /// <summary>Camera motion from the stored small frames, ignoring road users and pixels that never change.</summary>
     public static double Run(List<Sample> samples, CancellationToken cancel)
     {
@@ -92,11 +107,15 @@ public static class MotionPass
         }
 
         using var motion = new CameraMotion(usable);
+        double[]? prevHist = null;
         foreach (var s in samples)
         {
             cancel.ThrowIfCancellationRequested();
             using var g = Gray(s);
-            s.Camera = motion.Step(g, s.Detections.Where(d => Classes.IsRoadUser(d.Kind)).Select(d => d.Box));
+            var step = motion.Step(g, s.Detections.Where(d => Classes.IsRoadUser(d.Kind)).Select(d => d.Box));
+            var hist = Histogram(g);
+            s.Camera = step with { Cut = prevHist != null && Correlation(prevHist, hist) < 0.5 };
+            prevHist = hist;
         }
         return staticFrac;
     }
