@@ -51,14 +51,15 @@ public partial class DashboardView : UserControl
     {
         foreach (var old in LocationChips.Children.OfType<RadioButton>().ToList()) LocationChips.Children.Remove(old);
 
-        var locations = DataStore.Incidents.Items.Select(i => i.Location)
+        // Locations from Settings first, then any other names used on incidents and monthly data.
+        var locations = LocationNames.ActiveNames()
+            .Concat(DataStore.Incidents.Items.Select(i => i.Location))
             .Concat(DataStore.Monthly.Items.Select(m => m.Location))
             .Select(l => l.Trim())
             .Where(l => l.Length > 0)
             .GroupBy(l => l, StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
-            .OrderBy(l => l)
-            .Take(12)
+            .Take(16)
             .ToList();
 
         void Add(string text, string? tag)

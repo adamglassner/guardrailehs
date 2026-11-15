@@ -350,6 +350,7 @@ public static partial class Editors
         foreach (var old in Directory.GetFiles(folder))
             if (!old.Equals(temp, StringComparison.OrdinalIgnoreCase)) File.Delete(old);
         File.Move(temp, target);
+        DataLock.ProtectFile(target); // encrypted when the PIN / password lock is on (videos stay as they are)
         return Path.GetRelativePath(DataStore.Folder, target);
     }
 
@@ -364,7 +365,7 @@ public static partial class Editors
             Toaster.Show($"There's no file for {what}. Edit it and choose the file.");
             return;
         }
-        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
+        try { FileVault.Open(path); }
         catch (Exception ex) { Toaster.Show($"Couldn't open {Path.GetFileName(path)}: {ex.Message}"); }
     }
 

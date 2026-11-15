@@ -797,10 +797,22 @@
                     <Grid>
                         <ToggleButton x:Name="toggle" Template="{StaticResource ComboToggle}" Focusable="False" ClickMode="Press"
                                       IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
-                        <ContentPresenter IsHitTestVisible="False" Margin="{TemplateBinding Padding}"
+                        <ContentPresenter x:Name="content" IsHitTestVisible="False" Margin="{TemplateBinding Padding}"
                                           Content="{TemplateBinding SelectionBoxItem}"
                                           ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                           VerticalAlignment="Center" HorizontalAlignment="Left" />
+                        <!-- Typing box for editable dropdowns (e.g. Location fields that suggest your locations) -->
+                        <TextBox x:Name="PART_EditableTextBox" Visibility="Collapsed" Margin="{TemplateBinding Padding}" Padding="0"
+                                 VerticalAlignment="Center" Background="Transparent" Foreground="{TemplateBinding Foreground}"
+                                 CaretBrush="{DynamicResource Brush.Text}" SelectionBrush="{DynamicResource Brush.Accent}"
+                                 IsReadOnly="{TemplateBinding IsReadOnly}" Cursor="IBeam">
+                            <TextBox.Template>
+                                <ControlTemplate TargetType="TextBox">
+                                    <ScrollViewer x:Name="PART_ContentHost" Background="Transparent" Focusable="False"
+                                                  HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" />
+                                </ControlTemplate>
+                            </TextBox.Template>
+                        </TextBox>
                         <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
                                AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
                             <Border Background="{DynamicResource Brush.Surface}" BorderBrush="{DynamicResource Brush.Border}"
@@ -817,6 +829,11 @@
                         </Popup>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsEditable" Value="True">
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="content" Property="Visibility" Value="Collapsed" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
                             <Setter TargetName="toggle" Property="IsTabStop" Value="False" />
                         </Trigger>

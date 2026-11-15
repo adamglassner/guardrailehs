@@ -5,7 +5,7 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.8.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module, the full Fleet Hub and Crash Review AI work today and save to your PC;
+> **Status: preview (v0.9.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module, the full Fleet Hub and Crash Review AI work today and save to your PC;
 > the rest of the product is in place as "coming soon" pages. There is no server yet.
 
 ## Working now
@@ -31,9 +31,12 @@ No subscriptions, no per-employee pricing, no contracts — run it on hardware y
 | **Fleet Hub** | **Overview** (everything overdue or due in 30 days across the fleet), **Driver Qualification** (license, medical certificate, annual MVR review, road test, DQ file document; Qualified / Expiring soon / Expired / Incomplete), **Accident Register** (49 CFR 390.15: injuries, fatalities, tow-away, hazmat, DOT recordable, preventability, dashcam video), **Vehicle Management** (registration, annual DOT inspection, odometer, in / out of service), **DVIR Inspections** (pre- and post-trip, defects put the unit out of service until a repair is certified), **Maintenance** (PM schedules that repeat, completing an annual DOT inspection updates the vehicle), **Hours of Service** (log reviews with 11-hour and 14-hour violations flagged), **DOT Compliance Audit** (a live mock audit across all of the above with readiness %, gaps and an exportable report) and **Fleet Reporting** (driver application status, DQ file status, vehicle maintenance and renewal status, DOT accident register, DVIR defects, HOS violations, fleet roster). |
 | **Crash Review AI** | Give it dashcam or fixed-camera (CCTV) video and it works out who was most likely at fault, with no one clicking anything: videos you drop in, videos that land in a **watch folder**, and videos attached to accidents in the Accident Register. The report shows the verdict and confidence, a fault split, the collision type, the moment of impact, four key frames with the vehicles outlined, the camera vehicle's speed over time and a timeline of what the AI saw. Handles split-screen (cab + road) dashcams, bonnets and timestamp overlays, edited videos with cuts, and handheld footage. Runs entirely on your PC (see *How Crash Review AI works* below). |
 | **Dashboard** | Live, by period (this year, last 12 months, last year) and location: days since the last recordable injury and vehicle incident, incidents by type, actions open / closed / overdue, OSHA classification breakdown, recordables by location, and TRIR, DART, LTIR, lost-time and restricted days rates and the accident frequency rate (from Monthly Data hours and miles). |
+| **Locations** | Settings → Organization → **Locations**: your plants, offices, terminals and job sites with code, type, region and district (corporate → region → district → location), address, manager and headcount. Every Location field in Guardrail offers the list (you can still type anything), the Dashboard filters by it, renaming a location updates every record that uses it, and names already typed into records can be added in one click. |
+| **PIN / password protection** | Optional (off by default), in Settings. Encrypts your records and attached documents on this PC (AES-256-GCM; the key is protected by your PIN or password with PBKDF2-SHA256, 600,000 rounds) and asks for the PIN or password when Guardrail opens and after it's left alone (5 minutes to 1 hour, or never). **Lock** in the sidebar or Ctrl+L locks it right away. A one-time **recovery key** opens it if the PIN or password is forgotten. Dashcam / CCTV videos are left as they are. |
+| **Backup and restore** | Settings → Your data: **Back up…** saves everything as one .zip (encrypted when protection is on); **Restore…** swaps it back in, keeping your current data in a `data-before-restore` folder. |
 | Appearance | Light / dark mode (header toggle, or Settings → Appearance → "Match Windows"). |
 
-Records are saved as JSON in `%AppData%\Guardrail\data\` (Settings → Your data → **Open folder**);
+Records are saved as JSON in `%AppData%\Guardrail\data\` (encrypted when PIN / password protection is on) (Settings → Your data → **Open folder**);
 files attached to Library documents, LOTO procedures and Safety Data Sheets are copied into `data\library\`, `data\loto\` and `data\sds\`.
 Each save writes a temp file first and keeps a `.bak` copy, so a crash can't corrupt your records.
 
@@ -120,7 +123,7 @@ and a page in `Views/`.
 
 1. Incidents (with OSHA 300/300A/301) and Monthly Data, which make the dashboard rates real
 2. Audits & Inspections with checklists and offline capture
-3. Guardrail Server (self-hosted) with sign-in and sync
+3. Guardrail Server (self-hosted, optional) with user accounts, roles and sync. Local-only mode stays: Guardrail keeps working on a single PC without a server
 4. Fleet Hub: driver qualification files, DVIR, maintenance
 5. Crash Review AI on Guardrail Server (analyze videos uploaded from phones and dashcams)
 
