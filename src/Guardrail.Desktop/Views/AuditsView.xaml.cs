@@ -58,7 +58,10 @@ public partial class AuditsView : UserControl
             .ToList();
 
         TemplateRows.ItemsSource = null;
-        TemplateRows.ItemsSource = DataStore.Templates.Items.OrderBy(t => t.Name).ToList();
+        // Customized versions sit right under the checklist they came from.
+        TemplateRows.ItemsSource = DataStore.Templates.Items
+            .OrderBy(t => t.BasedOn.Length > 0 ? t.BasedOn : t.Name, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(t => t.BasedOn.Length > 0).ThenBy(t => t.Name, StringComparer.OrdinalIgnoreCase).ToList();
 
         Rows.ItemsSource = shown;
         EmptyState.Visibility = shown.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -107,6 +110,12 @@ public partial class AuditsView : UserControl
 
     private void NewTemplate_Click(object sender, RoutedEventArgs e) => Editors.EditTemplate(null);
 
+    private void CustomizeTemplate_Click(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        if (sender is FrameworkElement { DataContext: InspectionTemplate t }) Editors.CustomizeTemplate(t);
+    }
+
     private void Template_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: InspectionTemplate t }) Editors.EditTemplate(t);
@@ -114,9 +123,9 @@ public partial class AuditsView : UserControl
 
     private void Export_Click(object sender, RoutedEventArgs e) =>
         CsvExporter.Export("guardrail-inspections",
-            ["Inspection #", "Date", "Checklist", "Location", "Inspector", "Score", "Passed", "Failed", "Not answered", "Status", "Failed items", "Actions"],
+            ["Inspection #", "Date", "Checklist", "Location", "Department", "Equipment", "Inspector", "Score", "Passed", "Failed", "Not answered", "Status", "Failed items", "Actions"],
             (Rows.ItemsSource as IEnumerable<Inspection> ?? Enumerable.Empty<Inspection>()).Select(r => new[]
             {
-                r.Number, r.Date.ToString("yyyy-MM-dd"), r.TemplateName, r.Location, r.Inspector, r.ScoreText, r.Passed.ToString(), r.Failed.ToString(), r.Unanswered.ToString(), r.DisplayStatus, string.Join("; ", r.Items.Where(i => i.Result == ChecklistItem.Fail).Select(i => i.Note.Length > 0 ? $"{i.Text} ({i.Note})" : i.Text)), r.LinkedActions,
+                r.Number, r.Date.ToString("yyyy-MM-dd"), r.TemplateName, r.Location, r.Department, r.Equipment, r.Inspector, r.ScoreText, r.Passed.ToString(), r.Failed.ToString(), r.Unanswered.ToString(), r.DisplayStatus, string.Join("; ", r.Items.Where(i => i.Result == ChecklistItem.Fail).Select(i => i.Note.Length > 0 ? $"{i.Text} ({i.Note})" : i.Text)), r.LinkedActions,
             }));
 }

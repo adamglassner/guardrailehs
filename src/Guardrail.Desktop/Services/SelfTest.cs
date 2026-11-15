@@ -422,6 +422,16 @@ public static class SelfTest
             Check("Audits: score ignores N/A (3 of 4 = 75%)", audit.ScoreText == "75%", audit.ScoreText);
             Check("Audits: failed item is a finding that can become an action", audit.DisplayStatus == Status.FindingsOpen && audit.CanCreateActions);
             Check("Audits: starter checklists", InspectionTemplate.Starters().Count == 3 && InspectionTemplate.Starters().All(t => t.Items.Count > 0));
+            var general = new InspectionTemplate { Name = "Forklift pre-use check" };
+            var dallas = new InspectionTemplate { Name = "Forklift (Dallas)", Sites = ["Dallas Plant"] };
+            var fl3 = new InspectionTemplate { Name = "Forklift 3", Sites = ["Dallas Plant"], Equipment = ["Forklift 3"], BasedOn = "Forklift pre-use check" };
+            var maint = new InspectionTemplate { Name = "Maintenance shop", Departments = ["Maintenance"] };
+            Check("Checklists: general one applies anywhere", general.MatchScore("Austin", "", "") == 0 && general.IsGeneral);
+            Check("Checklists: site checklist only at its site", dallas.MatchScore("dallas plant", "", "") > 0 && dallas.MatchScore("Austin", "", "") < 0);
+            Check("Checklists: equipment version beats the site version", fl3.MatchScore("Dallas Plant", "", "Forklift 3") > dallas.MatchScore("Dallas Plant", "", "Forklift 3"));
+            Check("Checklists: equipment version not offered for other equipment", fl3.MatchScore("Dallas Plant", "", "Forklift 4") < 0);
+            Check("Checklists: department checklist needs that department", maint.MatchScore("Dallas Plant", "Maintenance", "") > 0 && maint.MatchScore("Dallas Plant", "Shipping", "") < 0);
+            Check("Checklists: lists parse from commas", InspectionTemplate.ParseList("A, b;  a ,C").Count == 3 && fl3.ScopeText.Contains("Forklift 3"));
 
             // Management of Change
             var change = new ChangeRequest();

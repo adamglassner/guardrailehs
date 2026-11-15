@@ -22,7 +22,7 @@ public sealed class ChecklistWindow : DialogFrame
 
     public ChecklistWindow(Inspection inspection)
         : base(inspection.TemplateName,
-               $"{inspection.Number} · {inspection.DateText} · {inspection.Location}" + (inspection.Inspector.Length > 0 ? $" · {inspection.Inspector}" : ""),
+               string.Join(" · ", new[] { inspection.Number, inspection.DateText, inspection.Location, inspection.Department, inspection.Equipment, inspection.Inspector }.Where(x => x.Length > 0)),
                "", 820)
     {
         _inspection = inspection;
