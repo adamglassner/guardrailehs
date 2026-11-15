@@ -9,7 +9,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="52" Height="52" CornerRadius="10" Margin="0,0,14,0"
+            <Border Width="56" Height="56" CornerRadius="16" Margin="0,0,14,0"
                     Background="{DynamicResource Brush.AccentSoft}">
                 <TextBlock Text="{Binding Glyph}" Style="{StaticResource Icon}" FontSize="24"
                            HorizontalAlignment="Center" Foreground="{DynamicResource Brush.Accent}" />
@@ -67,7 +67,7 @@
                 <DataTemplate>
                     <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                         <StackPanel>
-                            <TextBlock Text="—" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Accent}" />
+                            <TextBlock Text="—" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Accent}" />
                             <TextBlock Text="{Binding}" Style="{StaticResource Muted}" FontSize="12" />
                         </StackPanel>
                     </Border>

@@ -176,11 +176,6 @@ public static class ModuleCatalog
         },
         new()
         {
-            Key = "dvir", Title = "Driver Vehicle Inspection Report", ToolbarLabel = "DRIVER VEHICLE INSPECTION", Glyph = "",
-            Tagline = "Pre-trip and post-trip DVIRs.",
-        },
-        new()
-        {
             Key = "audits", Title = "Audits & Inspections", ToolbarLabel = "AUDITS & INSPECTIONS", Glyph = "",
             Tagline = "Checklists in the field, even without signal.",
             Description = "Build any checklist, run it on desktop or tablet, capture photos and signatures offline, and sync when you reconnect.",
@@ -201,9 +196,20 @@ public static class ModuleCatalog
         },
         new()
         {
-            Key = "ai", Title = "Crash Review AI", ToolbarLabel = "CRASH REVIEW AI", Glyph = "", IsNew = true,
+            Key = "ai", Title = "Crash Review AI", ToolbarLabel = "CRASH REVIEW AI", Glyph = "", IsNew = true, IsComingSoon = true,
             Tagline = "AI watches the video and determines who was at fault.",
         },
+    ];
+
+    /// <summary>How the sidebar groups the modules.</summary>
+    public static readonly (string Title, string[] Keys)[] NavGroups =
+    [
+        ("Overview", ["dashboard", "reports"]),
+        ("Safety", ["incidents", "actions", "observations", "bbs", "risk", "audits"]),
+        ("Programs", ["permits", "loto", "sds", "moc", "training", "library"]),
+        ("Compliance", ["regulatory", "claims", "monthly"]),
+        ("Fleet", ["fleet"]),
+        ("Labs", ["ai"]),
     ];
 
     /// <summary>Sections inside Fleet Hub (modeled on the Fleet360 feature set).</summary>

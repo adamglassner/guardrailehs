@@ -4,7 +4,7 @@
     <StackPanel>
         <!-- Title -->
         <DockPanel x:Name="TitleRow" Margin="0,0,0,18">
-            <Border Width="52" Height="52" CornerRadius="10" Margin="0,0,14,0" Background="{DynamicResource Brush.AccentSoft}">
+            <Border Width="56" Height="56" CornerRadius="16" Margin="0,0,14,0" Background="{DynamicResource Brush.AccentSoft}">
                 <TextBlock Text="&#xE9D2;" Style="{StaticResource Icon}" FontSize="24" HorizontalAlignment="Center"
                            Foreground="{DynamicResource Brush.Accent}" />
             </Border>

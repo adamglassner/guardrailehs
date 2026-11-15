@@ -1,32 +1,40 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!-- Dark palette. Every key here must also exist in Light.xaml. -->
-    <SolidColorBrush x:Key="Brush.Bg" Color="#0F141A" />
-    <SolidColorBrush x:Key="Brush.Surface" Color="#18202A" />
-    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#1E2833" />
-    <SolidColorBrush x:Key="Brush.SurfaceWarm" Color="#211E19" />
-    <SolidColorBrush x:Key="Brush.Border" Color="#2A3542" />
+    <SolidColorBrush x:Key="Brush.Bg" Color="#0C121A" />
+    <SolidColorBrush x:Key="Brush.Surface" Color="#141D28" />
+    <SolidColorBrush x:Key="Brush.SurfaceAlt" Color="#1A2532" />
+    <SolidColorBrush x:Key="Brush.SurfaceWarm" Color="#211C14" />
+    <SolidColorBrush x:Key="Brush.Border" Color="#253242" />
     <SolidColorBrush x:Key="Brush.BorderWarm" Color="#4A3A22" />
-    <SolidColorBrush x:Key="Brush.Skeleton" Color="#26313D" />
-    <SolidColorBrush x:Key="Brush.Text" Color="#E5EAF0" />
-    <SolidColorBrush x:Key="Brush.TextMuted" Color="#8E9AA8" />
-    <SolidColorBrush x:Key="Brush.HoverOverlay" Color="#18FFFFFF" />
-
-    <SolidColorBrush x:Key="Brush.Header" Color="#0E2638" />
-    <SolidColorBrush x:Key="Brush.HeaderText" Color="#E8F0F7" />
-    <SolidColorBrush x:Key="Brush.HeaderActive" Color="#26FFFFFF" />
-    <SolidColorBrush x:Key="Brush.Toolbar" Color="#132F45" />
-    <SolidColorBrush x:Key="Brush.ToolbarHover" Color="#1B3F5B" />
-    <SolidColorBrush x:Key="Brush.ToolbarSelected" Color="#245374" />
-    <SolidColorBrush x:Key="Brush.ToolbarIcon" Color="#F5B24A" />
-
-    <SolidColorBrush x:Key="Brush.Accent" Color="#5CA8E8" />
-    <SolidColorBrush x:Key="Brush.AccentSoft" Color="#1A3247" />
+    <SolidColorBrush x:Key="Brush.Skeleton" Color="#212E3D" />
+    <SolidColorBrush x:Key="Brush.Track" Color="#1E2A37" />
+    <SolidColorBrush x:Key="Brush.Text" Color="#E4EAF1" />
+    <SolidColorBrush x:Key="Brush.TextMuted" Color="#93A1B2" />
+    <SolidColorBrush x:Key="Brush.HoverOverlay" Color="#16FFFFFF" />
+    <SolidColorBrush x:Key="Brush.Sidebar" Color="#070D15" />
+    <SolidColorBrush x:Key="Brush.SidebarText" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Brush.SidebarMuted" Color="#98A7B9" />
+    <SolidColorBrush x:Key="Brush.SidebarHeading" Color="#5D6F84" />
+    <SolidColorBrush x:Key="Brush.SidebarHover" Color="#101B28" />
+    <SolidColorBrush x:Key="Brush.SidebarSelected" Color="#172638" />
+    <SolidColorBrush x:Key="Brush.SidebarCard" Color="#101B28" />
+    <SolidColorBrush x:Key="Brush.Hero" Color="#18487F" />
+    <SolidColorBrush x:Key="Brush.HeroText" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Brush.HeroMuted" Color="#C6D7EB" />
+    <SolidColorBrush x:Key="Brush.HeroTrack" Color="#123A68" />
+    <SolidColorBrush x:Key="Brush.Accent" Color="#5AA1EC" />
+    <SolidColorBrush x:Key="Brush.AccentText" Color="#07101A" />
+    <SolidColorBrush x:Key="Brush.AccentSoft" Color="#172A40" />
+    <SolidColorBrush x:Key="Brush.Highlight" Color="#F7B248" />
     <SolidColorBrush x:Key="Brush.Warm" Color="#F0A23F" />
     <SolidColorBrush x:Key="Brush.WarmText" Color="#F0A23F" />
-    <SolidColorBrush x:Key="Brush.Danger" Color="#E2574C" />
-    <SolidColorBrush x:Key="Brush.Success" Color="#7CC352" />
-
-    <SolidColorBrush x:Key="Brush.ToastBg" Color="#E5EAF0" />
-    <SolidColorBrush x:Key="Brush.ToastText" Color="#0F141A" />
+    <SolidColorBrush x:Key="Brush.Danger" Color="#EF6A55" />
+    <SolidColorBrush x:Key="Brush.Success" Color="#5CC184" />
+    <SolidColorBrush x:Key="Brush.BarMuted" Color="#33414F" />
+    <SolidColorBrush x:Key="Brush.Header" Color="#070D15" />
+    <SolidColorBrush x:Key="Brush.HeaderText" Color="#E8F0F7" />
+    <SolidColorBrush x:Key="Brush.HeaderActive" Color="#26FFFFFF" />
+    <SolidColorBrush x:Key="Brush.ToastBg" Color="#E4EAF1" />
+    <SolidColorBrush x:Key="Brush.ToastText" Color="#0C121A" />
 </ResourceDictionary>

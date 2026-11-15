@@ -3,112 +3,132 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Guardrail EHS"
         Icon="pack://application:,,,/Assets/guardrail.ico"
-        Width="1440" Height="900" MinWidth="1024" MinHeight="640"
+        Width="1480" Height="920" MinWidth="1100" MinHeight="660"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource Brush.Bg}"
         Foreground="{DynamicResource Brush.Text}"
-        FontFamily="Segoe UI" FontSize="13"
+        FontFamily="Segoe UI" FontSize="13.5"
+        TextOptions.TextFormattingMode="Display"
         UseLayoutRounding="True">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <Grid x:Name="RootGrid" Background="{DynamicResource Brush.Bg}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="256" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <!-- ===== Header ===== -->
-        <Border Grid.Row="0" Background="{DynamicResource Brush.Header}" Padding="18,8">
-            <DockPanel LastChildFill="False">
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image Source="pack://application:,,,/Assets/guardrail.png" Width="30" Height="30" Margin="0,0,10,0"
+        <!-- ===== Sidebar ===== -->
+        <Border Grid.Column="0" Background="{DynamicResource Brush.Sidebar}" Padding="14,22,14,14">
+            <DockPanel>
+                <!-- Logo -->
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,0,0,18">
+                    <Image Source="pack://application:,,,/Assets/guardrail.png" Width="36" Height="36" Margin="0,0,11,0"
                            RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center" />
-                    <TextBlock FontSize="21" FontWeight="Bold" VerticalAlignment="Center"
-                               Foreground="{DynamicResource Brush.HeaderText}">
-                        <Run Text="Guard" /><Run Text="rail" Foreground="{DynamicResource Brush.Warm}" />
-                    </TextBlock>
-                    <TextBlock Text="EHS" FontSize="11" FontWeight="SemiBold" Margin="5,6,0,0"
-                               Foreground="{DynamicResource Brush.HeaderText}" Opacity="0.7" VerticalAlignment="Center" />
-                    <Border Width="1" Height="22" Background="{DynamicResource Brush.HeaderText}" Opacity="0.25" Margin="16,0" />
-                    <TextBlock Text="Local Workspace" FontSize="15" VerticalAlignment="Center"
-                               Foreground="{DynamicResource Brush.HeaderText}" />
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock FontFamily="{StaticResource DisplayFont}" FontSize="22" FontWeight="Bold"
+                                   Foreground="{DynamicResource Brush.SidebarText}">
+                            <Run Text="Guard" /><Run Text="rail" Foreground="{DynamicResource Brush.Highlight}" />
+                        </TextBlock>
+                        <TextBlock Text="EHS · SAFETY &amp; COMPLIANCE" FontSize="9.5" FontWeight="SemiBold" Margin="1,-1,0,0"
+                                   Foreground="{DynamicResource Brush.SidebarHeading}" />
+                    </StackPanel>
                 </StackPanel>
 
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Background="{DynamicResource Brush.HeaderActive}" CornerRadius="10" Padding="10,3" Margin="0,0,14,0"
-                            ToolTip="Records are saved on this PC. Syncing to a self-hosted Guardrail Server is coming soon.">
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse Width="7" Height="7" Fill="{DynamicResource Brush.Warm}" Margin="0,0,6,0" VerticalAlignment="Center" />
-                            <TextBlock Text="Local mode · saved on this PC" FontSize="11" Foreground="{DynamicResource Brush.HeaderText}" />
+                <!-- Bottom: data status, theme, settings -->
+                <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                    <Border Background="{DynamicResource Brush.SidebarCard}" CornerRadius="14" Padding="14,12" Margin="0,0,0,8">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8B7;" Style="{StaticResource Icon}" FontSize="13" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource Brush.Highlight}" />
+                                <TextBlock Text="Saved on this PC" FontWeight="SemiBold" Foreground="{DynamicResource Brush.SidebarText}" />
+                            </StackPanel>
+                            <TextBlock x:Name="DataDetail" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap" LineHeight="17"
+                                       Foreground="{DynamicResource Brush.SidebarMuted}" />
                         </StackPanel>
                     </Border>
-
-                    <Button Style="{StaticResource HeaderButton}" Click="Profile_Click" ToolTip="Profile">
+                    <Button x:Name="ThemeButton" Style="{StaticResource SidebarButton}" Click="Theme_Click">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE77B;" Style="{StaticResource Icon}" FontSize="14" Margin="0,0,7,0" />
-                            <TextBlock Text="Local User" />
+                            <TextBlock x:Name="ThemeGlyph" Style="{StaticResource Icon}" FontSize="15" Width="28" />
+                            <TextBlock x:Name="ThemeLabel" FontSize="13.5" />
                         </StackPanel>
                     </Button>
-
-                    <Button x:Name="ThemeButton" Style="{StaticResource HeaderButton}" Click="Theme_Click" Margin="4,0,0,0">
-                        <TextBlock x:Name="ThemeGlyph" Style="{StaticResource Icon}" FontSize="16" />
-                    </Button>
-
-                    <Button Style="{StaticResource HeaderButton}" Click="Settings_Click" ToolTip="Settings">
-                        <TextBlock Text="&#xE713;" Style="{StaticResource Icon}" FontSize="16" />
+                    <Button x:Name="SettingsButton" Style="{StaticResource SidebarButton}" Click="Settings_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE713;" Style="{StaticResource Icon}" FontSize="15" Width="28" />
+                            <TextBlock Text="Settings" FontSize="13.5" />
+                        </StackPanel>
                     </Button>
                 </StackPanel>
+
+                <!-- Navigation, grouped (scrolls if the window is short) -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                    <ItemsControl x:Name="NavGroups" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,0,0,10">
+                                    <TextBlock Text="{Binding Title}" FontSize="10.5" FontWeight="Bold" Margin="12,4,0,4"
+                                               Foreground="{DynamicResource Brush.SidebarHeading}" />
+                                    <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <RadioButton Style="{StaticResource NavRadio}" GroupName="MainNav"
+                                                             IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                                             ToolTip="{Binding Tagline}"
+                                                             AutomationProperties.Name="{Binding Title}"
+                                                             Checked="Module_Checked" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </DockPanel>
         </Border>
 
-        <!-- ===== Module toolbar ===== -->
-        <Border Grid.Row="1" Background="{DynamicResource Brush.Toolbar}" Padding="12,4">
-            <ItemsControl x:Name="ModuleBar">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <RadioButton Style="{StaticResource ToolbarRadio}" GroupName="MainNav"
-                                     IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                     ToolTip="{Binding Tagline}"
-                                     Checked="Module_Checked" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
+        <!-- ===== Content ===== -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <!-- ===== Page ===== -->
-        <ScrollViewer x:Name="PageScroller" Grid.Row="2" VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled" Padding="22,18,22,26">
-            <ContentControl x:Name="PageHost" />
-        </ScrollViewer>
+            <ScrollViewer x:Name="PageScroller" VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled" Padding="38,30,38,36" Focusable="False">
+                <ContentControl x:Name="PageHost" MaxWidth="1560" Focusable="False">
+                    <ContentControl.RenderTransform>
+                        <TranslateTransform x:Name="PageShift" />
+                    </ContentControl.RenderTransform>
+                </ContentControl>
+            </ScrollViewer>
 
-        <!-- ===== Status bar ===== -->
-        <Border Grid.Row="3" Background="{DynamicResource Brush.Surface}" BorderBrush="{DynamicResource Brush.Border}"
-                BorderThickness="0,1,0,0" Padding="16,5">
-            <DockPanel>
-                <TextBlock DockPanel.Dock="Right" Style="{StaticResource Muted}" FontSize="11"
-                           Text="Guardrail Server (self-hosted) — coming soon" />
-                <TextBlock Style="{StaticResource Muted}" FontSize="11"
-                           Text="Guardrail EHS v0.2.0 · free &amp; open source (MIT) · no per-seat pricing, ever" />
-            </DockPanel>
-        </Border>
+            <!-- Status bar -->
+            <Border Grid.Row="1" Background="{DynamicResource Brush.Surface}" BorderBrush="{DynamicResource Brush.Border}"
+                    BorderThickness="0,1,0,0" Padding="18,6">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Right" Style="{StaticResource Muted}" FontSize="11.5"
+                               Text="Free &amp; open source (MIT) · no per-seat pricing, ever" />
+                    <TextBlock x:Name="StatusText" Style="{StaticResource Muted}" FontSize="11.5" />
+                </DockPanel>
+            </Border>
 
-        <!-- ===== Toast ===== -->
-        <Border x:Name="Toast" Grid.Row="0" Grid.RowSpan="4" Visibility="Collapsed"
-                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,26,44"
-                Background="{DynamicResource Brush.ToastBg}" CornerRadius="6" Padding="16,11" MaxWidth="440">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="18" ShadowDepth="3" Opacity="0.25" />
-            </Border.Effect>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE823;" Style="{StaticResource Icon}" FontSize="15" Margin="0,0,10,0"
-                           Foreground="{DynamicResource Brush.Warm}" />
-                <TextBlock x:Name="ToastText" Foreground="{DynamicResource Brush.ToastText}" TextWrapping="Wrap" />
-            </StackPanel>
-        </Border>
+            <!-- Toast -->
+            <Border x:Name="Toast" Grid.RowSpan="2" Visibility="Collapsed" Opacity="0"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,48"
+                    Background="{DynamicResource Brush.ToastBg}" CornerRadius="12" Padding="16,12" MaxWidth="480">
+                <Border.RenderTransform>
+                    <TranslateTransform x:Name="ToastShift" />
+                </Border.RenderTransform>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="3" Opacity="0.25" />
+                </Border.Effect>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE73E;" Style="{StaticResource Icon}" FontSize="14" Margin="0,0,10,0"
+                               Foreground="{DynamicResource Brush.Highlight}" />
+                    <TextBlock x:Name="ToastText" Foreground="{DynamicResource Brush.ToastText}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

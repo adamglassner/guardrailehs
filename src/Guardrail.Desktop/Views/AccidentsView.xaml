@@ -18,7 +18,7 @@
                     </StackPanel>
                 </Button>
             </StackPanel>
-            <Border Width="52" Height="52" CornerRadius="10" Margin="0,0,14,0" Background="{DynamicResource Brush.AccentSoft}">
+            <Border Width="56" Height="56" CornerRadius="16" Margin="0,0,14,0" Background="{DynamicResource Brush.AccentSoft}">
                 <TextBlock Text="&#xE7BA;" Style="{StaticResource Icon}" FontSize="24" HorizontalAlignment="Center"
                            Foreground="{DynamicResource Brush.Accent}" />
             </Border>
@@ -32,25 +32,25 @@
         <UniformGrid Rows="1" Margin="0,0,-12,16">
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock x:Name="KpiYear" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Accent}" />
+                    <TextBlock x:Name="KpiYear" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Accent}" />
                     <TextBlock Text="Accidents this year" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock x:Name="KpiRecordable" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Danger}" />
+                    <TextBlock x:Name="KpiRecordable" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Danger}" />
                     <TextBlock Text="DOT recordable this year" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock x:Name="KpiPreventable" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Warm}" />
+                    <TextBlock x:Name="KpiPreventable" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Warm}" />
                     <TextBlock Text="Preventable this year" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock x:Name="KpiPending" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Warm}" />
+                    <TextBlock x:Name="KpiPending" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Warm}" />
                     <TextBlock Text="Waiting for preventability review" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
@@ -77,7 +77,7 @@
         <!-- Table -->
         <Border Style="{StaticResource Card}" Padding="0" ClipToBounds="True">
             <StackPanel>
-                <Border Background="{DynamicResource Brush.SurfaceAlt}" Padding="16,10" CornerRadius="6,6,0,0">
+                <Border Background="{DynamicResource Brush.SurfaceAlt}" Padding="16,10" CornerRadius="14,14,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="90" />

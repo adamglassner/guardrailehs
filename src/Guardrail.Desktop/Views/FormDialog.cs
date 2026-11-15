@@ -21,14 +21,15 @@ public sealed class FormField
 }
 
 /// <summary>
-/// A themed add/edit dialog built from a list of fields. Used by every module that works today,
+/// The add/edit dialog every working module uses: a floating card built from a list of fields,
 /// so new modules only need to describe their fields.
 /// </summary>
-public sealed class FormDialog : Window
+public sealed class FormDialog : DialogFrame
 {
     private readonly List<FormField> _fields;
     private readonly Dictionary<string, Func<object?>> _readers = [];
-    private readonly TextBlock _error = new() { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10), Visibility = Visibility.Collapsed };
+    private readonly Border _errorBar;
+    private readonly TextBlock _error;
     private readonly Dictionary<string, object?> _values = [];
     private readonly HashSet<string> _numberFields = [];
     private UIElement? _firstInput;
@@ -37,82 +38,54 @@ public sealed class FormDialog : Window
     public IReadOnlyDictionary<string, object?> Values => _values;
 
     public FormDialog(string title, string subtitle, IEnumerable<FormField> fields, bool allowDelete, string saveText = "Save")
+        : base(title, subtitle, GlyphFor(title))
     {
         _fields = fields.ToList();
-
-        Title = title;
-        Icon = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/Assets/guardrail.ico"));
-        Width = 580;
-        SizeToContent = SizeToContent.Height;
-        ResizeMode = ResizeMode.NoResize;
-        ShowInTaskbar = false;
-        WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        Owner = Application.Current.MainWindow;
-        FontFamily = new System.Windows.Media.FontFamily("Segoe UI");
-        FontSize = 13;
-        SetResourceReference(BackgroundProperty, "Brush.Bg");
-        SetResourceReference(ForegroundProperty, "Brush.Text");
-        SourceInitialized += (_, _) => SystemTheme.ApplyTitleBar(this, App.IsDark);
         Loaded += (_, _) => _firstInput?.Focus();
 
-        var root = new DockPanel();
-
-        // Header
-        var header = new StackPanel { Margin = new Thickness(24, 20, 24, 10) };
-        header.Children.Add(new TextBlock { Text = title, FontSize = 19, FontWeight = FontWeights.SemiBold });
-        var sub = new TextBlock { Text = subtitle, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 3, 0, 0) };
-        sub.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
-        header.Children.Add(sub);
-        DockPanel.SetDock(header, Dock.Top);
-        root.Children.Add(header);
-
-        // Footer
-        var footer = new Border { Padding = new Thickness(24, 12, 24, 12), BorderThickness = new Thickness(0, 1, 0, 0) };
-        footer.SetResourceReference(Border.BackgroundProperty, "Brush.Surface");
-        footer.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
-        var footerDock = new DockPanel();
+        // Footer: Delete (two clicks) on the left, Cancel + Save on the right.
         if (allowDelete)
         {
-            var delete = new Button { Content = "Delete", Style = (Style)FindResource("GhostButton") };
+            var delete = MakeButton("Delete", "GhostButton", "\uE74D");
             delete.SetResourceReference(ForegroundProperty, "Brush.Danger");
             delete.Click += (_, _) =>
             {
-                if (delete.Content as string == "Delete")
+                var label = ((StackPanel)delete.Content).Children.OfType<TextBlock>().Last();
+                if (label.Text == "Delete")
                 {
-                    delete.Content = "Click again to delete";
+                    label.Text = "Click again to delete";
                     return;
                 }
                 DeleteRequested = true;
                 DialogResult = true;
             };
             DockPanel.SetDock(delete, Dock.Left);
-            footerDock.Children.Add(delete);
+            Footer.Children.Add(delete);
         }
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
-        var cancel = new Button { Content = "Cancel", IsCancel = true, Style = (Style)FindResource("GhostButton"), Margin = new Thickness(0, 0, 8, 0) };
-        var save = new Button { Content = saveText, IsDefault = true, Style = (Style)FindResource("PrimaryButton") };
+        var cancel = MakeButton("Cancel", "GhostButton");
+        cancel.IsCancel = true;
+        cancel.Margin = new Thickness(0, 0, 10, 0);
+        var save = MakeButton(saveText, "PrimaryButton");
+        save.IsDefault = true;
+        save.MinWidth = 120;
         save.Click += (_, _) => TrySave();
         buttons.Children.Add(cancel);
         buttons.Children.Add(save);
-        footerDock.Children.Add(buttons);
-        footer.Child = footerDock;
-        DockPanel.SetDock(footer, Dock.Bottom);
-        root.Children.Add(footer);
+        Footer.Children.Add(buttons);
 
-        // Fields
-        var form = new StackPanel { Margin = new Thickness(24, 6, 24, 14) };
-        _error.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Danger");
-        form.Children.Add(_error);
+        // Body: error banner, then the fields.
+        var form = new StackPanel { Margin = new Thickness(28, 4, 28, 12) };
+        _errorBar = MakeErrorBar(out _error);
+        form.Children.Add(_errorBar);
         foreach (var field in _fields) form.Children.Add(BuildField(field));
-        root.Children.Add(new ScrollViewer { Content = form, MaxHeight = 560, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
-
-        Content = root;
+        SetBody(form);
     }
 
     private FrameworkElement BuildField(FormField field)
     {
-        var panel = new StackPanel { Margin = new Thickness(0, 0, 0, 14) };
-        var label = new TextBlock { FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 5) };
+        var panel = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
+        var label = new TextBlock { FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 6) };
         label.Inlines.Add(field.Label);
         if (field.Required)
         {
@@ -132,7 +105,7 @@ public sealed class FormDialog : Window
                     Text = field.Value as string ?? "",
                     AcceptsReturn = true,
                     TextWrapping = TextWrapping.Wrap,
-                    Height = 96,
+                    Height = 100,
                     VerticalContentAlignment = VerticalAlignment.Top,
                     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
                 };
@@ -142,7 +115,7 @@ public sealed class FormDialog : Window
             }
             case FieldKind.Date:
             {
-                var picker = new DatePicker { SelectedDate = field.Value as DateTime?, HorizontalAlignment = HorizontalAlignment.Left, Width = 200 };
+                var picker = new DatePicker { SelectedDate = field.Value as DateTime?, HorizontalAlignment = HorizontalAlignment.Left, Width = 270 };
                 _readers[field.Key] = () => picker.SelectedDate;
                 input = picker;
                 break;
@@ -190,7 +163,7 @@ public sealed class FormDialog : Window
                     TextTrimming = TextTrimming.CharacterEllipsis,
                     Margin = new Thickness(10, 0, 0, 0),
                 };
-                var pick = new Button { Content = "Choose file…", Style = (Style)FindResource("GhostButton") };
+                var pick = MakeButton("Choose file…", "GhostButton", "\uE8E5");
                 pick.Click += (_, _) =>
                 {
                     var ofd = new Microsoft.Win32.OpenFileDialog { Title = $"Choose a file for {field.Label}", Filter = "All files (*.*)|*.*" };
@@ -221,7 +194,7 @@ public sealed class FormDialog : Window
 
         if (!string.IsNullOrEmpty(field.Hint))
         {
-            var hint = new TextBlock { Text = field.Hint, FontSize = 11.5, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0) };
+            var hint = new TextBlock { Text = field.Hint, FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 5, 0, 0) };
             hint.SetResourceReference(TextBlock.ForegroundProperty, "Brush.TextMuted");
             panel.Children.Add(hint);
         }
@@ -243,8 +216,7 @@ public sealed class FormDialog : Window
                 else if (decimal.TryParse(cleaned, NumberStyles.Number, CultureInfo.CurrentCulture, out var number) && number >= 0) value = number;
                 else
                 {
-                    _error.Text = $"{field.Label} must be a number, like 2500 or 2,500.50.";
-                    _error.Visibility = Visibility.Visible;
+                    ShowError(_errorBar, _error, $"{field.Label} must be a number, like 2500 or 2,500.50.");
                     return;
                 }
             }
@@ -255,8 +227,7 @@ public sealed class FormDialog : Window
 
         if (missing.Count > 0)
         {
-            _error.Text = "Please fill in: " + string.Join(", ", missing) + ".";
-            _error.Visibility = Visibility.Visible;
+            ShowError(_errorBar, _error, "Please fill in: " + string.Join(", ", missing) + ".");
             return;
         }
         DialogResult = true;

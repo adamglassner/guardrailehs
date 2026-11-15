@@ -17,6 +17,8 @@ public sealed class ModuleInfo : INotifyPropertyChanged
     public string[] Kpis { get; init; } = [];
     public string[] Columns { get; init; } = [];
     public bool IsNew { get; init; }
+    /// <summary>Shows a SOON badge in the sidebar (the module isn't built yet).</summary>
+    public bool IsComingSoon { get; init; }
 
     private bool _isSelected;
     public bool IsSelected

@@ -18,7 +18,7 @@
                     </StackPanel>
                 </Button>
             </StackPanel>
-            <Border Width="52" Height="52" CornerRadius="10" Margin="0,0,14,0" Background="{DynamicResource Brush.AccentSoft}">
+            <Border Width="56" Height="56" CornerRadius="16" Margin="0,0,14,0" Background="{DynamicResource Brush.AccentSoft}">
                 <TextBlock Text="&#xE823;" Style="{StaticResource Icon}" FontSize="24" HorizontalAlignment="Center"
                            Foreground="{DynamicResource Brush.Accent}" />
             </Border>
@@ -32,25 +32,25 @@
         <UniformGrid Rows="1" Margin="0,0,-12,16">
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock x:Name="KpiReviewed" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Accent}" />
+                    <TextBlock x:Name="KpiReviewed" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Accent}" />
                     <TextBlock Text="Logs reviewed, last 30 days" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock x:Name="KpiViolations" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Danger}" />
+                    <TextBlock x:Name="KpiViolations" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Danger}" />
                     <TextBlock Text="Violations, last 30 days" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock x:Name="KpiDrivers" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Warm}" />
+                    <TextBlock x:Name="KpiDrivers" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Warm}" />
                     <TextBlock Text="Drivers with violations, last 30 days" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource Card}" Margin="0,0,12,0">
                 <StackPanel>
-                    <TextBlock x:Name="KpiRate" FontSize="28" FontWeight="Light" Foreground="{DynamicResource Brush.Success}" />
+                    <TextBlock x:Name="KpiRate" Style="{StaticResource BigNumber}" FontSize="30" Foreground="{DynamicResource Brush.Success}" />
                     <TextBlock Text="Compliant logs, last 30 days" Style="{StaticResource Muted}" FontSize="12" />
                 </StackPanel>
             </Border>
@@ -75,7 +75,7 @@
         <!-- Table -->
         <Border Style="{StaticResource Card}" Padding="0" ClipToBounds="True">
             <StackPanel>
-                <Border Background="{DynamicResource Brush.SurfaceAlt}" Padding="16,10" CornerRadius="6,6,0,0">
+                <Border Background="{DynamicResource Brush.SurfaceAlt}" Padding="16,10" CornerRadius="14,14,0,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="85" />

@@ -8,7 +8,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="52" Height="52" CornerRadius="10" Margin="0,0,14,0" Background="{DynamicResource Brush.SurfaceWarm}"
+            <Border Width="56" Height="56" CornerRadius="16" Margin="0,0,14,0" Background="{DynamicResource Brush.SurfaceWarm}"
                     BorderBrush="{DynamicResource Brush.BorderWarm}" BorderThickness="1">
                 <TextBlock Text="&#xE99A;" Style="{StaticResource Icon}" FontSize="24" HorizontalAlignment="Center"
                            Foreground="{DynamicResource Brush.Warm}" />

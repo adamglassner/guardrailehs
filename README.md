@@ -5,7 +5,7 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.6.0).** Windows desktop app. Every safety module and the full Fleet Hub work today and save to your PC;
+> **Status: preview (v0.7.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module and the full Fleet Hub work today and save to your PC;
 > the rest of the product is in place as "coming soon" pages. There is no server yet.
 
 ## Working now
@@ -87,12 +87,13 @@ Command-line options: `--page <module>` opens a page at startup (for example `--
 ```
 src/Guardrail.Desktop/
   App.xaml(.cs)          app startup + light/dark theme switching
-  MainWindow.xaml(.cs)   header, module toolbar, page host, toast
+  MainWindow.xaml(.cs)   sidebar navigation (groups in ModuleCatalog.NavGroups), page host, toast, dialog dimming
   Assets/                app icon (.ico + .png)
   Themes/                Light.xaml, Dark.xaml (colors), Controls.xaml (styles)
   Data/                  record types and the local JSON store
   Models/                ModuleCatalog.cs — every module, its planned features and columns
-  Views/                 module pages, FormDialog (shared add/edit dialog), Editors (per-module forms)
+  Views/                 module pages; DialogFrame (shared floating dialog look) with FormDialog (add/edit),
+                         ChecklistWindow (inspections) and MessageDialog on top; Editors (per-module forms)
   Services/              settings, CSV export, Windows theme detection, toast helper, self-test
 installer/GuardrailEHS.iss  Inno Setup script (+ wizard images)
 build.ps1                exe + portable zip + installer
@@ -101,7 +102,7 @@ tools/make_icon.py       regenerates the icon (Python + Pillow)
 tools/make_wizard_images.py  regenerates the installer wizard images
 ```
 
-To add a coming-soon module, add an entry to `Models/ModuleCatalog.cs`.
+To add a coming-soon module, add an entry to `Models/ModuleCatalog.cs` and put its key in a `NavGroups` group.
 To build a module for real, copy one of the working ones (Actions is the simplest pattern):
 a record class in `Data/Records.cs`, a store in `Data/DataStore.cs`, a form in `Views/Editors.cs`
 and a page in `Views/`.

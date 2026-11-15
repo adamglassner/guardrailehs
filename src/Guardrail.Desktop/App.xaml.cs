@@ -33,9 +33,17 @@ public partial class App : Application
         {
             args.Handled = true;
             if (SelfTest.IsRunning) { SelfTest.RecordUnhandled(args.Exception); return; }
-            MessageBox.Show(
-                "Something went wrong, but your saved records are safe.\n\n" + args.Exception.Message,
-                "Guardrail EHS", MessageBoxButton.OK, MessageBoxImage.Warning);
+            try
+            {
+                Views.MessageDialog.Inform("Something went wrong",
+                    "Your saved records are safe.\n\n" + args.Exception.Message, danger: true);
+            }
+            catch
+            {
+                // If the themed dialog itself can't show (e.g. during startup), fall back to Windows' message box.
+                MessageBox.Show("Something went wrong, but your saved records are safe.\n\n" + args.Exception.Message,
+                    "Guardrail EHS", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         };
 
         // Follow Windows when the user picked "System".
