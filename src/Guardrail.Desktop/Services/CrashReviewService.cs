@@ -224,6 +224,7 @@ public static class CrashReviewService
                         OnUiAsync(() => Changed?.Invoke());
                     });
                     var report = CrashAnalyzer.Analyze(next.VideoPath, next.Folder, progress, _cancel.Token);
+                    foreach (var key in report.KeyFrames) DataLock.ProtectFile(Path.Combine(next.Folder, key.FileName));
                     OnUi(() =>
                     {
                         Current = null;

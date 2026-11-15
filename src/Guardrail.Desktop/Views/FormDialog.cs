@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Guardrail.Data;
 using Guardrail.Services;
 
 namespace Guardrail.Views;
@@ -15,6 +16,9 @@ public sealed class FormField
     public FieldKind Kind { get; init; } = FieldKind.Text;
     public bool Required { get; init; }
     public string[] Options { get; init; } = [];
+    /// <summary>Text fields: values to offer in a dropdown (typing anything else is still allowed).
+    /// Fields with the key "location" get the locations from Settings automatically.</summary>
+    public string[]? Suggestions { get; init; }
     public string? Hint { get; init; }
     /// <summary>Initial value: string for Text/MultiLine/Choice/File, DateTime? for Date, decimal? for Number.</summary>
     public object? Value { get; init; }
@@ -183,9 +187,22 @@ public sealed class FormDialog : DialogFrame
             }
             default:
             {
-                var box = new TextBox { Text = field.Value as string ?? "" };
-                _readers[field.Key] = () => box.Text.Trim();
-                input = box;
+                string value = field.Value as string ?? "";
+                var suggestions = field.Suggestions ?? (field.Key == "location" ? LocationNames.ActiveNames() : null);
+                if (suggestions is { Length: > 0 })
+                {
+                    var items = suggestions.ToList();
+                    if (value.Length > 0 && !items.Contains(value, StringComparer.OrdinalIgnoreCase)) items.Insert(0, value);
+                    var combo = new ComboBox { IsEditable = true, IsTextSearchEnabled = true, ItemsSource = items, Text = value };
+                    _readers[field.Key] = () => combo.Text.Trim();
+                    input = combo;
+                }
+                else
+                {
+                    var box = new TextBox { Text = value };
+                    _readers[field.Key] = () => box.Text.Trim();
+                    input = box;
+                }
                 break;
             }
         }

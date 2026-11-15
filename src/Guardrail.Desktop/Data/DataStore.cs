@@ -8,8 +8,7 @@ namespace Guardrail.Data;
 /// </summary>
 public static class DataStore
 {
-    public static readonly string Folder = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Guardrail", "data");
+    public static readonly string Folder = DataLock.DataFolder;
 
     public static readonly JsonStore<ActionItem> Actions = new(Folder, "actions");
     public static readonly JsonStore<Observation> Observations = new(Folder, "observations");
@@ -34,6 +33,7 @@ public static class DataStore
     public static readonly JsonStore<HosLog> Hos = new(Folder, "fleet-hos");
     public static readonly JsonStore<FleetAccident> FleetAccidents = new(Folder, "fleet-accidents");
     public static readonly JsonStore<VideoReview> CrashReviews = new(Folder, "crash-reviews");
+    public static readonly JsonStore<Location> Locations = new(Folder, "locations");
 
     /// <summary>Where Library files are kept: data\library\&lt;document id&gt;\&lt;file&gt;.</summary>
     public static string LibraryFolder => Path.Combine(Folder, "library");

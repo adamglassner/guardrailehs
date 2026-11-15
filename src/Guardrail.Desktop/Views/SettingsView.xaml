@@ -17,8 +17,7 @@
         <Border Style="{StaticResource Card}" Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="YOUR DATA" Style="{StaticResource SectionLabel}" />
-                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10"
-                           Text="Your records, and the files attached to Library documents, LOTO procedures and Safety Data Sheets, are saved on this PC in plain JSON and ordinary files. Back up this folder to keep them safe." />
+                <TextBlock x:Name="DataText" Style="{StaticResource Muted}" Margin="0,0,0,10" TextWrapping="Wrap" />
                 <DockPanel>
                     <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="OpenDataFolder_Click">
                         <StackPanel Orientation="Horizontal">
@@ -28,6 +27,37 @@
                     </Button>
                     <TextBox x:Name="DataFolderBox" IsReadOnly="True" />
                 </DockPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="Backup_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE74E;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                            <TextBlock Text="Back up…" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource GhostButton}" Click="Restore_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE777;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                            <TextBlock Text="Restore…" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+            <StackPanel>
+                <DockPanel>
+                    <Border x:Name="ProtectionPill" DockPanel.Dock="Right" Style="{StaticResource StatusPill}">
+                        <TextBlock x:Name="ProtectionPillText" />
+                    </Border>
+                    <TextBlock Text="PIN / PASSWORD PROTECTION" Style="{StaticResource SectionLabel}" />
+                </DockPanel>
+                <TextBlock x:Name="ProtectionText" Style="{StaticResource Muted}" Margin="0,0,0,12" TextWrapping="Wrap" />
+                <StackPanel x:Name="ProtectionButtons" Orientation="Horizontal" />
+                <StackPanel x:Name="AutoLockRow" Margin="0,14,0,0">
+                    <TextBlock Text="Lock the window after this long without use" FontWeight="SemiBold" Margin="0,0,0,6" />
+                    <WrapPanel x:Name="AutoLockChips" />
+                </StackPanel>
             </StackPanel>
         </Border>
 
@@ -51,18 +81,24 @@
 
         <Border Style="{StaticResource Card}" Margin="0,0,0,14">
             <StackPanel>
-                <DockPanel>
-                    <Border DockPanel.Dock="Right" Style="{StaticResource SoonPill}">
+                <TextBlock Text="ORGANIZATION" Style="{StaticResource SectionLabel}" />
+                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10" TextWrapping="Wrap"
+                           Text="Set up your corporate → region → district → location hierarchy. Every Location field in Guardrail offers these sites." />
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource PrimaryButton}" Margin="0,0,10,0" Click="Locations_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE707;" Style="{StaticResource Icon}" Margin="0,0,6,0" />
+                            <TextBlock Text="Locations" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock x:Name="LocationsSummary" Style="{StaticResource Muted}" VerticalAlignment="Center" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Content="Users &amp; roles" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="Soon_Click" Tag="User accounts and roles (with Guardrail Server)" />
+                    <Button Content="Custom fields" Style="{StaticResource GhostButton}" Click="Soon_Click" Tag="Custom fields" />
+                    <Border Style="{StaticResource SoonPill}" Margin="10,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="COMING SOON" Style="{StaticResource PillText}" />
                     </Border>
-                    <TextBlock Text="ORGANIZATION" Style="{StaticResource SectionLabel}" />
-                </DockPanel>
-                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10"
-                           Text="Set up your corporate → region → district → location hierarchy, users and roles. Unlimited users, no seat licenses." />
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Locations" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="Soon_Click" Tag="Location setup" />
-                    <Button Content="Users &amp; roles" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="Soon_Click" Tag="User and role management" />
-                    <Button Content="Custom fields" Style="{StaticResource GhostButton}" Click="Soon_Click" Tag="Custom fields" />
                 </StackPanel>
             </StackPanel>
         </Border>

@@ -36,6 +36,7 @@ public partial class MainWindow : Window
         _dataTimer.Tick += (_, _) => UpdateDataStatus();
 
         App.ThemeChanged += OnThemeChanged;
+        SetUpLock();
         SourceInitialized += (_, _) => SystemTheme.ApplyTitleBar(this, App.IsDark);
         UpdateThemeButton();
         UpdateDataStatus();
@@ -154,6 +155,13 @@ public partial class MainWindow : Window
         SetPage(new SettingsView());
     }
 
+    /// <summary>Settings → Locations.</summary>
+    public void ShowLocations()
+    {
+        ClearSelection();
+        SetPage(new LocationsView());
+    }
+
     private void Theme_Click(object sender, RoutedEventArgs e) =>
         App.SetThemePreference(App.IsDark ? AppTheme.Light : AppTheme.Dark);
 
@@ -191,6 +199,92 @@ public partial class MainWindow : Window
             : $"{records:N0} record{(records == 1 ? "" : "s")} · back up from Settings";
         var version = Assembly.GetExecutingAssembly().GetName().Version;
         StatusText.Text = $"Guardrail EHS {version?.ToString(3)} · {records:N0} records saved on this PC · syncing to a Guardrail Server is coming soon";
+    }
+
+    // ----- PIN / password lock -----
+
+    private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(15) };
+    private DateTime _lastActivity = DateTime.Now;
+    private Grid? _lockOverlay;
+    private LockPanel? _lockPanel;
+    private Button? _lockButton;
+
+    private void SetUpLock()
+    {
+        // "Lock" in the sidebar, just above the theme toggle (only when protection is on).
+        if (ThemeButton.Parent is Panel bottom)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            row.Children.Add(new TextBlock { Text = "\uE72E", Style = (Style)FindResource("Icon"), FontSize = 15, Width = 28 });
+            row.Children.Add(new TextBlock { Text = "Lock", FontSize = 13.5 });
+            _lockButton = new Button { Style = (Style)FindResource("SidebarButton"), Content = row, ToolTip = "Lock Guardrail now (Ctrl+L)" };
+            _lockButton.Click += (_, _) => LockNow();
+            bottom.Children.Insert(bottom.Children.IndexOf(ThemeButton), _lockButton);
+        }
+        UpdateLockButton();
+
+        System.Windows.Input.InputManager.Current.PreProcessInput += (_, e) =>
+        {
+            if (e.StagingItem.Input is System.Windows.Input.KeyboardEventArgs or System.Windows.Input.MouseButtonEventArgs or System.Windows.Input.MouseWheelEventArgs)
+                _lastActivity = DateTime.Now;
+        };
+        _idleTimer.Tick += (_, _) =>
+        {
+            if (!DataLock.IsEnabled || SelfTest.IsRunning || IsLocked) return;
+            int minutes = DataLock.Info?.AutoLockMinutes ?? 0;
+            if (minutes > 0 && DateTime.Now - _lastActivity >= TimeSpan.FromMinutes(minutes)) LockNow();
+        };
+        _idleTimer.Start();
+        PreviewKeyDown += (_, e) =>
+        {
+            if (e.Key == System.Windows.Input.Key.L && System.Windows.Input.Keyboard.Modifiers == System.Windows.Input.ModifierKeys.Control && DataLock.IsEnabled)
+            {
+                e.Handled = true;
+                LockNow();
+            }
+        };
+    }
+
+    /// <summary>Shows or hides the sidebar Lock button (after protection is turned on or off).</summary>
+    public void UpdateLockButton()
+    {
+        if (_lockButton != null) _lockButton.Visibility = DataLock.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public bool IsLocked => _lockOverlay?.Visibility == Visibility.Visible;
+
+    /// <summary>
+    /// Covers the window until the PIN / password is entered. The records on disk stay encrypted either way;
+    /// work already running in the background (like Crash Review AI) carries on.
+    /// </summary>
+    public void LockNow()
+    {
+        if (!DataLock.IsEnabled || IsLocked) return;
+        foreach (Window w in OwnedWindows) w.Close(); // open dialogs would show data on top of the lock
+        if (_lockOverlay == null)
+        {
+            _lockPanel = new LockPanel();
+            _lockOverlay = new Grid();
+            _lockOverlay.SetResourceReference(Panel.BackgroundProperty, "Brush.Bg");
+            _lockOverlay.Children.Add(_lockPanel);
+            Grid.SetColumnSpan(_lockOverlay, 2);
+            Panel.SetZIndex(_lockOverlay, 1000);
+            RootGrid.Children.Add(_lockOverlay);
+            _lockPanel.Unlocked += recovered =>
+            {
+                _lockOverlay.Visibility = Visibility.Collapsed;
+                _lastActivity = DateTime.Now;
+                if (recovered)
+                {
+                    MessageDialog.Inform("Choose a new PIN or password",
+                        "You unlocked Guardrail with your recovery key. Next, choose a new PIN or password. Your recovery key keeps working.");
+                    new SetLockDialog(change: true).ShowDialog();
+                }
+            };
+        }
+        _lockOverlay.Visibility = Visibility.Visible;
+        _lockPanel!.Reset();
+        FileVault.CleanUp();
     }
 
     // ----- Dialog dimming -----

@@ -51,6 +51,79 @@ public static class SelfTest
         }
     }
 
+    // ----- PIN / password protection -----
+
+    /// <summary>Encryption end to end in a temporary folder (never the real data).</summary>
+    private static void LockChecks()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "guardrail-lock-selftest-" + Guid.NewGuid().ToString("N")[..8]);
+        Directory.CreateDirectory(dir);
+        DataLock.FolderOverride = dir;
+        try
+        {
+            string records = Path.Combine(dir, "actions.json"), doc = Path.Combine(dir, "sds", "sheet.txt"), clip = Path.Combine(dir, "accidents", "clip.mp4");
+            Directory.CreateDirectory(Path.GetDirectoryName(doc)!);
+            Directory.CreateDirectory(Path.GetDirectoryName(clip)!);
+            new JsonStore<ActionItem>(dir, "actions").Add(new ActionItem { Title = "Secret guard repair" });
+            File.WriteAllText(doc, "hello");
+            File.WriteAllText(clip, "video bytes");
+
+            Check("Lock: PIN rules", DataLock.Validate("12", "PIN") != null && DataLock.Validate("2468", "PIN") == null && DataLock.Validate("short", "Password") != null);
+            string recovery = DataLock.Enable("2468", "PIN", 10);
+            Check("Lock: turning on encrypts records", DataLock.IsEncryptedFile(records) && !File.ReadAllText(records).Contains("Secret"));
+            Check("Lock: documents encrypted, videos left as they are", DataLock.IsEncryptedFile(doc) && !DataLock.IsEncryptedFile(clip));
+            Check("Lock: encrypted records load while unlocked", new JsonStore<ActionItem>(dir, "actions").Items.SingleOrDefault()?.Title == "Secret guard repair");
+
+            DataLock.Forget();
+            var locked = new JsonStore<ActionItem>(dir, "actions");
+            locked.Add(new ActionItem { Title = "must not overwrite" });
+            Check("Lock: a locked store reads nothing and never overwrites", locked.Items.Count == 1 && DataLock.IsEncryptedFile(records));
+            Check("Lock: wrong PIN is refused", !DataLock.Unlock("1111") && !DataLock.IsOpen);
+            Check("Lock: right PIN unlocks", DataLock.Unlock("2468") && new JsonStore<ActionItem>(dir, "actions").Items.Count == 1);
+            DataLock.Forget();
+            Check("Lock: recovery key unlocks (any case and spacing)", DataLock.UnlockWithRecoveryKey(recovery.ToLowerInvariant().Replace("-", " ")));
+            DataLock.ChangeSecret("correct horse", "Password");
+            DataLock.Forget();
+            Check("Lock: changed password works, old PIN doesn't", !DataLock.Unlock("2468") && DataLock.Unlock("correct horse"));
+            DataLock.SetAutoLock(30);
+            Check("Lock: auto-lock setting saved", DataLock.Info?.AutoLockMinutes == 30);
+            DataLock.Disable();
+            Check("Lock: turning off decrypts everything", !DataLock.IsEnabled && File.ReadAllText(records).Contains("Secret") && File.ReadAllText(doc) == "hello");
+        }
+        catch (Exception ex) { Check("Lock: encryption round trip", false, ex.ToString()); }
+        finally
+        {
+            DataLock.Forget();
+            DataLock.FolderOverride = null;
+            try { Directory.Delete(dir, true); } catch { /* ignore */ }
+        }
+    }
+
+    private static async Task LockAndLocationUiChecks(MainWindow window)
+    {
+        await Step("Lock: set-up dialog builds", () => { var d = new SetLockDialog(change: false); d.Show(); d.UpdateLayout(); d.Close(); });
+        await Step("Lock: recovery key dialog builds", () => { var d = new RecoveryKeyDialog("ABCDE-FGHJK-LMNPQ-RSTUV-WXYZ2") { ForceClose = true }; d.Show(); d.UpdateLayout(); d.Close(); });
+        await Step("Lock: unlock window builds", () => { var w = new UnlockWindow(); w.Show(); w.UpdateLayout(); w.Close(); });
+
+        foreach (var theme in new[] { AppTheme.Light, AppTheme.Dark })
+        {
+            await Step($"[{theme}] Apply theme", () => App.ApplyTheme(theme));
+            await Step($"[{theme}] Page: Locations", window.ShowLocations);
+        }
+        await Step("Locations: Location field offers the list and still accepts typing", () =>
+        {
+            var dialog = new FormDialog("Self-test", "Suggestions", new[]
+            {
+                new FormField { Key = "location", Label = "Location", Value = "Typed Site", Suggestions = ["Dallas Plant", "North Terminal"] },
+            });
+            dialog.Show();
+            dialog.UpdateLayout();
+            dialog.Close();
+        });
+        var loc = new Location { Name = "Dallas Plant", Region = "South", District = "North Texas" };
+        Check("Locations: hierarchy text", loc.Hierarchy == "South › North Texas" && loc.IsActive && loc.Number.StartsWith("LOC"));
+    }
+
     // ----- Crash Review AI -----
 
     private static Sample FakeSample(double t, CameraStep cam, params Detection[] dets) =>
@@ -421,6 +494,8 @@ public static class SelfTest
         }
 
         await CrashAiChecks();
+        LockChecks();
+        await LockAndLocationUiChecks(window);
 
         await Step("Back to Dashboard", () => window.GoTo(ModuleCatalog.Dashboard.Key));
 

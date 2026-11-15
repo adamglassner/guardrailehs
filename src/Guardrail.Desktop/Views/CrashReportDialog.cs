@@ -184,7 +184,7 @@ public sealed class CrashReportDialog : DialogFrame
                     var bmp = new BitmapImage();
                     bmp.BeginInit();
                     bmp.CacheOption = BitmapCacheOption.OnLoad; // don't keep the file locked
-                    bmp.UriSource = new Uri(path);
+                    bmp.StreamSource = new MemoryStream(DataLock.ReadBytes(path)); // decrypted in memory when the lock is on
                     bmp.DecodePixelWidth = 480;
                     bmp.EndInit();
                     image.Background = new ImageBrush(bmp) { Stretch = Stretch.UniformToFill };
@@ -192,7 +192,7 @@ public sealed class CrashReportDialog : DialogFrame
                     image.ToolTip = "Open full size";
                     image.MouseLeftButtonUp += (_, _) => Shell(path);
                 }
-                catch (Exception ex) when (ex is IOException or NotSupportedException) { }
+                catch (Exception ex) when (ex is IOException or NotSupportedException or LockedException or System.Security.Cryptography.CryptographicException) { }
             }
             cell.Children.Add(image);
             var cap = new TextBlock { Text = k.Caption, FontSize = 12, FontWeight = FontWeights.SemiBold, Margin = new Thickness(2, 6, 0, 0) };
@@ -313,7 +313,7 @@ public sealed class CrashReportDialog : DialogFrame
 
     private static void Shell(string path)
     {
-        try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); }
-        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { Toaster.Show($"Couldn't open it: {ex.Message}"); }
+        try { FileVault.Open(path); }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or IOException) { Toaster.Show($"Couldn't open it: {ex.Message}"); }
     }
 }

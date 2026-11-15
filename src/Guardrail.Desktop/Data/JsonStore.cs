@@ -12,11 +12,13 @@ public sealed class JsonStore<T> where T : RecordBase
     private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
     private readonly string _path;
     private readonly List<T> _items;
+    /// <summary>True when the file couldn't be read because Guardrail is locked; saving is then refused so nothing is overwritten.</summary>
+    private bool _unreadable;
 
     public JsonStore(string folder, string name)
     {
         _path = Path.Combine(folder, name + ".json");
-        _items = Load(_path);
+        _items = Load(_path, out _unreadable);
     }
 
     public IReadOnlyList<T> Items => _items;
@@ -46,11 +48,12 @@ public sealed class JsonStore<T> where T : RecordBase
 
     private void Save()
     {
+        if (_unreadable) return;
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
             string temp = _path + ".tmp";
-            File.WriteAllText(temp, JsonSerializer.Serialize(_items, Options));
+            DataLock.WriteText(temp, JsonSerializer.Serialize(_items, Options));
             if (File.Exists(_path)) File.Replace(temp, _path, _path + ".bak");
             else File.Move(temp, _path);
         }
@@ -61,18 +64,28 @@ public sealed class JsonStore<T> where T : RecordBase
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    private static List<T> Load(string path)
+    private static List<T> Load(string path, out bool unreadable)
     {
+        unreadable = false;
         foreach (var candidate in new[] { path, path + ".bak" })
         {
             try
             {
                 if (File.Exists(candidate))
-                    return JsonSerializer.Deserialize<List<T>>(File.ReadAllText(candidate), Options) ?? [];
+                    return JsonSerializer.Deserialize<List<T>>(DataLock.ReadText(candidate), Options) ?? [];
             }
             catch (JsonException)
             {
                 // Fall through to the backup copy.
+            }
+            catch (LockedException)
+            {
+                unreadable = true;
+                return [];
+            }
+            catch (System.Security.Cryptography.CryptographicException)
+            {
+                // Damaged or encrypted with another key: try the backup copy.
             }
         }
         return [];

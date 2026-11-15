@@ -1,5 +1,7 @@
 using System.Windows;
+using Guardrail.Data;
 using Guardrail.Services;
+using Guardrail.Views;
 using Microsoft.Win32;
 
 namespace Guardrail;
@@ -53,7 +55,31 @@ public partial class App : Application
                 Current.Dispatcher.Invoke(() => ApplyTheme(AppTheme.System));
         };
 
+        // Decrypted copies of documents opened last time are removed.
+        FileVault.CleanUp();
+
+        // PIN / password protection: unlock before anything reads the (encrypted) data.
+        if (!SelfTest.IsRunning && DataLock.IsEnabled)
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            bool unlocked = new UnlockWindow().ShowDialog() == true;
+            MainWindow = null; // the real main window takes over
+            if (!unlocked)
+            {
+                StartupUri = null;
+                Shutdown();
+                return;
+            }
+            ShutdownMode = ShutdownMode.OnLastWindowClose;
+        }
+
         base.OnStartup(e);
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        FileVault.CleanUp();
+        base.OnExit(e);
     }
 
     /// <summary>Apply "System", "Light" or "Dark".</summary>
