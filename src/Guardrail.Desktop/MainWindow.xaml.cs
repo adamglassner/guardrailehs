@@ -45,6 +45,7 @@ public partial class MainWindow : Window
         {
             _dataTimer.Start();
             if (!SelfTest.IsRunning) CrashReviewService.Start();
+            if (!SelfTest.IsRunning) ServerSync.Start();
             if (App.StartPage == "settings") ShowSettings();
             else if (App.StartPage?.Split('/') is [var page, var tab])
             {

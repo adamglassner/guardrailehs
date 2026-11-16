@@ -27,6 +27,9 @@ public partial class SettingsView : UserControl
 
         DataFolderBox.Text = DataStore.Folder;
         UpdateProtection();
+        UpdateServer();
+        Loaded += (_, _) => ServerSync.Changed += UpdateServer;
+        Unloaded += (_, _) => ServerSync.Changed -= UpdateServer;
         int locations = DataStore.Locations.Items.Count, active = DataStore.Locations.Items.Count(l => l.IsActive);
         LocationsSummary.Text = locations == 0 ? "None set up yet." : $"{locations} location{(locations == 1 ? "" : "s")}, {active} active.";
         _ready = true;
@@ -63,7 +66,7 @@ public partial class SettingsView : UserControl
         ProtectionPillText.Text = on ? "ON" : "OFF";
         ProtectionText.Text = on
             ? $"Guardrail asks for your {(DataLock.IsPin ? "PIN" : "password")} when it opens and after it's been left alone. Lock it any time with Ctrl+L or Lock in the sidebar."
-            : "Encrypt your records and documents on this PC and ask for a PIN or password to open Guardrail. Good for shared office or shop PCs. Off by default; when Guardrail Server arrives, signing in to it will work alongside this.";
+            : "Encrypt your records and documents on this PC and ask for a PIN or password to open Guardrail. Good for shared office or shop PCs. Off by default. Works alongside Guardrail Server: the server never sees your PIN or password.";
 
         ProtectionButtons.Children.Clear();
         Button Make(string glyph, string text, string style, RoutedEventHandler click)
@@ -182,4 +185,93 @@ public partial class SettingsView : UserControl
     private void Locations_Click(object sender, RoutedEventArgs e) => MainWindow.Instance?.ShowLocations();
 
     private void Soon_Click(object sender, RoutedEventArgs e) => Toaster.Soon(sender);
+
+    // ----- Guardrail Server -----
+
+    private void UpdateServer()
+    {
+        var c = ServerSync.Connection;
+        ServerDetails.Children.Clear();
+        ServerButtons.Children.Clear();
+        Button Make(string glyph, string text, string style, Func<Task> click)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal };
+            row.Children.Add(new TextBlock { Text = glyph, Style = (Style)FindResource("Icon"), Margin = new Thickness(0, 0, 6, 0) });
+            row.Children.Add(new TextBlock { Text = text });
+            var b = new Button { Style = (Style)FindResource(style), Content = row, Margin = new Thickness(0, 0, 8, 8) };
+            b.Click += async (_, _) => { b.IsEnabled = false; try { await click(); } finally { b.IsEnabled = true; } };
+            ServerButtons.Children.Add(b);
+            return b;
+        }
+
+        if (c == null)
+        {
+            ServerPill.Tag = "Denied";
+            ServerPillText.Text = "LOCAL ONLY";
+            ServerText.Text = "Guardrail is saving everything on this PC. To share records with your team, connect to a Guardrail Server: your own PC, NAS or in-house server, a Docker container, or a cluster. Records stay on this PC too, so Guardrail keeps working offline.";
+            ServerDetails.Visibility = Visibility.Collapsed;
+            Make("\uE968", "Connect…", "PrimaryButton", () => { if (new ConnectServerDialog().ShowDialog() == true) Toaster.Show("Connected to Guardrail Server. Syncing…"); return Task.CompletedTask; });
+            Make("\uE896", "Get Guardrail Server", "GhostButton", () => { Open("https://github.com/adamglassner/guardrailehs/tree/main/server#install"); return Task.CompletedTask; });
+            return;
+        }
+
+        bool problem = ServerSync.LastError != null;
+        ServerPill.Tag = problem ? (ServerSync.Offline ? "Pending review" : "Overdue") : "Current";
+        ServerPillText.Text = ServerSync.IsSyncing ? "SYNCING" : problem ? (ServerSync.Offline ? "OFFLINE" : "PROBLEM") : "CONNECTED";
+        ServerText.Text = problem
+            ? ServerSync.LastError + (ServerSync.Offline ? " Changes are saved on this PC and sent when the server is back." : "")
+            : $"Signed in to {c.ServerName} as {c.DisplayName}. Changes are sent within seconds and everyone else's arrive every minute.";
+        ServerDetails.Visibility = Visibility.Visible;
+        void Detail(string label, string value)
+        {
+            var d = new DockPanel { Margin = new Thickness(0, 2, 0, 2) };
+            var l = new TextBlock { Text = label, Width = 150, Style = (Style)FindResource("Muted") };
+            DockPanel.SetDock(l, Dock.Left);
+            d.Children.Add(l);
+            d.Children.Add(new TextBlock { Text = value, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis });
+            ServerDetails.Children.Add(d);
+        }
+        Detail("Server", c.Url);
+        Detail("Organization", c.OrgName);
+        Detail("Account", $"{c.Username} · {Guardrail.Sync.Protocol.Roles.Label(c.Role)}");
+        Detail("Last sync", c.LastSync is DateTime t ? t.ToString("MMM d, h:mm tt") : "Not yet");
+        int pending = ServerSync.Pending;
+        Detail("Waiting to send", pending == 0 ? "Nothing" : $"{pending:N0} change{(pending == 1 ? "" : "s")}");
+
+        Make("\uE895", "Sync now", "PrimaryButton", async () =>
+        {
+            string? err = await ServerSync.SyncNowAsync(quiet: false);
+            Toaster.Show(err ?? "Synced with Guardrail Server.");
+        });
+        Make("\uE774", "Open web panel", "GhostButton", () => { Open(c.Url); return Task.CompletedTask; });
+        if (ServerSync.LastError?.Contains("signed out") == true)
+            Make("\uE968", "Connect again…", "GhostButton", () => { new ConnectServerDialog().ShowDialog(); return Task.CompletedTask; });
+        var off = Make("\uE8D8", "Disconnect…", "GhostButton", async () =>
+        {
+            if (!MessageDialog.Confirm("Disconnect from Guardrail Server?",
+                    "Guardrail goes back to saving only on this PC. Everything already here stays. You can connect again any time." +
+                    (ServerSync.Pending > 0 ? $"\n\n{ServerSync.Pending:N0} change(s) haven't been sent yet and won't be." : ""),
+                    "Disconnect", "Cancel", danger: true)) return;
+            await ServerSync.DisconnectAsync();
+            Toaster.Show("Disconnected. Guardrail is saving on this PC only.");
+        });
+        off.SetResourceReference(ForegroundProperty, "Brush.Danger");
+    }
+
+    private void UsersRoles_Click(object sender, RoutedEventArgs e)
+    {
+        if (ServerSync.Connection is { } c)
+        {
+            Open(c.Url.TrimEnd('/') + "/#users");
+            return;
+        }
+        MessageDialog.Inform("Users and roles come with Guardrail Server",
+            "Accounts, roles (admin, manager, member, viewer) and invites are managed in Guardrail Server's web panel. Connect to a server under Guardrail Server above, or set one up first.");
+    }
+
+    private static void Open(string url)
+    {
+        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { Toaster.Show("Couldn't open the browser: " + ex.Message); }
+    }
 }

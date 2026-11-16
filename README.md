@@ -5,8 +5,8 @@
 **Free, open-source, self-hosted environmental, health & safety (EHS) and fleet safety software.**
 No subscriptions, no per-employee pricing, no contracts — run it on hardware you own.
 
-> **Status: preview (v0.12.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module, the full Fleet Hub, Crash Review AI and Safety References work today and save to your PC;
-> the rest of the product is in place as "coming soon" pages. There is no server yet.
+> **Status: preview (v0.13.0).** Windows desktop app with a modern look: grouped sidebar navigation, floating dialogs, smooth page transitions and light/dark mode. Every safety module, the full Fleet Hub, Crash Review AI and Safety References work today and save to your PC;
+> the rest of the product is in place as "coming soon" pages. **Guardrail Server** (optional, self-hosted) puts a whole team on the same data: see [server/](server/README.md).
 
 ## Working now
 
@@ -125,7 +125,7 @@ and a page in `Views/`.
 
 1. Incidents (with OSHA 300/300A/301) and Monthly Data, which make the dashboard rates real
 2. Audits & Inspections with checklists and offline capture
-3. Guardrail Server (self-hosted, optional) with user accounts, roles and sync. Local-only mode stays: Guardrail keeps working on a single PC without a server
+3. ~~Guardrail Server (self-hosted, optional) with user accounts, roles and sync~~ ✓ (v0.13.0, [server/](server/README.md)). Local-only mode stays: Guardrail keeps working on a single PC without a server
 4. Fleet Hub: driver qualification files, DVIR, maintenance
 5. Crash Review AI on Guardrail Server (analyze videos uploaded from phones and dashcams)
 
