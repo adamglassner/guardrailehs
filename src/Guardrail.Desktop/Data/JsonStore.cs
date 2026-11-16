@@ -49,8 +49,12 @@ public sealed class JsonStore<T> : ISyncStore where T : RecordBase
         Name = name;
         _path = Path.Combine(folder, name + ".json");
         _items = Load(_path, out _unreadable);
-        lock (SyncHooks.Stores) SyncHooks.Stores.Add(this);
+        // Only the app's own store for each name syncs (copies opened elsewhere, e.g. by a restore check, don't).
+        lock (SyncHooks.Stores)
+            if (SyncHooks.Stores.All(s => s.Name != name)) { SyncHooks.Stores.Add(this); _syncs = true; }
     }
+
+    private readonly bool _syncs;
 
     public string Name { get; }
 
@@ -65,21 +69,21 @@ public sealed class JsonStore<T> : ISyncStore where T : RecordBase
         item.CreatedAt = item.UpdatedAt = DateTime.Now;
         _items.Add(item);
         Save();
-        SyncHooks.Raise(Name, item.Id, false);
+        if (_syncs) SyncHooks.Raise(Name, item.Id, false);
     }
 
     public void Update(T item)
     {
         item.UpdatedAt = DateTime.Now;
         Save();
-        SyncHooks.Raise(Name, item.Id, false);
+        if (_syncs) SyncHooks.Raise(Name, item.Id, false);
     }
 
     public void Delete(T item)
     {
         _items.Remove(item);
         Save();
-        SyncHooks.Raise(Name, item.Id, true);
+        if (_syncs) SyncHooks.Raise(Name, item.Id, true);
     }
 
     // ----- Guardrail Server sync -----

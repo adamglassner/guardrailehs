@@ -221,7 +221,8 @@ public static class SelfTest
             Check("Server: local delete is queued", changes.Count == 2 && changes[1].Item3);
             SyncHooks.LocalChange -= Hook;
             SyncHooks.Stores.Remove(store);
-            Check("Server: every data file is a sync collection", SyncHooks.Stores.Select(x => x.Name).All(Guardrail.Sync.Protocol.IsValidCollection),
+            Check("Server: every data file is a sync collection, once", SyncHooks.Stores.Select(x => x.Name).All(Guardrail.Sync.Protocol.IsValidCollection)
+                && SyncHooks.Stores.Select(x => x.Name).Distinct().Count() == SyncHooks.Stores.Count,
                 string.Join(", ", SyncHooks.Stores.Select(x => x.Name)));
             Check("Server: address shorthand", Guardrail.Sync.SyncApiClient.NormalizeUrl("192.168.1.20") == "http://192.168.1.20:5080/");
             try { Directory.Delete(folder, true); } catch { }
