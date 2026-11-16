@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guardrail-server
+  labels: { app: guardrail-server }
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: guardrail-server }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxUnavailable: 0, maxSurge: 1 }
+  template:
+    metadata:
+      labels: { app: guardrail-server }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5080"
+        prometheus.io/path: /metrics
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1654
+        fsGroup: 1654
+      containers:
+        - name: guardrail
+          image: ghcr.io/adamglassner/guardrail-server
+          ports:
+            - { name: http, containerPort: 5080 }
+          envFrom:
+            - configMapRef: { name: guardrail-config }
+            - secretRef: { name: guardrail-secrets }
+          env:
+            - name: GR_NODE_NAME
+              valueFrom: { fieldRef: { fieldPath: metadata.name } }
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 2
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          lifecycle:
+            # Give the Service time to stop routing here before the process stops
+            preStop:
+              sleep: { seconds: 5 }
+          resources:
+            requests: { cpu: 250m, memory: 256Mi }
+            limits: { memory: 1Gi }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        # Only scratch space: records live in PostgreSQL and files in object storage.
+        - { name: data, emptyDir: {} }
+        - { name: tmp, emptyDir: {} }

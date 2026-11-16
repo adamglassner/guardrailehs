@@ -1,0 +1,22 @@
+# HTTPS for people connecting from anywhere. Change the host; this example uses ingress-nginx and cert-manager.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: guardrail-server
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 1100m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [guardrail.example.com]
+      secretName: guardrail-tls
+  rules:
+    - host: guardrail.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: guardrail-server, port: { name: http } }

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Shared by Guardrail Server and the Guardrail desktop app: the sync protocol and an API client. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Guardrail.Sync</RootNamespace>
+  </PropertyGroup>
+</Project>

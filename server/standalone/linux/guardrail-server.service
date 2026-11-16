@@ -1,0 +1,25 @@
+[Unit]
+Description=Guardrail Server (sync server for Guardrail EHS)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+User=guardrail
+Group=guardrail
+WorkingDirectory=/opt/guardrail-server
+ExecStart=/opt/guardrail-server/GuardrailServer
+Environment=GR_DATA=/var/lib/guardrail-server
+Environment=GR_PORT=5080
+# on-failure: "Restart" in the web panel brings it back; "Shut down" keeps it stopped until you start it.
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/guardrail-server
+
+[Install]
+WantedBy=multi-user.target

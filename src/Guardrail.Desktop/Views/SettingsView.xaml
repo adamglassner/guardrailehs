@@ -64,18 +64,14 @@
         <Border Style="{StaticResource Card}" Margin="0,0,0,14">
             <StackPanel>
                 <DockPanel>
-                    <Border DockPanel.Dock="Right" Style="{StaticResource SoonPill}">
-                        <TextBlock Text="COMING SOON" Style="{StaticResource PillText}" />
+                    <Border x:Name="ServerPill" DockPanel.Dock="Right" Style="{StaticResource StatusPill}">
+                        <TextBlock x:Name="ServerPillText" />
                     </Border>
-                    <TextBlock Text="GUARDRAIL SERVER (SELF-HOSTED)" Style="{StaticResource SectionLabel}" />
+                    <TextBlock Text="GUARDRAIL SERVER (OPTIONAL)" Style="{StaticResource SectionLabel}" />
                 </DockPanel>
-                <TextBlock Style="{StaticResource Muted}" Margin="0,0,0,10"
-                           Text="Run Guardrail Server on your own PC, NAS or in-house server. All data stays on hardware you own. Field devices capture offline and sync to it when they reconnect." />
-                <DockPanel>
-                    <Button DockPanel.Dock="Right" Content="Connect" Style="{StaticResource PrimaryButton}" Margin="10,0,0,0"
-                            Click="Soon_Click" Tag="Connecting to Guardrail Server" />
-                    <TextBox Text="http://localhost:5080" IsEnabled="False" />
-                </DockPanel>
+                <TextBlock x:Name="ServerText" Style="{StaticResource Muted}" Margin="0,0,0,12" TextWrapping="Wrap" />
+                <StackPanel x:Name="ServerDetails" Margin="0,0,0,12" />
+                <WrapPanel x:Name="ServerButtons" />
             </StackPanel>
         </Border>
 
@@ -94,7 +90,7 @@
                     <TextBlock x:Name="LocationsSummary" Style="{StaticResource Muted}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                    <Button Content="Users &amp; roles" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="Soon_Click" Tag="User accounts and roles (with Guardrail Server)" />
+                    <Button Content="Users &amp; roles" Style="{StaticResource GhostButton}" Margin="0,0,8,0" Click="UsersRoles_Click" />
                     <Button Content="Custom fields" Style="{StaticResource GhostButton}" Click="Soon_Click" Tag="Custom fields" />
                     <Border Style="{StaticResource SoonPill}" Margin="10,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="COMING SOON" Style="{StaticResource PillText}" />

@@ -1,0 +1,23 @@
+# Load balancer for docker-compose.scale.yml. Finds every "guardrail" container through Docker's DNS (re-checked
+# every 5 seconds, so `--scale guardrail=6` just works), spreads requests across them, and retries on another
+# server if one is restarting or shutting down.
+:5080 {
+	request_body {
+		max_size 1100MB
+	}
+	reverse_proxy {
+		dynamic a {
+			name guardrail
+			port 5080
+			refresh 5s
+		}
+		lb_policy least_conn
+		lb_try_duration 10s
+		lb_try_interval 250ms
+		fail_duration 15s
+		transport http {
+			read_timeout 10m
+			write_timeout 10m
+		}
+	}
+}

@@ -194,6 +194,42 @@ public static class SelfTest
         Check("Locations: hierarchy text", loc.Hierarchy == "South › North Texas" && loc.IsActive && loc.Number.StartsWith("LOC"));
     }
 
+    // ----- Guardrail Server sync (no server needed) -----
+
+    private static async Task ServerSyncChecks()
+    {
+        await Step("Server: connect dialog builds", () => { var d = new ConnectServerDialog(); d.Show(); d.UpdateLayout(); d.Close(); });
+        try
+        {
+            string folder = Path.Combine(Path.GetTempPath(), "gr-synctest-" + Guid.NewGuid().ToString("N")[..6]);
+            var store = new JsonStore<ActionItem>(folder, "sync-test");
+            ISyncStore s = store;
+            var changes = new List<(string, Guid, bool)>();
+            void Hook(string n, Guid id, bool del) { if (n == "sync-test") changes.Add((n, id, del)); }
+            SyncHooks.LocalChange += Hook;
+            var a = new ActionItem { Title = "Fix the guard" };
+            store.Add(a);
+            string json = s.Serialize(a.Id)!;
+            Check("Server: local add is queued", changes.Count == 1 && !changes[0].Item3);
+            Check("Server: record serializes", json.Contains("Fix the guard") && s.ModifiedMs(a.Id) > 0);
+            s.SetNumber(a.Id, 42);
+            Check("Server: server number applied", store.Items[0].Seq == 42 && store.Items[0].Number.EndsWith("0042"));
+            var remote = new ActionItem { Title = "From a teammate", Seq = 43 };
+            s.ApplyRemote([(remote.Id, System.Text.Json.JsonSerializer.Serialize(remote)), (a.Id, null)]);
+            Check("Server: remote changes applied without being queued", store.Items.Count == 1 && store.Items[0].Title == "From a teammate" && changes.Count == 1);
+            store.Delete(store.Items[0]);
+            Check("Server: local delete is queued", changes.Count == 2 && changes[1].Item3);
+            SyncHooks.LocalChange -= Hook;
+            SyncHooks.Stores.Remove(store);
+            Check("Server: every data file is a sync collection, once", SyncHooks.Stores.Select(x => x.Name).All(Guardrail.Sync.Protocol.IsValidCollection)
+                && SyncHooks.Stores.Select(x => x.Name).Distinct().Count() == SyncHooks.Stores.Count,
+                string.Join(", ", SyncHooks.Stores.Select(x => x.Name)));
+            Check("Server: address shorthand", Guardrail.Sync.SyncApiClient.NormalizeUrl("192.168.1.20") == "http://192.168.1.20:5080/");
+            try { Directory.Delete(folder, true); } catch { }
+        }
+        catch (Exception ex) { Check("Server: sync hooks", false, ex.ToString()); }
+    }
+
     // ----- Safety References -----
 
     private static async Task ReferencesChecks(MainWindow window)
@@ -624,6 +660,7 @@ public static class SelfTest
         await WebVideoChecks();
         await LockAndLocationUiChecks(window);
         await ReferencesChecks(window);
+        await ServerSyncChecks();
 
         await Step("Back to Dashboard", () => window.GoTo(ModuleCatalog.Dashboard.Key));
 
