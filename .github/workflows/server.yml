@@ -1,7 +1,7 @@
 name: Server
 
 # Guardrail Server (server/): tests on SQLite and PostgreSQL, standalone builds (Windows, Linux, Raspberry Pi),
-# Docker image (single and scaled-out with PostgreSQL + MinIO + load balancer), Windows installer (install, check,
+# Docker image (single and scaled-out with PostgreSQL + S3 storage + load balancer), Windows installer (install, check,
 # uninstall), web panel screenshots. Push to main with a new <Version> in Guardrail.Server.csproj → release
 # server-v<version> (never marked "latest", so the launcher keeps installing the desktop app) and
 # ghcr.io/adamglassner/guardrail-server.
@@ -138,7 +138,7 @@ jobs:
           test "$(docker inspect --format '{{.State.Health.Status}}' gr)" = "healthy"
           docker rm -f gr
 
-      - name: Scaled out (3 servers + PostgreSQL + MinIO + load balancer)
+      - name: Scaled out (3 servers + PostgreSQL + S3 storage + load balancer)
         working-directory: server
         run: |
           docker compose -f docker-compose.scale.yml up -d
@@ -165,7 +165,7 @@ jobs:
           done
           for i in $(seq 1 6); do curl -sf -H "Authorization: Bearer $token" "http://localhost:5080/api/v1/sync/changes?since=0" | python3 -c "
           import json,sys; d=json.load(sys.stdin); nums=sorted(c['number'] for c in d['changes']); assert nums==list(range(1,31)), nums; print('pull ok', d['latest'])"; done
-          # A file uploaded through one server downloads through the others (MinIO)
+          # A file uploaded through one server downloads through the others (S3 storage)
           head -c 300000 /dev/urandom > /tmp/blob
           curl -sf -X PUT -H "Authorization: Bearer $token" --data-binary @/tmp/blob http://localhost:5080/api/v1/files/library/x/test.bin
           for i in $(seq 1 4); do curl -sf -H "Authorization: Bearer $token" -o /tmp/blob2 http://localhost:5080/api/v1/files/library/x/test.bin; cmp /tmp/blob /tmp/blob2; done

@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "guardrail",
+      "credentials": [{ "accessKey": "guardrail", "secretKey": "change-me-storage" }],
+      "actions": ["Admin", "Read", "List", "Tagging", "Write"]
+    }
+  ]
+}

@@ -73,7 +73,7 @@ or Docker container it stays stopped; Kubernetes always starts a new copy).
 | Size | Setup |
 | --- | --- |
 | One site, a few dozen people | The default: one server, SQLite, files in the data folder. |
-| Hundreds of people, high availability | 2+ servers, PostgreSQL, S3-compatible storage (or one shared folder), a load balancer. [docker-compose.scale.yml](docker-compose.scale.yml) does this with Caddy, PostgreSQL and MinIO. |
+| Hundreds of people, high availability | 2+ servers, PostgreSQL, S3-compatible storage (or one shared folder), a load balancer. [docker-compose.scale.yml](docker-compose.scale.yml) does this with Caddy, PostgreSQL and SeaweedFS (S3). |
 | Many organizations, thousands of people | [deploy/kubernetes](deploy/kubernetes): 3 to 20 servers with autoscaling, rolling updates and a disruption budget, a managed PostgreSQL and object storage. |
 
 How it stays correct with many servers:
@@ -135,6 +135,6 @@ docker build -f server/Dockerfile -t guardrail-server .
 
 See [PROTOCOL.md](PROTOCOL.md) for the API. The [Server workflow](../.github/workflows/server.yml) runs the tests on
 SQLite and PostgreSQL, builds the standalone packages, tests the Docker image alone and scaled out (3 servers,
-PostgreSQL, MinIO, load balancer), installs, restarts, shuts down and uninstalls the Windows service, takes
+PostgreSQL, S3 storage, load balancer), installs, restarts, shuts down and uninstalls the Windows service, takes
 screenshots of the web panel, and publishes a `server-v<version>` release when the version in
 `Guardrail.Server.csproj` changes on `main`.

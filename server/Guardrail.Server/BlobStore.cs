@@ -148,17 +148,30 @@ public sealed class S3BlobStore : BlobStore
         catch { return false; }
     }
 
-    /// <summary>Creates the bucket on first start if it's missing (handy with MinIO).</summary>
+    /// <summary>
+    /// Waits (up to a minute) for the storage to answer, then creates the bucket if it's missing. Several servers can
+    /// do this at once.
+    /// </summary>
     public async Task EnsureBucket(ILogger log)
     {
-        try
+        for (int attempt = 1; ; attempt++)
         {
-            await _s3.ListObjectsV2Async(new ListObjectsV2Request { BucketName = _bucket, MaxKeys = 1 });
-        }
-        catch (AmazonS3Exception e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-        {
-            log.LogInformation("Creating bucket {Bucket}", _bucket);
-            await _s3.PutBucketAsync(new PutBucketRequest { BucketName = _bucket });
+            try
+            {
+                await _s3.ListObjectsV2Async(new ListObjectsV2Request { BucketName = _bucket, MaxKeys = 1 });
+                return;
+            }
+            catch (AmazonS3Exception e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound || e.ErrorCode == "NoSuchBucket")
+            {
+                log.LogInformation("Creating bucket {Bucket}", _bucket);
+                try { await _s3.PutBucketAsync(new PutBucketRequest { BucketName = _bucket }); return; }
+                catch (AmazonS3Exception p) when (p.ErrorCode is "BucketAlreadyOwnedByYou" or "BucketAlreadyExists") { return; }
+            }
+            catch (Exception e) when (attempt < 30 && e is not AmazonS3Exception { StatusCode: System.Net.HttpStatusCode.Forbidden })
+            {
+                log.LogWarning("File storage isn't answering yet ({Message}); trying again", e.Message);
+                await Task.Delay(2000);
+            }
         }
     }
 

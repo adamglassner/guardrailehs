@@ -1,4 +1,4 @@
-# Guardrail Server, scaled out: 3 servers behind a load balancer, sharing PostgreSQL and S3-compatible storage (MinIO).
+# Guardrail Server, scaled out: 3 servers behind a load balancer, sharing PostgreSQL and S3-compatible storage (SeaweedFS).
 #   docker compose -f docker-compose.scale.yml up -d          then open http://<this machine>:5080
 #   docker compose -f docker-compose.scale.yml up -d --scale guardrail=6     (more servers)
 # Change every "change-me" before using this for real, and put HTTPS in front (or use Caddy's automatic HTTPS:
@@ -11,12 +11,12 @@ services:
       replicas: 3
     depends_on:
       postgres: { condition: service_healthy }
-      minio: { condition: service_healthy }
+      storage: { condition: service_started }
     environment:
       GR_DB: postgres
       GR_DB_CONNECTION: "Host=postgres;Database=guardrail;Username=guardrail;Password=change-me-db;Maximum Pool Size=50"
       GR_STORAGE: s3
-      GR_S3_ENDPOINT: http://minio:9000
+      GR_S3_ENDPOINT: http://storage:8333
       GR_S3_BUCKET: guardrail
       GR_S3_ACCESS_KEY: guardrail
       GR_S3_SECRET_KEY: change-me-storage
@@ -49,21 +49,15 @@ services:
       timeout: 5s
       retries: 20
 
-  minio:
-    image: minio/minio:latest
+  # Any S3-compatible storage works (AWS S3, Cloudflare R2, Backblaze B2, Wasabi, MinIO…). This one is SeaweedFS.
+  storage:
+    image: chrislusf/seaweedfs:latest
     restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: guardrail
-      MINIO_ROOT_PASSWORD: change-me-storage
+    command: server -dir=/data -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
     volumes:
-      - minio-data:/data
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+      - storage-data:/data
+      - ./deploy/seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro
 
 volumes:
   postgres-data:
-  minio-data:
+  storage-data:

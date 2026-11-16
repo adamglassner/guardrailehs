@@ -710,7 +710,7 @@ async function nodesPage() {
         <li>Have the load balancer check <span class="mono">/readyz</span>. Each server stops answering it while it shuts down, so no requests are lost.</li>
         <li>Collect <span class="mono">/metrics</span> with Prometheus if you want graphs and alerts.</li>
       </ol>
-      <p class="muted small" style="margin-bottom:0">The repository has a ready-made <span class="mono">docker-compose.scale.yml</span> (three servers, PostgreSQL, MinIO and a load balancer) and Kubernetes files with autoscaling.</p>
+      <p class="muted small" style="margin-bottom:0">The repository has a ready-made <span class="mono">docker-compose.scale.yml</span> (three servers, PostgreSQL, S3 storage and a load balancer) and Kubernetes files with autoscaling.</p>
     </section>`);
   state.timer = setInterval(() => { if (state.page === 'nodes' && !document.querySelector('.modal')) nodesPage(); }, 10000);
 }
