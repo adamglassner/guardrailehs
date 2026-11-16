@@ -1,0 +1,21 @@
+# Guardrail Server, one container with SQLite:   docker compose up -d   then open http://<this machine>:5080
+# Uninstall:  docker compose down      (add -v to delete the data volume too)
+services:
+  guardrail:
+    image: ghcr.io/adamglassner/guardrail-server:latest
+    container_name: guardrail-server
+    # on-failure: "Restart" in the web panel brings it back; "Shut down" keeps it stopped.
+    restart: on-failure
+    ports:
+      - "5080:5080"
+    volumes:
+      - guardrail-data:/data
+    environment:
+      # Optional: create the first admin here instead of on the web panel's setup page
+      # GR_ADMIN_USERNAME: admin
+      # GR_ADMIN_PASSWORD: change-me-please
+      # GR_ORG_NAME: Acme Logistics
+      TZ: America/New_York
+
+volumes:
+  guardrail-data:

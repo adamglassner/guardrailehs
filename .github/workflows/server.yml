@@ -1,0 +1,254 @@
+name: Server
+
+# Guardrail Server (server/): tests on SQLite and PostgreSQL, standalone builds (Windows, Linux, Raspberry Pi),
+# Docker image (single and scaled-out with PostgreSQL + MinIO + load balancer), Windows installer (install, check,
+# uninstall), web panel screenshots. Push to main with a new <Version> in Guardrail.Server.csproj → release
+# server-v<version> (never marked "latest", so the launcher keeps installing the desktop app) and
+# ghcr.io/adamglassner/guardrail-server.
+on:
+  push:
+    branches: [main, server]
+    paths: ['server/**', '.github/workflows/server.yml']
+  pull_request:
+    paths: ['server/**', '.github/workflows/server.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  IMAGE: ghcr.io/adamglassner/guardrail-server
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
+      release: ${{ steps.ver.outputs.release }}
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: guardrail
+          POSTGRES_PASSWORD: test-password
+          POSTGRES_DB: guardrail
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U guardrail" --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Version
+        id: ver
+        run: |
+          v=$(grep -oP '(?<=<Version>)[0-9][^<]*' server/Guardrail.Server/Guardrail.Server.csproj | head -1)
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          release=false
+          if [ "$GITHUB_REF" = "refs/heads/main" ] && [ "$GITHUB_EVENT_NAME" = "push" ] && ! git rev-parse -q --verify "refs/tags/server-v$v" >/dev/null; then release=true; fi
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+          echo "Guardrail Server $v (release: $release)"
+
+      - name: Tests (SQLite)
+        run: dotnet test server/Guardrail.Server.Tests -c Release --logger "console;verbosity=normal"
+
+      - name: Tests (PostgreSQL)
+        env:
+          GR_TEST_POSTGRES: "Host=localhost;Port=5432;Database=guardrail;Username=guardrail;Password=test-password"
+        run: dotnet test server/Guardrail.Server.Tests -c Release --no-build --logger "console;verbosity=normal"
+
+      - name: Standalone builds
+        run: |
+          v=${{ steps.ver.outputs.version }}
+          mkdir -p dist-server
+          for rid in linux-x64 linux-arm64 win-x64; do
+            dotnet publish server/Guardrail.Server/Guardrail.Server.csproj -c Release -r $rid --self-contained \
+              -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o dist-server/$rid
+            cp server/standalone/appsettings.json dist-server/$rid/
+            rm -f dist-server/$rid/*.pdb dist-server/$rid/appsettings.Development.json dist-server/$rid/web.config
+          done
+          cp server/standalone/linux/* dist-server/linux-x64/
+          cp server/standalone/linux/* dist-server/linux-arm64/
+          cp server/standalone/windows/* dist-server/win-x64/
+          (cd dist-server/linux-x64 && tar czf ../GuardrailServer-$v-linux-x64.tar.gz *)
+          (cd dist-server/linux-arm64 && tar czf ../GuardrailServer-$v-linux-arm64.tar.gz *)
+          (cd dist-server/win-x64 && zip -qr ../GuardrailServer-$v-win-x64.zip *)
+          ls -la dist-server
+
+      - name: Run the Linux build, seed demo data, screenshot the web panel
+        run: |
+          export GR_DATA=$RUNNER_TEMP/gr-data GR_ADMIN_USERNAME=admin GR_ADMIN_PASSWORD=screenshot-password
+          ./dist-server/linux-x64/GuardrailServer > $RUNNER_TEMP/server.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:5080/readyz && break; sleep 1; done
+          echo
+          curl -sf http://localhost:5080/ | grep -q "Guardrail Server"
+          curl -sf http://localhost:5080/metrics | head -5
+          node server/tools/seed.mjs http://localhost:5080 admin screenshot-password
+          mkdir -p server-screenshots
+          cd server/tools
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund playwright@1.48.2 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+          node panel-screenshots.mjs http://localhost:5080 admin screenshot-password ../../server-screenshots
+          cd ../..
+          ls server-screenshots
+          echo "--- server log ---"; tail -40 $RUNNER_TEMP/server.log
+
+      - name: Publish screenshots to the "screenshots-server" branch
+        if: github.event_name != 'pull_request'
+        working-directory: server-screenshots
+        run: |
+          git init -q -b screenshots-server
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Server screenshots of ${{ github.sha }}"
+          git push -q --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:screenshots-server
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: server-builds
+          path: |
+            dist-server/*.tar.gz
+            dist-server/*.zip
+            dist-server/win-x64/
+
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -f server/Dockerfile -t $IMAGE:test -t $IMAGE:latest .
+
+      - name: One container (SQLite)
+        run: |
+          docker run -d --name gr -p 5080:5080 -e GR_ADMIN_USERNAME=admin -e GR_ADMIN_PASSWORD=docker-password-1 $IMAGE:test
+          for i in $(seq 1 40); do curl -sf http://localhost:5080/readyz && break; sleep 1; done
+          echo
+          curl -sf http://localhost:5080/api/v1/info
+          sleep 35
+          docker inspect --format '{{.State.Health.Status}}' gr
+          docker logs gr
+          test "$(docker inspect --format '{{.State.Health.Status}}' gr)" = "healthy"
+          docker rm -f gr
+
+      - name: Scaled out (3 servers + PostgreSQL + MinIO + load balancer)
+        working-directory: server
+        run: |
+          docker compose -f docker-compose.scale.yml up -d
+          for i in $(seq 1 90); do curl -sf http://localhost:5080/readyz && break; sleep 2; done
+          echo
+          docker compose -f docker-compose.scale.yml ps
+          # Sign in to the panel through the load balancer and check all three servers report in
+          curl -sf -c /tmp/cj -H 'Content-Type: application/json' -H 'X-Guardrail: admin' -d '{"username":"admin","password":"change-me-admin"}' http://localhost:5080/admin/api/login
+          for i in $(seq 1 30); do
+            n=$(curl -sf -b /tmp/cj http://localhost:5080/admin/api/nodes | python3 -c "import json,sys; print(sum(1 for x in json.load(sys.stdin) if x['online']))")
+            echo "servers online: $n"; [ "$n" = "3" ] && break; sleep 3
+          done
+          test "$n" = "3"
+          # One organization only (servers started together)
+          curl -sf -b /tmp/cj http://localhost:5080/admin/api/orgs | python3 -c "import json,sys; o=json.load(sys.stdin); print(o); assert len(o)==1"
+          # Sign up, push and pull many times: requests land on different servers but see the same data
+          code=$(curl -sf -b /tmp/cj -H 'Content-Type: application/json' -H 'X-Guardrail: admin' -d '{"role":"member","uses":1}' http://localhost:5080/admin/api/invites | python3 -c "import json,sys; print(json.load(sys.stdin)['code'])")
+          token=$(curl -sf -H 'Content-Type: application/json' -d "{\"username\":\"scale.test\",\"password\":\"password-123\",\"invite\":\"$code\"}" http://localhost:5080/api/v1/auth/register | python3 -c "import json,sys; print(json.load(sys.stdin)['token'])")
+          for i in $(seq 1 30); do
+            id=$(cat /proc/sys/kernel/random/uuid)
+            curl -sf -H "Authorization: Bearer $token" -H 'Content-Type: application/json' \
+              -d "{\"changes\":[{\"collection\":\"incidents\",\"id\":\"$id\",\"modified\":$(date +%s%3N),\"deleted\":false,\"payload\":\"{\\\"Seq\\\":1,\\\"Title\\\":\\\"Test $i\\\"}\"}]}" \
+              http://localhost:5080/api/v1/sync/push > /dev/null
+          done
+          for i in $(seq 1 6); do curl -sf -H "Authorization: Bearer $token" "http://localhost:5080/api/v1/sync/changes?since=0" | python3 -c "
+          import json,sys; d=json.load(sys.stdin); nums=sorted(c['number'] for c in d['changes']); assert nums==list(range(1,31)), nums; print('pull ok', d['latest'])"; done
+          # A file uploaded through one server downloads through the others (MinIO)
+          head -c 300000 /dev/urandom > /tmp/blob
+          curl -sf -X PUT -H "Authorization: Bearer $token" --data-binary @/tmp/blob http://localhost:5080/api/v1/files/library/x/test.bin
+          for i in $(seq 1 4); do curl -sf -H "Authorization: Bearer $token" -o /tmp/blob2 http://localhost:5080/api/v1/files/library/x/test.bin; cmp /tmp/blob /tmp/blob2; done
+          curl -sf -b /tmp/cj http://localhost:5080/admin/api/nodes | python3 -c "import json,sys; [print(x['name'], x['requests']) for x in json.load(sys.stdin)]"
+          docker compose -f docker-compose.scale.yml logs --tail 20 guardrail
+          docker compose -f docker-compose.scale.yml down -v
+
+      - uses: docker/setup-qemu-action@v3
+        if: needs.build.outputs.release == 'true'
+      - uses: docker/setup-buildx-action@v3
+        if: needs.build.outputs.release == 'true'
+      - name: Push to GitHub Container Registry (x64 and ARM64)
+        if: needs.build.outputs.release == 'true'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          v=${{ needs.build.outputs.version }}
+          docker buildx build -f server/Dockerfile --platform linux/amd64,linux/arm64 -t $IMAGE:$v -t $IMAGE:latest --push .
+          docker buildx imagetools inspect $IMAGE:$v
+
+  windows-installer:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: server-builds
+          path: dist-server
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          $v = '${{ needs.build.outputs.version }}'
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /Qp "/DMyAppVersion=$v" "/DSourceDir=..\..\dist-server\win-x64" server\installer\GuardrailServer.iss
+          if ($LASTEXITCODE) { throw "ISCC failed" }
+          Get-ChildItem dist-server\*.exe
+      - name: Install, check, restart and shut down from the web panel, uninstall
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem dist-server\GuardrailServer-*-Setup.exe | Select-Object -First 1
+          Start-Process $setup.FullName -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/TASKS=firewall' -Wait
+          Get-Service GuardrailServer | Format-List Name, Status, StartType
+          function WaitUp { for ($i = 0; $i -lt 60; $i++) { try { Invoke-RestMethod http://localhost:5080/readyz | Out-Null; return $true } catch { Start-Sleep 1 } }; return $false }
+          if (-not (WaitUp)) { throw "The service didn't answer on port 5080" }
+          if (-not (Test-Path 'C:\ProgramData\Guardrail Server\guardrail.db')) { throw "No database in ProgramData" }
+          # Set up the panel admin, then Restart (comes back) and Shut down (stays stopped)
+          $s = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+          $h = @{ 'X-Guardrail' = 'admin' }
+          Invoke-RestMethod http://localhost:5080/admin/api/setup -Method Post -WebSession $s -Headers $h -ContentType 'application/json' -Body '{"username":"admin","password":"installer-test-1"}' | Out-Null
+          Invoke-RestMethod http://localhost:5080/admin/api/service/restart -Method Post -WebSession $s -Headers $h -ContentType 'application/json' -Body '{}' | Out-Null
+          Start-Sleep 6
+          if (-not (WaitUp)) { throw "The service didn't come back after Restart" }
+          Write-Host "Restart OK"
+          Invoke-RestMethod http://localhost:5080/admin/api/service/shutdown -Method Post -WebSession $s -Headers $h -ContentType 'application/json' -Body '{}' | Out-Null
+          Start-Sleep 12
+          $status = (Get-Service GuardrailServer).Status
+          Write-Host "After Shut down: $status"
+          if ($status -ne 'Stopped') { throw "The service should stay stopped after Shut down" }
+          Start-Process "${env:ProgramFiles}\Guardrail Server\unins000.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES' -Wait
+          Start-Sleep 5
+          if (Get-Service GuardrailServer -ErrorAction SilentlyContinue) { throw "Service still installed after uninstall" }
+          if (Test-Path "${env:ProgramFiles}\Guardrail Server\GuardrailServer.exe") { throw "Program files left after uninstall" }
+          Write-Host "Installer OK"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: server-installer
+          path: dist-server/GuardrailServer-*-Setup.exe
+
+  release:
+    needs: [build, docker, windows-installer]
+    if: needs.build.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+          merge-multiple: true
+      - name: Publish the server release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          v=${{ needs.build.outputs.version }}
+          find dl -maxdepth 2 -type f \( -name "*.exe" -o -name "*.zip" -o -name "*.tar.gz" \) | grep -v "/win-x64/" > files.txt
+          cat files.txt
+          gh release create "server-v$v" $(cat files.txt) --target "$GITHUB_SHA" --latest=false \
+            --title "Guardrail Server $v" --notes-file server/RELEASE_NOTES.md

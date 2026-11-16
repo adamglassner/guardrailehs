@@ -1,0 +1,69 @@
+# Guardrail Server, scaled out: 3 servers behind a load balancer, sharing PostgreSQL and S3-compatible storage (MinIO).
+#   docker compose -f docker-compose.scale.yml up -d          then open http://<this machine>:5080
+#   docker compose -f docker-compose.scale.yml up -d --scale guardrail=6     (more servers)
+# Change every "change-me" before using this for real, and put HTTPS in front (or use Caddy's automatic HTTPS:
+# replace ":5080" in Caddyfile with your domain name).
+services:
+  guardrail:
+    image: ghcr.io/adamglassner/guardrail-server:latest
+    restart: on-failure
+    deploy:
+      replicas: 3
+    depends_on:
+      postgres: { condition: service_healthy }
+      minio: { condition: service_healthy }
+    environment:
+      GR_DB: postgres
+      GR_DB_CONNECTION: "Host=postgres;Database=guardrail;Username=guardrail;Password=change-me-db;Maximum Pool Size=50"
+      GR_STORAGE: s3
+      GR_S3_ENDPOINT: http://minio:9000
+      GR_S3_BUCKET: guardrail
+      GR_S3_ACCESS_KEY: guardrail
+      GR_S3_SECRET_KEY: change-me-storage
+      GR_TRUST_PROXY: "true"
+      GR_ADMIN_USERNAME: admin
+      GR_ADMIN_PASSWORD: change-me-admin
+      # GR_METRICS_TOKEN: a-long-random-string     (then Prometheus sends "Authorization: Bearer …")
+
+  loadbalancer:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "5080:5080"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on: [guardrail]
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: guardrail
+      POSTGRES_USER: guardrail
+      POSTGRES_PASSWORD: change-me-db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guardrail -d guardrail"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: guardrail
+      MINIO_ROOT_PASSWORD: change-me-storage
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  postgres-data:
+  minio-data:
