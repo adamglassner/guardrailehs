@@ -76,7 +76,7 @@ public static class ClientApi
             var u = User(http);
             if (!Protocol.Roles.CanWrite(u.Role)) throw new ApiProblem(403, "forbidden", "Your account is read-only.");
             name = Uri.UnescapeDataString(name);
-            if (!Protocol.IsValidId(name)) throw new ApiProblem(400, "bad_request", "Invalid file name.");
+            if (!Protocol.IsValidFileName(name)) throw new ApiProblem(400, "bad_request", "Invalid file name.");
 
             // Spool to a temp file first: checks the size limit and gives object storage a known length.
             string temp = Path.Combine(Path.GetTempPath(), "guardrail-upload-" + Guid.NewGuid().ToString("N"));
@@ -106,7 +106,7 @@ public static class ClientApi
         {
             var u = User(http);
             name = Uri.UnescapeDataString(name);
-            if (!Protocol.IsValidId(name)) throw new ApiProblem(400, "bad_request", "Invalid file name.");
+            if (!Protocol.IsValidFileName(name)) throw new ApiProblem(400, "bad_request", "Invalid file name.");
             var stream = await blobs.Get($"{u.OrgId}/{name}", http.RequestAborted) ?? throw new ApiProblem(404, "not_found", "No such file.");
             return Results.Stream(stream, "application/octet-stream", enableRangeProcessing: stream.CanSeek);
         });
@@ -116,7 +116,7 @@ public static class ClientApi
             var u = User(http);
             if (!Protocol.Roles.CanWrite(u.Role)) throw new ApiProblem(403, "forbidden", "Your account is read-only.");
             name = Uri.UnescapeDataString(name);
-            if (!Protocol.IsValidId(name)) throw new ApiProblem(400, "bad_request", "Invalid file name.");
+            if (!Protocol.IsValidFileName(name)) throw new ApiProblem(400, "bad_request", "Invalid file name.");
             await blobs.Delete($"{u.OrgId}/{name}");
             return sync.FileDeleted(u.OrgId, name) ? Results.Ok(new { ok = true }) : throw new ApiProblem(404, "not_found", "No such file.");
         });

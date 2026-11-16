@@ -56,6 +56,14 @@ public static partial class Protocol
     /// <summary>Record ids and file names: letters, digits and . _ - / (up to 200).</summary>
     public static bool IsValidId(string? id) => id != null && id.Length is > 0 and <= 200 && IdRegex().IsMatch(id) && !id.Contains("..");
 
+    /// <summary>
+    /// File names on the server: a path like "library/&lt;id&gt;/Safety Policy.pdf". Any characters except control
+    /// characters, backslashes and ".." segments; up to 300 characters.
+    /// </summary>
+    public static bool IsValidFileName(string? name) =>
+        name != null && name.Length is > 0 and <= 300 && !name.StartsWith('/') && !name.Contains('\\')
+        && !name.Any(char.IsControl) && name.Split('/').All(p => p.Length > 0 && p != "." && p != "..");
+
     /// <summary>Usernames are case-insensitive: "Jane.Doe" → "jane.doe". Email addresses work too. Null when not allowed.</summary>
     public static string? NormalizeUsername(string? name)
     {

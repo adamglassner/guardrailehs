@@ -121,6 +121,9 @@ public class ProtocolTests
         Assert.False(Protocol.IsValidId("../etc/passwd"));
         Assert.True(Protocol.IsValidCollection("fleet-vehicles"));
         Assert.False(Protocol.IsValidCollection("Fleet Vehicles"));
+        Assert.True(Protocol.IsValidFileName("library/3f2a/Safety Policy (2026).pdf"));
+        Assert.False(Protocol.IsValidFileName("library/../x"));
+        Assert.False(Protocol.IsValidFileName("/etc/passwd"));
     }
 }
 
