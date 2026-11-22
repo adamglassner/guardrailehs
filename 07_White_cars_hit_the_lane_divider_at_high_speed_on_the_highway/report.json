@@ -1,0 +1,276 @@
+{
+  "Verdict": "b",
+  "Confidence": 51,
+  "Headline": "V2 gray car was most likely at fault (100%)",
+  "Summary": "The gray car moved into the gray car: it did most of the closing before contact. The gray car was moving much faster than the gray car.",
+  "CollisionType": "Other road users: head-on",
+  "CameraKind": "Dashcam (moving)",
+  "SplitScreen": false,
+  "ImpactSeconds": 7.6,
+  "DurationSeconds": 21.4,
+  "Parties": [
+    "V1 gray car",
+    "V2 gray car",
+    "Camera vehicle"
+  ],
+  "FaultShares": [
+    0,
+    100,
+    0
+  ],
+  "Findings": [
+    {
+      "Seconds": 6.1,
+      "Text": "The gray car was moving much faster than the gray car."
+    },
+    {
+      "Seconds": 6.6,
+      "Text": "The gray car moved into the gray car: it did most of the closing before contact."
+    },
+    {
+      "Seconds": 7.6,
+      "Text": "The gray car (A) and the gray car (B) collided."
+    }
+  ],
+  "Shares": [
+    {
+      "Party": "V1 gray car",
+      "Percent": 0,
+      "IsCamera": false,
+      "Reasons": []
+    },
+    {
+      "Party": "V2 gray car",
+      "Percent": 100,
+      "IsCamera": false,
+      "Reasons": [
+        "The gray car was moving much faster than the gray car.",
+        "The gray car moved into the gray car: it did most of the closing before contact."
+      ]
+    },
+    {
+      "Party": "Camera vehicle",
+      "Percent": 0,
+      "IsCamera": true,
+      "Reasons": [
+        "not involved in the collision"
+      ]
+    }
+  ],
+  "CameraInvolved": false,
+  "Location": "in the lane to the left of the camera vehicle, a short distance ahead",
+  "RoadUsers": [
+    {
+      "Tag": "V1",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": true,
+      "Role": "collided",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 6.8,
+      "LastSeconds": 7.6
+    },
+    {
+      "Tag": "V2",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": true,
+      "Role": "collided",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 7.2,
+      "LastSeconds": 10.7
+    },
+    {
+      "Tag": "V3",
+      "Label": "blue car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 1,
+      "LastSeconds": 5.9
+    },
+    {
+      "Tag": "V4",
+      "Label": "blue car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "pulling away (faster than the camera vehicle)"
+      ],
+      "FirstSeconds": 5.4,
+      "LastSeconds": 10.8
+    }
+  ],
+  "DriverNotes": [
+    {
+      "Seconds": 4.6,
+      "Text": "The camera vehicle was travelling at a steady speed."
+    },
+    {
+      "Seconds": 4.6,
+      "Text": "The camera vehicle was keeping pace with the traffic around it."
+    },
+    {
+      "Seconds": 7.6,
+      "Text": "The camera doesn\u0027t show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved."
+    },
+    {
+      "Seconds": 8.6,
+      "Text": "The camera vehicle was not involved in the collision."
+    }
+  ],
+  "DriverIssues": [],
+  "CabinNotes": [],
+  "Narrative": "At 0:07.6 the video shows a collision between other road users, in the lane to the left of the camera vehicle, a short distance ahead. Involved: V1 (gray car), V2 (gray car). 2 other road users were in view but not involved. Most of the fault lies with V2 gray car (100%). The camera vehicle was not part of the collision.",
+  "CameraSetting": "auto",
+  "KeyFrames": [
+    {
+      "Seconds": 5.6,
+      "FileName": "key1.jpg",
+      "Caption": "2 seconds before"
+    },
+    {
+      "Seconds": 6.8,
+      "FileName": "key2.jpg",
+      "Caption": "Just before"
+    },
+    {
+      "Seconds": 7.6,
+      "FileName": "key3.jpg",
+      "Caption": "Impact"
+    },
+    {
+      "Seconds": 8.4,
+      "FileName": "key4.jpg",
+      "Caption": "Just after"
+    }
+  ],
+  "SpeedTrace": [
+    1.181,
+    1.893,
+    2.756,
+    3.365,
+    3.138,
+    2.805,
+    2.588,
+    1.988,
+    1.993,
+    2.292,
+    2.472,
+    2.56,
+    2.959,
+    3.342,
+    3.567,
+    4.347,
+    5.388,
+    6.058,
+    6.588,
+    7.994,
+    10.119,
+    12.447,
+    14.139,
+    15.392,
+    15.193,
+    14.365,
+    13.738,
+    14.71,
+    14.795,
+    16.008,
+    16.232,
+    15.883,
+    14.101,
+    13.677,
+    13.834,
+    14.464,
+    13.906,
+    13.325,
+    12.662,
+    11.062,
+    8.707,
+    6.898,
+    6.739,
+    6.747,
+    7.181,
+    8.517,
+    10.155,
+    11.123,
+    11.521,
+    11.867,
+    12.511,
+    14.59,
+    17.055,
+    21.003,
+    24.542,
+    24.823,
+    22.158,
+    18.656,
+    13.688,
+    9.237,
+    7.96,
+    8.68,
+    10.124,
+    12.391,
+    12.06,
+    11.558,
+    10.781,
+    10.2,
+    7.901,
+    8.675,
+    8.174,
+    8.639,
+    8.678,
+    9.502,
+    9.948,
+    10.071,
+    8.733,
+    7.624,
+    6.973,
+    6.085,
+    5.94,
+    6.121,
+    6.1,
+    6.079,
+    5.802,
+    6.635,
+    8.04,
+    8.639,
+    9.302,
+    10.195,
+    10.353,
+    9.95,
+    10.09,
+    9.862,
+    9.34,
+    8.709,
+    8.648,
+    8.723,
+    9.662,
+    10.811,
+    12.852,
+    15.29,
+    18.086,
+    20.766,
+    22.508,
+    22.367,
+    20.359,
+    19.583,
+    18.253,
+    17.661
+  ],
+  "TraceStepSeconds": 0.1,
+  "VehiclesTracked": 6,
+  "AnalysisSeconds": 73.8,
+  "Engine": "Guardrail Crash Review 2.0 (YOLOX-S \u002B rules)"
+}

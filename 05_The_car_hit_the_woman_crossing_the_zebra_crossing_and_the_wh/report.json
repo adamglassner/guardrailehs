@@ -1,0 +1,496 @@
+{
+  "Verdict": "camera",
+  "Confidence": 62,
+  "Headline": "The camera vehicle was most likely at fault (100%)",
+  "Summary": "The pedestrian was in the camera vehicle\u0027s path for at least 1.4 s before the camera vehicle struck them.",
+  "CollisionType": "Pedestrian struck",
+  "CameraKind": "Dashcam (moving)",
+  "SplitScreen": false,
+  "ImpactSeconds": 8,
+  "DurationSeconds": 26.8,
+  "Parties": [
+    "Camera vehicle",
+    "P1 pedestrian"
+  ],
+  "FaultShares": [
+    100,
+    0
+  ],
+  "Findings": [
+    {
+      "Seconds": 6.6,
+      "Text": "The pedestrian was in the camera vehicle\u0027s path for at least 1.4 s before the camera vehicle struck them."
+    }
+  ],
+  "Shares": [
+    {
+      "Party": "Camera vehicle",
+      "Percent": 100,
+      "IsCamera": true,
+      "Reasons": [
+        "The pedestrian was in the camera vehicle\u0027s path for at least 1.4 s before the camera vehicle struck them."
+      ]
+    },
+    {
+      "Party": "P1 pedestrian",
+      "Percent": 0,
+      "IsCamera": false,
+      "Reasons": []
+    }
+  ],
+  "CameraInvolved": true,
+  "Location": "directly ahead in the camera vehicle\u0027s lane, at the front of the camera vehicle",
+  "RoadUsers": [
+    {
+      "Tag": "V1",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": true,
+      "Role": "struck by the camera vehicle",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 2.7,
+      "LastSeconds": 8.9
+    },
+    {
+      "Tag": "P1",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": true,
+      "Role": "struck by the camera vehicle",
+      "Notes": [],
+      "FirstSeconds": 6.6,
+      "LastSeconds": 7.6
+    },
+    {
+      "Tag": "V2",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 0,
+      "LastSeconds": 1.9
+    },
+    {
+      "Tag": "P2",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 0,
+      "LastSeconds": 1.9
+    },
+    {
+      "Tag": "V3",
+      "Label": "motorcycle",
+      "Kind": "two-wheeler",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "pulling away (faster than the camera vehicle)"
+      ],
+      "FirstSeconds": 0,
+      "LastSeconds": 2.1
+    },
+    {
+      "Tag": "V4",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 0,
+      "LastSeconds": 3
+    },
+    {
+      "Tag": "V5",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 2.3,
+      "LastSeconds": 4.6
+    },
+    {
+      "Tag": "V6",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 3,
+      "LastSeconds": 4.8
+    },
+    {
+      "Tag": "V7",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 3.2,
+      "LastSeconds": 5.1
+    },
+    {
+      "Tag": "V8",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 4.2,
+      "LastSeconds": 6
+    },
+    {
+      "Tag": "V9",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 4.5,
+      "LastSeconds": 5.6
+    },
+    {
+      "Tag": "V10",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)",
+        "moved into the camera vehicle\u0027s lane from the right at 0:05.8"
+      ],
+      "FirstSeconds": 4.5,
+      "LastSeconds": 8.4
+    },
+    {
+      "Tag": "V11",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 5.4,
+      "LastSeconds": 7.6
+    },
+    {
+      "Tag": "V12",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 7.8,
+      "LastSeconds": 9.2
+    },
+    {
+      "Tag": "V13",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 7.8,
+      "LastSeconds": 13.9
+    },
+    {
+      "Tag": "V14",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 8.7,
+      "LastSeconds": 18.5
+    },
+    {
+      "Tag": "P3",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 9.9,
+      "LastSeconds": 26.8
+    },
+    {
+      "Tag": "V15",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 17.4,
+      "LastSeconds": 24.2
+    },
+    {
+      "Tag": "V16",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 18.1,
+      "LastSeconds": 26.8
+    },
+    {
+      "Tag": "V17",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 20.1,
+      "LastSeconds": 26.8
+    },
+    {
+      "Tag": "P4",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 23.4,
+      "LastSeconds": 26.8
+    }
+  ],
+  "DriverNotes": [
+    {
+      "Seconds": 5,
+      "Text": "The camera vehicle was travelling faster than it did for most of the video."
+    },
+    {
+      "Seconds": 5,
+      "Text": "The camera vehicle was keeping pace with the traffic around it."
+    },
+    {
+      "Seconds": 7.5,
+      "Text": "No braking was seen before the impact; there was little time to react."
+    },
+    {
+      "Seconds": 8,
+      "Text": "The camera doesn\u0027t show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved."
+    }
+  ],
+  "DriverIssues": [],
+  "CabinNotes": [],
+  "Narrative": "At 0:08.0 the video shows a collision with a pedestrian, directly ahead in the camera vehicle\u0027s lane, at the front of the camera vehicle. Involved: the camera vehicle, V1 (white car), P1 (pedestrian). 19 other road users were in view but not involved. Most of the fault lies with the camera vehicle (100%). Nothing in the camera vehicle\u0027s own driving stood out as a cause.",
+  "CameraSetting": "auto",
+  "KeyFrames": [
+    {
+      "Seconds": 6,
+      "FileName": "key1.jpg",
+      "Caption": "2 seconds before"
+    },
+    {
+      "Seconds": 7.2,
+      "FileName": "key2.jpg",
+      "Caption": "Just before"
+    },
+    {
+      "Seconds": 8,
+      "FileName": "key3.jpg",
+      "Caption": "Impact"
+    },
+    {
+      "Seconds": 8.8,
+      "FileName": "key4.jpg",
+      "Caption": "Just after"
+    }
+  ],
+  "SpeedTrace": [
+    1.302,
+    3.52,
+    5.762,
+    6.816,
+    7.115,
+    6.892,
+    5.698,
+    4.998,
+    6.035,
+    7.947,
+    9.758,
+    11.055,
+    11.383,
+    11.489,
+    13.193,
+    16.091,
+    17.78,
+    18.875,
+    19.02,
+    19.099,
+    19.232,
+    19.825,
+    19.288,
+    17.276,
+    15.182,
+    14.568,
+    15.269,
+    17.071,
+    20.228,
+    23.567,
+    25.962,
+    27.463,
+    27.54,
+    23.883,
+    18.576,
+    16.761,
+    24.679,
+    37.218,
+    62.056,
+    52.542,
+    19.981,
+    14.824,
+    12.894,
+    12.247,
+    7.203,
+    4.402,
+    3.679,
+    2.923,
+    1.239,
+    0.845,
+    0.542,
+    0.173,
+    0.053,
+    0.036,
+    0.031,
+    0.034,
+    0.03,
+    0.022,
+    0.016,
+    0.023,
+    0.026,
+    0.022,
+    0.011,
+    0.011,
+    0.017,
+    0.025,
+    0.027,
+    0.018,
+    0.142,
+    0.154,
+    0.136,
+    0.1,
+    0.09,
+    0.03,
+    0.026,
+    0.03,
+    0.04,
+    0.023,
+    0.02,
+    0.013,
+    0.023,
+    0.025,
+    0.016,
+    0.031,
+    0.046,
+    0.052,
+    0.026,
+    0.015,
+    0.013,
+    0.02,
+    0.025,
+    0.028,
+    0.018,
+    0.017,
+    0.014,
+    0.022,
+    0.025,
+    0.015,
+    0.005,
+    0.011,
+    0.021,
+    0.023,
+    0.012,
+    0.009,
+    0.013,
+    0.019,
+    0.022,
+    0.014,
+    0.012,
+    0.017,
+    0.022,
+    0.026,
+    0.017,
+    0.013,
+    0.021,
+    0.028,
+    0.027,
+    0.018,
+    0.026,
+    0.029,
+    0.02,
+    0.027,
+    0.018,
+    0.013,
+    0.015,
+    0.023,
+    0.031,
+    0.022,
+    0.02,
+    0.032,
+    0.041,
+    0.038,
+    0.02,
+    0.012,
+    0.007
+  ],
+  "TraceStepSeconds": 0.2,
+  "VehiclesTracked": 40,
+  "AnalysisSeconds": 99.2,
+  "Engine": "Guardrail Crash Review 2.0 (YOLOX-S \u002B rules)"
+}

@@ -1,0 +1,321 @@
+== 00_opencv_vtest_pedestrians
+   Fixed camera | none 0% |  | impact  | camera involved: False | 280.7s
+   No collision found. The AI followed every road user in view and didn't see two of them collide.
+   Where: 
+   Shares: 
+   
+== 01_Multiple_cars_rear_end_collision_on_highway
+   Dashcam (moving) | none 0% |  | impact  | camera involved: False | 104.2s
+   No collision found. The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.
+   Where: 
+   Shares: 
+   
+== 02_The_van_in_front_suddenly_changed_lanes_and_caused_the_vehic
+   Dashcam (moving) | camera 69% | Rear-end | impact 3.6 | camera involved: True | 190s
+   The camera vehicle was most likely at fault (100%). The camera vehicle closed in on it and struck it from behind.
+   Where: ahead, at the right edge of the camera vehicle's lane, at the front of the camera vehicle
+   Shares: Camera vehicle 100%, V1 white car 0%
+   At 0:03.6 the video shows a rear-end collision, ahead, at the right edge of the camera vehicle's lane, at the front of the camera vehicle. Involved: the camera vehicle, V1 (white car), V2 (gray car). 60 other road users were in view but not involved. Most of the fault lies with the camera vehicle (100%). The camera vehicle's driving contributed: no braking with the hazard in view for 3.6 s (possible distraction); following too closely.
+        0.0  The white car was ahead of the camera vehicle, in its lane, for 3.6+ s before the impact.
+        3.1  The camera vehicle closed in on it and struck it from behind.
+     drv    0.6  The camera vehicle was travelling faster than it did for most of the video.
+     drv    0.6  Other traffic was moving faster than the camera vehicle.
+     drv    1.1  The camera vehicle was closing on the vehicle ahead quickly (as little as 1.0 s from contact) before the final moment — following too closely for the speed.
+     drv    3.1  No braking was seen before the impact, although the hazard was in the camera vehicle's path for 3.6 s. That points to inattention or distraction.
+     drv    3.6  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     V1 white car: struck by the camera vehicle; ahead, in the camera vehicle's lane; the camera vehicle was gaining on it (slower, stopped or parked)
+     V2 gray car: struck by the camera vehicle; to the right of the camera vehicle; the camera vehicle was gaining on it (slower, stopped or parked)
+== 03_The_speeding_car_rear_ended_into_the_truck_in_front_and_the_
+   Dashcam (moving) | none 0% |  | impact  | camera involved: False | 99.3s
+   No collision found. The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.
+   Where: 
+   Shares: 
+   
+== 04_Speeding_electric_motorcycle_crashes_into_silver_gray_van
+   Dashcam (moving) | a 59% | Other road users: head-on | impact 2 | camera involved: False | 135s
+   V2 motorcycle was most likely at fault (100%). The motorcycle moved into the silver car: it did most of the closing before contact. The motorcycle was moving much faster than the silver car.
+   Where: in the lane to the left of the camera vehicle, a short distance ahead
+   Shares: V2 motorcycle 100%, V1 silver car 0%, P1 pedestrian 0%, Camera vehicle 0%
+   At 0:02.0 the video shows a collision between other road users, in the lane to the left of the camera vehicle, a short distance ahead. Involved: V1 (silver car), P1 (pedestrian), V2 (motorcycle). 21 other road users were in view but not involved. Most of the fault lies with V2 motorcycle (100%). The camera vehicle was not part of the collision.
+        0.5  The motorcycle was moving much faster than the silver car.
+        1.0  The motorcycle moved into the silver car: it did most of the closing before contact.
+        2.0  The motorcycle (A) and the silver car (B) collided.
+     drv    0.0  The camera vehicle was travelling faster than it did for most of the video.
+     drv    0.0  Other traffic was moving faster than the camera vehicle.
+     drv    2.0  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     drv    3.0  The camera vehicle was not involved and slowed down after the collision.
+     V1 silver car: collided; to the left of the camera vehicle; keeping pace with the camera vehicle
+     P1 pedestrian: hit in a follow-on collision; to the left of the camera vehicle; 
+     V2 motorcycle: collided; to the left of the camera vehicle; pulling away (faster than the camera vehicle)
+== 05_The_car_hit_the_woman_crossing_the_zebra_crossing_and_the_wh
+   Dashcam (moving) | camera 62% | Pedestrian struck | impact 8 | camera involved: True | 99.2s
+   The camera vehicle was most likely at fault (100%). The pedestrian was in the camera vehicle's path for at least 1.4 s before the camera vehicle struck them.
+   Where: directly ahead in the camera vehicle's lane, at the front of the camera vehicle
+   Shares: Camera vehicle 100%, P1 pedestrian 0%
+   At 0:08.0 the video shows a collision with a pedestrian, directly ahead in the camera vehicle's lane, at the front of the camera vehicle. Involved: the camera vehicle, V1 (white car), P1 (pedestrian). 19 other road users were in view but not involved. Most of the fault lies with the camera vehicle (100%). Nothing in the camera vehicle's own driving stood out as a cause.
+        6.6  The pedestrian was in the camera vehicle's path for at least 1.4 s before the camera vehicle struck them.
+     drv    5.0  The camera vehicle was travelling faster than it did for most of the video.
+     drv    5.0  The camera vehicle was keeping pace with the traffic around it.
+     drv    7.5  No braking was seen before the impact; there was little time to react.
+     drv    8.0  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     V1 white car: struck by the camera vehicle; ahead, in the camera vehicle's lane; the camera vehicle was gaining on it (slower, stopped or parked)
+     P1 pedestrian: struck by the camera vehicle; ahead, in the camera vehicle's lane; 
+== 06_The_e_scooter_rider_hit_the_car_and_then_rebounded_and_hit_a
+   Dashcam (moving) | unclear 25% | Impact from outside the view | impact 10.4 | camera involved: True | 108.5s
+   Fault is shared or unclear. A sudden jolt shook the camera with nothing approaching in front, so the impact came from the side or rear.
+   Where: at the camera vehicle, from outside the camera's view (the side or rear)
+   Shares: Camera vehicle 50%, the other vehicle (not visible) 50%
+   At 0:10.4 the video shows an impact from outside the camera's view, at the camera vehicle, from outside the camera's view (the side or rear). Involved: the camera vehicle. 18 other road users were in view but not involved. Fault looks shared: the camera vehicle 50%, the other vehicle (not visible) 50%. Nothing in the camera vehicle's own driving stood out as a cause.
+       10.4  A sudden jolt shook the camera with nothing approaching in front, so the impact came from the side or rear.
+       10.4  Without a view of the other party, fault can't be judged reliably.
+     drv    7.4  The camera vehicle was keeping pace with the traffic around it.
+     drv    7.9  It began slowing 2.5 s before impact.
+     drv    8.9  The camera vehicle was speeding up in the seconds before the collision.
+     drv   10.4  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+   With documents: Fault looks shared: the camera vehicle 50%, the other vehicle (not visible) 50% | Camera vehicle 50% (video 50, docs -), the other vehicle (not visible) 50% (video 50, docs -)
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 07_White_cars_hit_the_lane_divider_at_high_speed_on_the_highway
+   Dashcam (moving) | b 51% | Other road users: head-on | impact 7.6 | camera involved: False | 73.8s
+   V2 gray car was most likely at fault (100%). The gray car moved into the gray car: it did most of the closing before contact. The gray car was moving much faster than the gray car.
+   Where: in the lane to the left of the camera vehicle, a short distance ahead
+   Shares: V1 gray car 0%, V2 gray car 100%, Camera vehicle 0%
+   At 0:07.6 the video shows a collision between other road users, in the lane to the left of the camera vehicle, a short distance ahead. Involved: V1 (gray car), V2 (gray car). 2 other road users were in view but not involved. Most of the fault lies with V2 gray car (100%). The camera vehicle was not part of the collision.
+        6.1  The gray car was moving much faster than the gray car.
+        6.6  The gray car moved into the gray car: it did most of the closing before contact.
+        7.6  The gray car (A) and the gray car (B) collided.
+     drv    4.6  The camera vehicle was travelling at a steady speed.
+     drv    4.6  The camera vehicle was keeping pace with the traffic around it.
+     drv    7.6  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     drv    8.6  The camera vehicle was not involved in the collision.
+     V1 gray car: collided; to the left of the camera vehicle; keeping pace with the camera vehicle
+     V2 gray car: collided; to the left of the camera vehicle; keeping pace with the camera vehicle
+== 08_INSANE_Car_Crash_caught_on_TeslaCam_Kia_Soul_flying_through_
+   Dashcam (moving) | none 0% |  | impact  | camera involved: False | 120.3s
+   No collision found. The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.
+   Where: 
+   Shares: 
+   
+   With documents: No collision found | 
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 09_Distracted_woman_driver_crashes_Turo_rental_car_into_mailbox
+   Dashcam (moving) | none 0% |  | impact  | camera involved: False | 209.8s
+   No collision found. The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.
+   Where: 
+   Shares: 
+   
+== 10_Reckless_Driver_Yanked_Out_of_Car_After_Swerving_at_Deputy_D
+   Dashcam (moving) | a 51% | Other road users: pedestrian struck | impact 104.6 | camera involved: False | 417s
+   V1 black car was most likely at fault (100%). A pedestrian was struck by the black car.
+   Where: in the camera vehicle's lane, close to the camera
+   Shares: V1 black car 100%, P1 pedestrian 0%, Camera vehicle 0%
+   At 1:44.6 the video shows a collision between other road users, in the camera vehicle's lane, close to the camera. Involved: P1 (pedestrian), V1 (black car). 67 other road users were in view but not involved. Most of the fault lies with V1 black car (100%). The camera vehicle was not part of the collision.
+      104.6  The black car (A) and the pedestrian (B) collided.
+      104.6  A pedestrian was struck by the black car.
+     drv  102.6  The camera vehicle was stopped or barely moving before the collision.
+     drv  104.6  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     drv  105.6  The camera vehicle was not involved in the collision.
+     P1 pedestrian: collided; ahead, in the camera vehicle's lane; 
+     V1 black car: collided; ahead, in the camera vehicle's lane; keeping pace with the camera vehicle
+   With documents: V1 black car was most likely at fault (100%) | V1 black car 100% (video 100, docs 100), Camera vehicle 0% (video 0, docs 0)
+     note: The documents agree with the video: V1 black car carries most of the fault.
+== 11_Car_accident_in_Kranj_Slovenia_Rover_400_vs_Renault_Clio
+   Dashcam (moving) | unclear 35% | Crossing paths (intersection / angle) | impact 50.9 | camera involved: True | 404.3s
+   Fault is shared or unclear. The black car crossed the camera vehicle's path from the left.
+   Where: directly ahead in the camera vehicle's lane, at the front of the camera vehicle
+   Shares: Camera vehicle 50%, V1 black car 50%
+   At 0:50.9 the video shows a side-impact (crossing) collision, directly ahead in the camera vehicle's lane, at the front of the camera vehicle. Involved: the camera vehicle, V1 (black car). 117 other road users were in view but not involved. Fault looks shared: the camera vehicle 50%, V1 black car 50%. Nothing in the camera vehicle's own driving stood out as a cause.
+       49.9  The black car crossed the camera vehicle's path from the left.
+       49.9  No traffic light or stop sign could be read, so right of way is unclear.
+     drv   47.9  Other traffic was moving faster than the camera vehicle.
+     drv   49.4  The camera vehicle was speeding up in the seconds before the collision.
+     drv   50.4  No braking was seen before the impact; there was little time to react.
+     drv   50.9  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     V1 black car: struck by the camera vehicle; ahead, in the camera vehicle's lane; pulling away (faster than the camera vehicle)
+   With documents: Fault looks shared: the camera vehicle 50%, V1 black car 50% | Camera vehicle 50% (video 50, docs -), V1 black car 50% (video 50, docs -)
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 12_400_SB_Crash
+   Dashcam (moving) | a 37% | Other road users: head-on | impact 11.8 | camera involved: False | 60.7s
+   V2 black car was most likely at fault (100%). The black car moved into the silver truck: it did most of the closing before contact. The black car was moving much faster than the silver truck.
+   Where: in the camera vehicle's lane, a short distance ahead
+   Shares: V2 black car 100%, V1 silver truck 0%, Camera vehicle 0%
+   At 0:11.8 the video shows a collision between other road users, in the camera vehicle's lane, a short distance ahead. Involved: V1 (silver truck), V2 (black car). 6 other road users were in view but not involved. Most of the fault lies with V2 black car (100%). The camera vehicle was not part of the collision.
+       10.3  The black car was moving much faster than the silver truck.
+       10.8  The black car moved into the silver truck: it did most of the closing before contact.
+       11.8  The black car (A) and the silver truck (B) collided.
+     drv    8.8  The camera vehicle was travelling at a steady speed.
+     drv    8.8  Other traffic was moving faster than the camera vehicle.
+     drv   11.8  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     drv   12.8  The camera vehicle was not involved and slowed down after the collision.
+     V1 silver truck: collided; ahead, in the camera vehicle's lane; keeping pace with the camera vehicle
+     V2 black car: collided; to the right of the camera vehicle; pulling away (faster than the camera vehicle)
+== 13_2ES6_car_crash
+   Dashcam (moving) | none 0% |  | impact  | camera involved: False | 94.8s
+   No collision found. The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.
+   Where: 
+   Shares: 
+   
+== 14_Parking_Gate_Crash
+   Dashcam (moving) | none 0% |  | impact  | camera involved: False | 158.4s
+   No collision found. The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.
+   Where: 
+   Shares: 
+   
+   With documents: No collision found | 
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 15_Dashcam_Video_Shows_Florida_Trooper_Hit_By_Car
+   Fixed camera | none 0% |  | impact  | camera involved: False | 381.8s
+   No collision found. The AI followed every road user in view and didn't see two of them collide.
+   Where: 
+   Shares: 
+   
+   With documents: No collision found | 
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 16_Dashcam_Shows_Trooper_Chasing_Down_Driver_Who_Hit_Her_Patrol
+   Dashcam (moving) | a 62% | Other road users: rear-end | impact 75.58 | camera involved: False | 412.4s
+   V2 black car was most likely at fault (100%). The gray truck was stopped or nearly stopped; the black car ran into it.
+   Where: in the lane to the left of the camera vehicle, close to the camera
+   Shares: V2 black car 100%, V3 gray truck 0%, V1 gray car 0%, Camera vehicle 0%
+   At 1:15.6 the video shows a collision between other road users, in the lane to the left of the camera vehicle, close to the camera. Involved: V1 (gray car), V2 (black car), V3 (gray truck). 142 other road users were in view but not involved. Most of the fault lies with V2 black car (100%). The camera vehicle was not part of the collision.
+       74.6  The gray truck was stopped or nearly stopped; the black car ran into it.
+       75.6  The black car (A) and the gray truck (B) collided.
+     drv   72.6  Other traffic was moving faster than the camera vehicle.
+     drv   74.1  The camera vehicle was speeding up in the seconds before the collision.
+     drv   75.6  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     drv   76.6  The camera vehicle was not involved in the collision.
+     V1 gray car: hit in a follow-on collision; ahead, in the camera vehicle's lane; keeping pace with the camera vehicle
+     V2 black car: collided; ahead, in the camera vehicle's lane; the camera vehicle was gaining on it (slower, stopped or parked)
+     V3 gray truck: collided; to the left of the camera vehicle; the camera vehicle was gaining on it (slower, stopped or parked)
+   With documents: V2 black car was most likely at fault (61%) | V2 black car 61% (video 100, docs 0), Suspect 39% (video -, docs 100), Camera vehicle 0% (video 0, docs 0)
+     note: The documents point at Suspect, while the video alone pointed at V2 black car. Official findings in the documents weigh heavily, so the combined call leans their way.
+== 17_Video_Shows_Suspect_Crash_Stolen_Amazon_Truck_Into_Cars_Duri
+   Dashcam (moving) | a 61% | Other road users: rear-end | impact 83.48 | camera involved: False | 443.7s
+   V2 blue car was most likely at fault (100%). The blue car moved into the blue car: it did most of the closing before contact.
+   Where: in the camera vehicle's lane, a short distance ahead
+   Shares: V2 blue car 100%, V3 blue car 0%, V1 gray car 0%, Camera vehicle 0%
+   At 1:23.5 the video shows a collision between other road users, in the camera vehicle's lane, a short distance ahead. Involved: V1 (gray car), V2 (blue car), V3 (blue car). 16 other road users were in view but not involved. Most of the fault lies with V2 blue car (100%). The camera vehicle was not part of the collision.
+       82.5  The blue car moved into the blue car: it did most of the closing before contact.
+       83.5  The blue car (A) and the blue car (B) collided.
+     drv   81.5  The camera vehicle was stopped or barely moving before the collision.
+     drv   83.5  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     drv   84.5  The camera vehicle was not involved in the collision.
+     V1 gray car: hit in a follow-on collision; ahead, in the camera vehicle's lane; keeping pace with the camera vehicle
+     V2 blue car: collided; ahead, in the camera vehicle's lane; keeping pace with the camera vehicle
+     V3 blue car: collided; ahead, in the camera vehicle's lane; keeping pace with the camera vehicle
+   With documents: V2 blue car was most likely at fault (100%) | V2 blue car 100% (video 100, docs -), Camera vehicle 0% (video 0, docs -)
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 18_Las_Vegas_Boulevard_4_Car_Accident_No_2
+   Handheld / panning camera | b 60% | Other road users: rear-end | impact 4.1 | camera involved: False | 51.3s
+   V1 black car was most likely at fault (100%). The black car moved into the red car: it did most of the closing before contact. The black car was moving much faster than the red car.
+   Where: in the lane to the left of the camera vehicle, a short distance ahead
+   Shares: V2 red car 0%, V1 black car 100%, V3 gray car 0%
+   At 0:04.1 the video shows a collision between other road users, in the lane to the left of the camera vehicle, a short distance ahead. Involved: V1 (black car), V2 (red car), V3 (gray car). 15 other road users were in view but not involved. Most of the fault lies with V1 black car (100%).
+        2.6  The black car was moving much faster than the red car.
+        3.1  The black car moved into the red car: it did most of the closing before contact.
+        4.1  The red car (A) and the black car (B) collided.
+     drv    4.1  This video was filmed by hand, so the camera isn't treated as a party to the collision.
+     V1 black car: collided; ahead, in the camera vehicle's lane; 
+     V2 red car: collided; ahead, in the camera vehicle's lane; 
+     V3 gray car: hit in a follow-on collision; to the right of the camera vehicle; 
+   With documents: V1 black car was most likely at fault (72%) | V1 black car 72% (video 100, docs 0), V2 red car 28% (video 0, docs 100)
+     note: The documents point at V2 red car, while the video alone pointed at V1 black car. Official findings in the documents weigh heavily, so the combined call leans their way.
+== 19_Fatal_Hit_and_Run_Collision_Involving_Scooter
+   Fixed camera | none 0% |  | impact  | camera involved: False | 55.5s
+   No collision found. The AI followed every road user in view and didn't see two of them collide.
+   Where: 
+   Shares: 
+   
+== 20_Fatal_Hit_and_Run_Traffic_Collision_NR24134dm
+   Fixed camera | none 0% |  | impact  | camera involved: False | 20.7s
+   No collision found. The AI followed every road user in view and didn't see two of them collide.
+   Where: 
+   Shares: 
+   
+== 21_Felony_Hit_and_Run_Traffic_Collision_1_22_2024_NR24209rc
+   Fixed camera | none 0% |  | impact  | camera involved: False | 114.3s
+   No collision found. The AI followed every road user in view and didn't see two of them collide.
+   Where: 
+   Shares: 
+   
+   With documents: No collision found | 
+     note: The document describes a hit-and-run.
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 22_Pedestrian_killed_in_Hit_and_Run_Traffic_Collision_NR24121kt
+   Fixed camera | none 0% |  | impact  | camera involved: False | 142.8s
+   No collision found. The AI followed every road user in view and didn't see two of them collide.
+   Where: 
+   Shares: 
+   
+   With documents: No collision found | 
+     note: The news article describes a hit-and-run.
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 23_EGM_TEMMUZ_2022_Kaza_1
+   Fixed camera | none 0% |  | impact  | camera involved: False | 63.5s
+   No collision found. The AI followed every road user in view and didn't see two of them collide.
+   Where: 
+   Shares: 
+   
+== 24_80_000_pound_truck_loses_brakes_and_heads_for_a_school_bus_i
+   Dashcam (moving) | b 43% | Other road users: rear-end | impact 27.3 | camera involved: False | 139.7s
+   V2 silver car was most likely at fault (100%). The silver car moved into the silver car: it did most of the closing before contact.
+   Where: in the lane to the left of the camera vehicle, close to the camera
+   Shares: V1 silver car 0%, V2 silver car 100%, Camera vehicle 0%
+   At 0:27.3 the video shows a collision between other road users, in the lane to the left of the camera vehicle, close to the camera. Involved: V1 (silver car), V2 (silver car). 7 other road users were in view but not involved. Most of the fault lies with V2 silver car (100%). The camera vehicle was not part of the collision.
+       26.3  The silver car moved into the silver car: it did most of the closing before contact.
+       27.3  The silver car (A) and the silver car (B) collided.
+     drv   24.3  The camera vehicle was travelling at a steady speed.
+     drv   27.3  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     drv   28.3  The camera vehicle was not involved in the collision.
+     V1 silver car: collided; ahead, in the camera vehicle's lane; the camera vehicle was gaining on it (slower, stopped or parked)
+     V2 silver car: collided; to the left of the camera vehicle; oncoming
+== 25_Boxtruck_carnage_on_Friday_the_13th_at_the_11foot8_bridge
+   Dashcam (moving) | other 68% | Crossing paths (intersection / angle) | impact 17.12 | camera involved: True | 98.5s
+   V2 gray truck was most likely at fault (100%). The camera vehicle was stopped or barely moving before the impact. The gray truck crossed the camera vehicle's path from the right.
+   Where: ahead, at the left edge of the camera vehicle's lane, at the front of the camera vehicle
+   Shares: Camera vehicle 0%, V2 gray truck 100%
+   At 0:17.1 the video shows a side-impact (crossing) collision, ahead, at the left edge of the camera vehicle's lane, at the front of the camera vehicle. Involved: the camera vehicle, V1 (black car), V2 (gray truck). 20 other road users were in view but not involved. Most of the fault lies with V2 gray truck (100%). Nothing in the camera vehicle's own driving stood out as a cause.
+       15.6  The camera vehicle was stopped or barely moving before the impact.
+       16.1  The gray truck crossed the camera vehicle's path from the right.
+       16.1  No traffic light or stop sign could be read, so right of way is unclear.
+     drv   15.1  The camera vehicle was stopped or barely moving before the collision.
+     drv   17.1  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     V1 black car: struck by the camera vehicle; to the left of the camera vehicle; the camera vehicle was gaining on it (slower, stopped or parked)
+     V2 gray truck: struck by the camera vehicle; ahead, in the camera vehicle's lane; keeping pace with the camera vehicle
+== 26_Connect_to_the_opposite_lane_and_bypass_the_traffic_accident
+   Dashcam (moving) | a 43% | Other road users: pedestrian struck | impact 17.44 | camera involved: False | 134.1s
+   V1 silver car was most likely at fault (100%). A pedestrian was struck by the silver car.
+   Where: in the camera vehicle's lane, a short distance ahead
+   Shares: V1 silver car 100%, P1 pedestrian 0%, Camera vehicle 0%
+   At 0:17.4 the video shows a collision between other road users, in the camera vehicle's lane, a short distance ahead. Involved: P1 (pedestrian), V1 (silver car). 22 other road users were in view but not involved. Most of the fault lies with V1 silver car (100%). The camera vehicle was not part of the collision.
+       17.4  The silver car (A) and the pedestrian (B) collided.
+       17.4  A pedestrian was struck by the silver car.
+     drv   15.4  The camera vehicle was stopped or barely moving before the collision.
+     drv   17.4  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.
+     drv   18.4  The camera vehicle was not involved in the collision.
+     P1 pedestrian: collided; ahead, in the camera vehicle's lane; 
+     V1 silver car: collided; ahead, in the camera vehicle's lane; keeping pace with the camera vehicle
+== 27_C_cilienbr_cke_Oldenburg_Dashcam_
+   Dashcam (moving) | none 0% |  | impact  | camera involved: False | 65.7s
+   No collision found. The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.
+   Where: 
+   Shares: 
+   
+   With documents: No collision found | 
+     note: The attached documents didn't say who caused the crash, so the call is based on the video.
+== 28_Dashcam_film
+   Dashcam (moving) | none 0% |  | impact  | camera involved: False | 410.1s
+   No collision found. The AI didn't see the camera vehicle hit anything or get hit, and didn't see other road users collide.
+   Where: 
+   Shares: 
+   
+== 29_Speeding_non_motorized_vehicle_crashes_into_gully_next_to_ro
+   Dashcam (moving) | unclear 25% | Impact from outside the view | impact 8.2 | camera involved: True | 207.9s
+   Fault is shared or unclear. A sudden jolt shook the camera with nothing approaching in front, so the impact came from the side or rear.
+   Where: at the camera vehicle, from outside the camera's view (the side or rear)
+   Shares: Camera vehicle 50%, the other vehicle (not visible) 50%
+   At 0:08.2 the video shows an impact from outside the camera's view, at the camera vehicle, from outside the camera's view (the side or rear). Involved: the camera vehicle. 39 other road users were in view but not involved. Fault looks shared: the camera vehicle 50%, the other vehicle (not visible) 50%. Nothing in the camera vehicle's own driving stood out as a cause.
+        8.2  A sudden jolt shook the camera with nothing approaching in front, so the impact came from the side or rear.
+        8.2  Without a view of the other party, fault can't be judged reliably.
+     drv    5.2  The camera vehicle was keeping pace with the traffic around it.
+     drv    6.7  The camera vehicle was speeding up in the seconds before the collision.
+     drv    7.7  No braking was seen before the impact; there was little time to react.
+     drv    8.2  The camera doesn't show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved.

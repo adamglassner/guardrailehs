@@ -1,0 +1,32 @@
+== 06.txt | document | when:  | where:  | conditions:  | hit-and-run: False
+   Rider                            score 0.10 | struck others 1 (rear-ended 0) | was struck 0 | cited:  | 
+   Silver-gray car                  score 0.00 | struck others 0 (rear-ended 0) | was struck 1 | cited:  | 
+== 08.txt | document | when: March 24th, 2023 | where:  | conditions:  | hit-and-run: False
+   injury: The driver of the Kia was unharmed.
+== 10.txt | news article | when: September 3, 2025, 2:00 pm | where: Hwy 25 East | Trousdale County, Tennessee | conditions:  | hit-and-run: False
+   Black mustang                    score 1.00 | struck others 0 (rear-ended 0) | was struck 0 | cited:  | intentional 1.0
+== 11.txt | document | when:  | where:  | conditions:  | hit-and-run: False
+== 14.txt | document | when:  | where:  | conditions:  | hit-and-run: False
+   injury: No injuries, just two swollen lower arms and, well, one broken parking gate (and the laptop that was in my backpack won't boot).
+== 15.txt | document | when:  | where:  | conditions:  | hit-and-run: False
+== 16.txt | document | when: April 24, 2018 | where:  | conditions:  | hit-and-run: False
+   Suspect                          score 1.20 | struck others 2 (rear-ended 0) | was struck 0 | cited:  | intentional 1.0
+   Patrol car                       score 0.00 | struck others 0 (rear-ended 0) | was struck 1 | cited:  | 
+== 17.txt | document | when: July 25, 2022, 5:18 p.m. | where: 2900 block of Atlanta Ave | Riverside, California | conditions:  | hit-and-run: False
+== 18.txt | document | when:  | where: Las Vegas Boulevard | I-215 | conditions:  | hit-and-run: False
+   Red dodge charger                score 0.70 | struck others 1 (rear-ended 1) | was struck 0 | cited:  | 
+== 21.txt | document | when: July 22, 2024, January 22, 2024, 7:42 p.m. | where:  | conditions:  | hit-and-run: True
+   injury: July 22, 2024 Felony Hit and Run Traffic Collision Los Angeles: The Los Angeles Police Department's South Traffic Division detectives are investigating a felony hit-and-run traffic collision resulting in serious injuries.
+== 22.txt | news article | when: April 14, 2024, 9:00 p.m. | where: Sherman Way and Etiwanda Ave | conditions:  | hit-and-run: True
+   injury: Reseda: The Los Angeles Police Department's Valley Traffic Division detectives are investigating a hit-and-run traffic collision that killed a male in his 60's.
+== 27.txt | document | when: July 6, 2019 | where:  | conditions:  | hit-and-run: False
+== news_sample.txt | news article | when:  | where: Route 9 | Exit 14 | conditions:  | hit-and-run: False
+   injury: The minivan driver and a passenger suffered minor injuries.
+   injury: The pickup driver was not hurt.
+   Blue honda civic                 score 3.10 | struck others 1 (rear-ended 1) | was struck 0 | cited: with reckless driving and following too closely | speeding 0.5, followed too closely 0.7, reckless or careless driving 0.6
+   Silver minivan                   score 0.00 | struck others 0 (rear-ended 0) | was struck 1 | cited:  | 
+== police_sample.txt | police report | when: 03/14/2025, 4:37 PM | where: W Main St and N Oak Ave | Intersection of W Main St and N Oak Ave, Springfield  | conditions: rain, daylight, wet | hit-and-run: False
+   injury: Injuries: Unit 2 driver - possible injury, transported to Springfield General.
+   injury: Unit 1 driver - not injured.
+   Unit 2 (gray Toyota Camry)       score 2.10 | struck others 0 (rear-ended 0) | was struck 1 | cited: for running a red light (Disregard Stop and Go Signal) | ran a red light 0.9, distracted / phone use 0.6
+   Unit 1 (white Ford F-150)        score 0.60 | struck others 1 (rear-ended 0) | was struck 0 | cited:  | speeding 0.5

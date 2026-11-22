@@ -1,0 +1,357 @@
+{
+  "Verdict": "b",
+  "Confidence": 43,
+  "Headline": "V2 silver car was most likely at fault (100%)",
+  "Summary": "The silver car moved into the silver car: it did most of the closing before contact.",
+  "CollisionType": "Other road users: rear-end",
+  "CameraKind": "Dashcam (moving)",
+  "SplitScreen": false,
+  "ImpactSeconds": 27.3,
+  "DurationSeconds": 40.3,
+  "Parties": [
+    "V1 silver car",
+    "V2 silver car",
+    "Camera vehicle"
+  ],
+  "FaultShares": [
+    0,
+    100,
+    0
+  ],
+  "Findings": [
+    {
+      "Seconds": 26.3,
+      "Text": "The silver car moved into the silver car: it did most of the closing before contact."
+    },
+    {
+      "Seconds": 27.3,
+      "Text": "The silver car (A) and the silver car (B) collided."
+    }
+  ],
+  "Shares": [
+    {
+      "Party": "V1 silver car",
+      "Percent": 0,
+      "IsCamera": false,
+      "Reasons": []
+    },
+    {
+      "Party": "V2 silver car",
+      "Percent": 100,
+      "IsCamera": false,
+      "Reasons": [
+        "The silver car moved into the silver car: it did most of the closing before contact."
+      ]
+    },
+    {
+      "Party": "Camera vehicle",
+      "Percent": 0,
+      "IsCamera": true,
+      "Reasons": [
+        "not involved in the collision"
+      ]
+    }
+  ],
+  "CameraInvolved": false,
+  "Location": "in the lane to the left of the camera vehicle, close to the camera",
+  "RoadUsers": [
+    {
+      "Tag": "V1",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": true,
+      "Role": "collided",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 18.3,
+      "LastSeconds": 27.5
+    },
+    {
+      "Tag": "V2",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": true,
+      "Role": "collided",
+      "Notes": [
+        "oncoming"
+      ],
+      "FirstSeconds": 26.7,
+      "LastSeconds": 27.8
+    },
+    {
+      "Tag": "V3",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 1.9,
+      "LastSeconds": 4
+    },
+    {
+      "Tag": "V4",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 5.1,
+      "LastSeconds": 7.4
+    },
+    {
+      "Tag": "V5",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 6.7,
+      "LastSeconds": 9.4
+    },
+    {
+      "Tag": "V6",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 18.1,
+      "LastSeconds": 23.9
+    },
+    {
+      "Tag": "V7",
+      "Label": "orange bus",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 20.3,
+      "LastSeconds": 26
+    },
+    {
+      "Tag": "V8",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 27,
+      "LastSeconds": 29.8
+    },
+    {
+      "Tag": "V9",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 36.8,
+      "LastSeconds": 39.7
+    }
+  ],
+  "DriverNotes": [
+    {
+      "Seconds": 24.3,
+      "Text": "The camera vehicle was travelling at a steady speed."
+    },
+    {
+      "Seconds": 27.3,
+      "Text": "The camera doesn\u0027t show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved."
+    },
+    {
+      "Seconds": 28.3,
+      "Text": "The camera vehicle was not involved in the collision."
+    }
+  ],
+  "DriverIssues": [],
+  "CabinNotes": [],
+  "Narrative": "At 0:27.3 the video shows a collision between other road users, in the lane to the left of the camera vehicle, close to the camera. Involved: V1 (silver car), V2 (silver car). 7 other road users were in view but not involved. Most of the fault lies with V2 silver car (100%). The camera vehicle was not part of the collision.",
+  "CameraSetting": "auto",
+  "KeyFrames": [
+    {
+      "Seconds": 25.3,
+      "FileName": "key1.jpg",
+      "Caption": "2 seconds before"
+    },
+    {
+      "Seconds": 26.5,
+      "FileName": "key2.jpg",
+      "Caption": "Just before"
+    },
+    {
+      "Seconds": 27.3,
+      "FileName": "key3.jpg",
+      "Caption": "Impact"
+    },
+    {
+      "Seconds": 28.1,
+      "FileName": "key4.jpg",
+      "Caption": "Just after"
+    }
+  ],
+  "SpeedTrace": [
+    9.938,
+    25.49,
+    32.183,
+    26.423,
+    16.9,
+    18.286,
+    19.615,
+    21.884,
+    26.091,
+    26.935,
+    22.681,
+    17.944,
+    16.315,
+    19.461,
+    18.95,
+    20.29,
+    20.359,
+    21.385,
+    25.277,
+    36.121,
+    45.745,
+    25.334,
+    19.063,
+    17.848,
+    15.704,
+    18.824,
+    21.518,
+    21.394,
+    18.8,
+    12.078,
+    12.44,
+    16.576,
+    16.757,
+    19.005,
+    23.531,
+    24.953,
+    16.658,
+    13.764,
+    13.455,
+    17.333,
+    19.35,
+    17.303,
+    13.411,
+    10.213,
+    9.566,
+    9.571,
+    9.465,
+    8.79,
+    9.24,
+    10.159,
+    11.508,
+    13.422,
+    16.311,
+    19.598,
+    20.371,
+    16.661,
+    16.602,
+    15.799,
+    15.308,
+    17.104,
+    18.58,
+    17.856,
+    17.916,
+    19.297,
+    19.922,
+    17.751,
+    16.962,
+    15.578,
+    12.268,
+    13.32,
+    14.706,
+    15.248,
+    15.697,
+    16.009,
+    18.9,
+    19.126,
+    11.901,
+    7.941,
+    8.947,
+    8.959,
+    10.238,
+    12.036,
+    15.686,
+    15.46,
+    14.74,
+    15.872,
+    14.451,
+    17.654,
+    20.47,
+    25.964,
+    22.139,
+    19.825,
+    20.741,
+    23.123,
+    20.691,
+    17.546,
+    15.743,
+    9.824,
+    9.515,
+    10.511,
+    10.062,
+    10.817,
+    11.593,
+    12.701,
+    14.398,
+    14.068,
+    15.314,
+    14.569,
+    14.087,
+    12.731,
+    13.084,
+    15.335,
+    18.119,
+    16.126,
+    11.593,
+    13.94,
+    14.631,
+    16.59,
+    18.334,
+    19.687,
+    19.466,
+    17.388,
+    19.503,
+    21.492,
+    19.609,
+    15.906,
+    17.26,
+    12.987,
+    10.072,
+    9.73,
+    12.068,
+    12.921,
+    14.1,
+    13.618,
+    14.364
+  ],
+  "TraceStepSeconds": 0.3,
+  "VehiclesTracked": 13,
+  "AnalysisSeconds": 139.7,
+  "Engine": "Guardrail Crash Review 2.0 (YOLOX-S \u002B rules)"
+}

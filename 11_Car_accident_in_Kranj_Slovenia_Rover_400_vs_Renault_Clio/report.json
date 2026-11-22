@@ -1,0 +1,1745 @@
+{
+  "Verdict": "unclear",
+  "Confidence": 35,
+  "Headline": "Fault is shared or unclear",
+  "Summary": "The black car crossed the camera vehicle\u0027s path from the left.",
+  "CollisionType": "Crossing paths (intersection / angle)",
+  "CameraKind": "Dashcam (moving)",
+  "SplitScreen": false,
+  "ImpactSeconds": 50.9,
+  "DurationSeconds": 111.9,
+  "Parties": [
+    "Camera vehicle",
+    "V1 black car"
+  ],
+  "FaultShares": [
+    50,
+    50
+  ],
+  "Findings": [
+    {
+      "Seconds": 49.9,
+      "Text": "The black car crossed the camera vehicle\u0027s path from the left."
+    },
+    {
+      "Seconds": 49.9,
+      "Text": "No traffic light or stop sign could be read, so right of way is unclear."
+    }
+  ],
+  "Shares": [
+    {
+      "Party": "Camera vehicle",
+      "Percent": 50,
+      "IsCamera": true,
+      "Reasons": [
+        "The black car crossed the camera vehicle\u0027s path from the left.",
+        "No traffic light or stop sign could be read, so right of way is unclear."
+      ]
+    },
+    {
+      "Party": "V1 black car",
+      "Percent": 50,
+      "IsCamera": false,
+      "Reasons": []
+    }
+  ],
+  "CameraInvolved": true,
+  "Location": "directly ahead in the camera vehicle\u0027s lane, at the front of the camera vehicle",
+  "RoadUsers": [
+    {
+      "Tag": "V1",
+      "Label": "black car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": true,
+      "Role": "struck by the camera vehicle",
+      "Notes": [
+        "pulling away (faster than the camera vehicle)"
+      ],
+      "FirstSeconds": 50,
+      "LastSeconds": 51.6
+    },
+    {
+      "Tag": "V2",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 0,
+      "LastSeconds": 1
+    },
+    {
+      "Tag": "V3",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 0,
+      "LastSeconds": 1.6
+    },
+    {
+      "Tag": "P1",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 0,
+      "LastSeconds": 2.7
+    },
+    {
+      "Tag": "V4",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 0,
+      "LastSeconds": 24.4
+    },
+    {
+      "Tag": "V5",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 0,
+      "LastSeconds": 24.7
+    },
+    {
+      "Tag": "V6",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 0.2,
+      "LastSeconds": 1.2
+    },
+    {
+      "Tag": "V7",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 1.3,
+      "LastSeconds": 2.4
+    },
+    {
+      "Tag": "V8",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle",
+        "moved into the camera vehicle\u0027s lane from the left at 0:03.0"
+      ],
+      "FirstSeconds": 1.6,
+      "LastSeconds": 3
+    },
+    {
+      "Tag": "V9",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 2.7,
+      "LastSeconds": 7.6
+    },
+    {
+      "Tag": "V10",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 2.8,
+      "LastSeconds": 6.9
+    },
+    {
+      "Tag": "V11",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 3,
+      "LastSeconds": 5.4
+    },
+    {
+      "Tag": "V12",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 3.2,
+      "LastSeconds": 7.4
+    },
+    {
+      "Tag": "V13",
+      "Label": "black car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 3.5,
+      "LastSeconds": 6.5
+    },
+    {
+      "Tag": "V14",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 4.6,
+      "LastSeconds": 8.6
+    },
+    {
+      "Tag": "V15",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 7.3,
+      "LastSeconds": 8.3
+    },
+    {
+      "Tag": "V16",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 7.9,
+      "LastSeconds": 10
+    },
+    {
+      "Tag": "V17",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "pulling away (faster than the camera vehicle)"
+      ],
+      "FirstSeconds": 9,
+      "LastSeconds": 10
+    },
+    {
+      "Tag": "V18",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 9.3,
+      "LastSeconds": 10.3
+    },
+    {
+      "Tag": "V19",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 10.3,
+      "LastSeconds": 11.4
+    },
+    {
+      "Tag": "V20",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 11,
+      "LastSeconds": 12.5
+    },
+    {
+      "Tag": "P2",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 11.4,
+      "LastSeconds": 12.7
+    },
+    {
+      "Tag": "V21",
+      "Label": "black car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 11.4,
+      "LastSeconds": 20.9
+    },
+    {
+      "Tag": "V22",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 12.1,
+      "LastSeconds": 20.7
+    },
+    {
+      "Tag": "V23",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 12.8,
+      "LastSeconds": 13.9
+    },
+    {
+      "Tag": "V24",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 13.4,
+      "LastSeconds": 14.4
+    },
+    {
+      "Tag": "V25",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)",
+        "moved into the camera vehicle\u0027s lane from the left at 0:15.4"
+      ],
+      "FirstSeconds": 14.1,
+      "LastSeconds": 17.6
+    },
+    {
+      "Tag": "V26",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 15,
+      "LastSeconds": 21.3
+    },
+    {
+      "Tag": "V27",
+      "Label": "blue car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 16.8,
+      "LastSeconds": 18
+    },
+    {
+      "Tag": "V28",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 17.6,
+      "LastSeconds": 18.8
+    },
+    {
+      "Tag": "V29",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 20.2,
+      "LastSeconds": 22.1
+    },
+    {
+      "Tag": "V30",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 21.1,
+      "LastSeconds": 22.1
+    },
+    {
+      "Tag": "V31",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 21.6,
+      "LastSeconds": 23
+    },
+    {
+      "Tag": "V32",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 22.2,
+      "LastSeconds": 23.4
+    },
+    {
+      "Tag": "V33",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 22.2,
+      "LastSeconds": 24.6
+    },
+    {
+      "Tag": "V34",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 22.7,
+      "LastSeconds": 24
+    },
+    {
+      "Tag": "V35",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "pulling away (faster than the camera vehicle)",
+        "moved into the camera vehicle\u0027s lane from the right at 0:26.8"
+      ],
+      "FirstSeconds": 26.2,
+      "LastSeconds": 28.3
+    },
+    {
+      "Tag": "V36",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle",
+        "moved into the camera vehicle\u0027s lane from the right at 0:27.2"
+      ],
+      "FirstSeconds": 26.2,
+      "LastSeconds": 28.6
+    },
+    {
+      "Tag": "V37",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle",
+        "moved into the camera vehicle\u0027s lane from the right at 0:28.0"
+      ],
+      "FirstSeconds": 26.4,
+      "LastSeconds": 29.3
+    },
+    {
+      "Tag": "V38",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 28.7,
+      "LastSeconds": 29.8
+    },
+    {
+      "Tag": "V39",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 29.1,
+      "LastSeconds": 31.5
+    },
+    {
+      "Tag": "V40",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 32.3,
+      "LastSeconds": 33.7
+    },
+    {
+      "Tag": "V41",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 32.3,
+      "LastSeconds": 34.2
+    },
+    {
+      "Tag": "V42",
+      "Label": "blue bus",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 34.5,
+      "LastSeconds": 36.2
+    },
+    {
+      "Tag": "V43",
+      "Label": "blue bus",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 36.3,
+      "LastSeconds": 40.5
+    },
+    {
+      "Tag": "V44",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 36.5,
+      "LastSeconds": 40.3
+    },
+    {
+      "Tag": "V45",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 37.8,
+      "LastSeconds": 41.2
+    },
+    {
+      "Tag": "V46",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 38.6,
+      "LastSeconds": 40.7
+    },
+    {
+      "Tag": "V47",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 39.2,
+      "LastSeconds": 41.3
+    },
+    {
+      "Tag": "V48",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 43.5,
+      "LastSeconds": 46.5
+    },
+    {
+      "Tag": "V49",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 43.8,
+      "LastSeconds": 47.4
+    },
+    {
+      "Tag": "V50",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 44.4,
+      "LastSeconds": 45.6
+    },
+    {
+      "Tag": "V51",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 45.7,
+      "LastSeconds": 47.2
+    },
+    {
+      "Tag": "V52",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 47.1,
+      "LastSeconds": 48.7
+    },
+    {
+      "Tag": "V53",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 47.3,
+      "LastSeconds": 49.2
+    },
+    {
+      "Tag": "V54",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 47.5,
+      "LastSeconds": 49.3
+    },
+    {
+      "Tag": "P3",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 48,
+      "LastSeconds": 49.2
+    },
+    {
+      "Tag": "V55",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 50.5,
+      "LastSeconds": 52.2
+    },
+    {
+      "Tag": "V56",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 50.5,
+      "LastSeconds": 53.1
+    },
+    {
+      "Tag": "V57",
+      "Label": "purple car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "oncoming"
+      ],
+      "FirstSeconds": 52.1,
+      "LastSeconds": 53.1
+    },
+    {
+      "Tag": "V58",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 52.7,
+      "LastSeconds": 55.1
+    },
+    {
+      "Tag": "V59",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 52.8,
+      "LastSeconds": 55.7
+    },
+    {
+      "Tag": "V60",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 53,
+      "LastSeconds": 54.8
+    },
+    {
+      "Tag": "V61",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 54,
+      "LastSeconds": 55
+    },
+    {
+      "Tag": "V62",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)",
+        "moved into the camera vehicle\u0027s lane from the left at 0:55.5"
+      ],
+      "FirstSeconds": 54.4,
+      "LastSeconds": 57.4
+    },
+    {
+      "Tag": "V63",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 54.5,
+      "LastSeconds": 56.4
+    },
+    {
+      "Tag": "V64",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 54.7,
+      "LastSeconds": 58
+    },
+    {
+      "Tag": "V65",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 54.8,
+      "LastSeconds": 55.8
+    },
+    {
+      "Tag": "V66",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 55,
+      "LastSeconds": 59.7
+    },
+    {
+      "Tag": "V67",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 55.1,
+      "LastSeconds": 56.3
+    },
+    {
+      "Tag": "V68",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "pulling away (faster than the camera vehicle)"
+      ],
+      "FirstSeconds": 55.2,
+      "LastSeconds": 58.6
+    },
+    {
+      "Tag": "V69",
+      "Label": "blue car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 55.6,
+      "LastSeconds": 58
+    },
+    {
+      "Tag": "V70",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 56.8,
+      "LastSeconds": 58
+    },
+    {
+      "Tag": "V71",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 56.8,
+      "LastSeconds": 58.2
+    },
+    {
+      "Tag": "V72",
+      "Label": "white truck",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 57,
+      "LastSeconds": 62.7
+    },
+    {
+      "Tag": "V73",
+      "Label": "blue car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 59.4,
+      "LastSeconds": 95.6
+    },
+    {
+      "Tag": "V74",
+      "Label": "blue bus",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 59.5,
+      "LastSeconds": 62.1
+    },
+    {
+      "Tag": "V75",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 59.5,
+      "LastSeconds": 67.2
+    },
+    {
+      "Tag": "V76",
+      "Label": "blue car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 59.6,
+      "LastSeconds": 78.1
+    },
+    {
+      "Tag": "V77",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 59.7,
+      "LastSeconds": 61.3
+    },
+    {
+      "Tag": "V78",
+      "Label": "blue car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 59.7,
+      "LastSeconds": 63.2
+    },
+    {
+      "Tag": "V79",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 59.7,
+      "LastSeconds": 70.2
+    },
+    {
+      "Tag": "V80",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 60.4,
+      "LastSeconds": 62
+    },
+    {
+      "Tag": "V81",
+      "Label": "orange car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 61.5,
+      "LastSeconds": 62.5
+    },
+    {
+      "Tag": "V82",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 61.8,
+      "LastSeconds": 63.5
+    },
+    {
+      "Tag": "V83",
+      "Label": "silver truck",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 63.4,
+      "LastSeconds": 72.6
+    },
+    {
+      "Tag": "V84",
+      "Label": "purple car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 63.7,
+      "LastSeconds": 74.5
+    },
+    {
+      "Tag": "V85",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 63.8,
+      "LastSeconds": 72
+    },
+    {
+      "Tag": "V86",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 64.7,
+      "LastSeconds": 65.9
+    },
+    {
+      "Tag": "V87",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 66.1,
+      "LastSeconds": 68.4
+    },
+    {
+      "Tag": "V88",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 66.7,
+      "LastSeconds": 77.6
+    },
+    {
+      "Tag": "P4",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 67.3,
+      "LastSeconds": 68.7
+    },
+    {
+      "Tag": "V89",
+      "Label": "bicycle",
+      "Kind": "two-wheeler",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 67.4,
+      "LastSeconds": 68.8
+    },
+    {
+      "Tag": "V90",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 69.3,
+      "LastSeconds": 70.6
+    },
+    {
+      "Tag": "V91",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 71.3,
+      "LastSeconds": 72.6
+    },
+    {
+      "Tag": "V92",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 71.9,
+      "LastSeconds": 76
+    },
+    {
+      "Tag": "V93",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 73.5,
+      "LastSeconds": 79
+    },
+    {
+      "Tag": "V94",
+      "Label": "blue car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 74.8,
+      "LastSeconds": 77.8
+    },
+    {
+      "Tag": "V95",
+      "Label": "red car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 76.9,
+      "LastSeconds": 80.5
+    },
+    {
+      "Tag": "V96",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 78.7,
+      "LastSeconds": 82.1
+    },
+    {
+      "Tag": "V97",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 78.9,
+      "LastSeconds": 82.2
+    },
+    {
+      "Tag": "V98",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 81.2,
+      "LastSeconds": 87.3
+    },
+    {
+      "Tag": "P5",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 81.6,
+      "LastSeconds": 83.7
+    },
+    {
+      "Tag": "V99",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 81.7,
+      "LastSeconds": 83.7
+    },
+    {
+      "Tag": "V100",
+      "Label": "bicycle",
+      "Kind": "two-wheeler",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 81.8,
+      "LastSeconds": 85.8
+    },
+    {
+      "Tag": "V101",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 82.1,
+      "LastSeconds": 83.7
+    },
+    {
+      "Tag": "V102",
+      "Label": "white car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "the camera vehicle was gaining on it (slower, stopped or parked)"
+      ],
+      "FirstSeconds": 83.7,
+      "LastSeconds": 88.7
+    },
+    {
+      "Tag": "P6",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 84.3,
+      "LastSeconds": 93.6
+    },
+    {
+      "Tag": "P7",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 84.4,
+      "LastSeconds": 89.2
+    },
+    {
+      "Tag": "V103",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 85.5,
+      "LastSeconds": 88.8
+    },
+    {
+      "Tag": "V104",
+      "Label": "gray car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 87.1,
+      "LastSeconds": 94
+    },
+    {
+      "Tag": "V105",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 87.9,
+      "LastSeconds": 96.1
+    },
+    {
+      "Tag": "V106",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the left of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 90.4,
+      "LastSeconds": 91.5
+    },
+    {
+      "Tag": "V107",
+      "Label": "purple car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 91.2,
+      "LastSeconds": 95.6
+    },
+    {
+      "Tag": "V108",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 92.9,
+      "LastSeconds": 95.2
+    },
+    {
+      "Tag": "V109",
+      "Label": "silver car",
+      "Kind": "vehicle",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 93.4,
+      "LastSeconds": 95.1
+    },
+    {
+      "Tag": "P8",
+      "Label": "pedestrian",
+      "Kind": "person",
+      "Where": "to the right of the camera vehicle",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [],
+      "FirstSeconds": 93.7,
+      "LastSeconds": 94.9
+    },
+    {
+      "Tag": "V110",
+      "Label": "black car",
+      "Kind": "vehicle",
+      "Where": "ahead, in the camera vehicle\u0027s lane",
+      "Involved": false,
+      "Role": "not involved",
+      "Notes": [
+        "keeping pace with the camera vehicle"
+      ],
+      "FirstSeconds": 93.8,
+      "LastSeconds": 96.1
+    }
+  ],
+  "DriverNotes": [
+    {
+      "Seconds": 47.9,
+      "Text": "Other traffic was moving faster than the camera vehicle."
+    },
+    {
+      "Seconds": 49.4,
+      "Text": "The camera vehicle was speeding up in the seconds before the collision."
+    },
+    {
+      "Seconds": 50.4,
+      "Text": "No braking was seen before the impact; there was little time to react."
+    },
+    {
+      "Seconds": 50.9,
+      "Text": "The camera doesn\u0027t show the inside of the cab, so phone use or other distraction can only be judged from how the vehicle moved."
+    }
+  ],
+  "DriverIssues": [],
+  "CabinNotes": [],
+  "Narrative": "At 0:50.9 the video shows a side-impact (crossing) collision, directly ahead in the camera vehicle\u0027s lane, at the front of the camera vehicle. Involved: the camera vehicle, V1 (black car). 117 other road users were in view but not involved. Fault looks shared: the camera vehicle 50%, V1 black car 50%. Nothing in the camera vehicle\u0027s own driving stood out as a cause.",
+  "CameraSetting": "auto",
+  "KeyFrames": [
+    {
+      "Seconds": 48.9,
+      "FileName": "key1.jpg",
+      "Caption": "2 seconds before"
+    },
+    {
+      "Seconds": 50.1,
+      "FileName": "key2.jpg",
+      "Caption": "Just before"
+    },
+    {
+      "Seconds": 50.9,
+      "FileName": "key3.jpg",
+      "Caption": "Impact"
+    },
+    {
+      "Seconds": 51.7,
+      "FileName": "key4.jpg",
+      "Caption": "Just after"
+    }
+  ],
+  "SpeedTrace": [
+    4.286,
+    12.074,
+    15.835,
+    33.663,
+    26.413,
+    11.588,
+    10.412,
+    8.073,
+    5.363,
+    5.81,
+    10.202,
+    7.486,
+    15.294,
+    19.789,
+    34.623,
+    6.385,
+    7.554,
+    5.939,
+    12.546,
+    14.174,
+    5.926,
+    2.819,
+    3.513,
+    7.075,
+    8.185,
+    6.799,
+    8.11,
+    17.78,
+    30.264,
+    15.661,
+    37.807,
+    73.043,
+    73.529,
+    57.246,
+    48.251,
+    43.268,
+    35.269,
+    19.862,
+    14.94,
+    32.945,
+    55.881,
+    25.063,
+    21.719,
+    17.926,
+    15.373,
+    18.973,
+    19.765,
+    17.613,
+    14.293,
+    16.668,
+    16.642,
+    11.142,
+    9.301,
+    18.727,
+    16.913,
+    14.326,
+    11.932,
+    21.07,
+    29.993,
+    35.846,
+    12.767,
+    14.767,
+    42.136,
+    39.11,
+    114.271,
+    27.156,
+    53.822,
+    69.142,
+    28.972,
+    30.889,
+    24.88,
+    29.123,
+    21.715,
+    49.41,
+    41.289,
+    12.36,
+    7.52,
+    9.652,
+    8.571,
+    5.091,
+    5.403,
+    4.336,
+    1.527,
+    2.088,
+    2.108,
+    2.802,
+    2.526,
+    4.985,
+    3.517,
+    2.398,
+    1.998,
+    1.245,
+    1.278,
+    1.902,
+    1.905,
+    1.08,
+    5.913,
+    13.414,
+    24.281,
+    20.247,
+    5.224,
+    6.955,
+    5.562,
+    10.044,
+    4.859,
+    11.947,
+    2.773,
+    2.117,
+    1.836,
+    2.519,
+    2.099,
+    3.169,
+    2.015,
+    3.582,
+    5.042,
+    7.102,
+    9.89,
+    10.178,
+    6.42,
+    20.85,
+    68.634
+  ],
+  "TraceStepSeconds": 0.8,
+  "VehiclesTracked": 284,
+  "AnalysisSeconds": 404.3,
+  "Engine": "Guardrail Crash Review 2.0 (YOLOX-S \u002B rules)"
+}
