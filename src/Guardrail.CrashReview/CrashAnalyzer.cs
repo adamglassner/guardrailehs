@@ -11,7 +11,7 @@ namespace Guardrail.CrashAi;
 /// </summary>
 public static class CrashAnalyzer
 {
-    public const string EngineName = "Guardrail Crash Review 1.0 (YOLOX-S + rules)";
+    public const string EngineName = "Guardrail Crash Review 2.0 (YOLOX-S + rules)";
     private const string ModelResource = "yolox_s.onnx";
     private static readonly object ModelLock = new();
     private static string? _modelPath;
@@ -59,9 +59,9 @@ public static class CrashAnalyzer
 
     /// <summary>
     /// Analyzes a video. Key-frame images are written into <paramref name="outputFolder"/>.
-    /// Progress reports (stage text, 0..1).
+    /// Progress reports (stage text, 0..1). <paramref name="cameraHint"/>: "auto", "moving", "fixed" or "handheld".
     /// </summary>
-    public static CrashReport Analyze(string videoPath, string outputFolder, IProgress<(string Stage, double Fraction)>? progress = null, CancellationToken cancel = default)
+    public static CrashReport Analyze(string videoPath, string outputFolder, IProgress<(string Stage, double Fraction)>? progress = null, CancellationToken cancel = default, string cameraHint = "auto")
     {
         var clock = Stopwatch.StartNew();
         progress?.Report(("Loading the AI model", 0));
@@ -73,7 +73,7 @@ public static class CrashAnalyzer
         MotionPass.RemoveFixtures(extraction.Samples);
         double staticFraction = MotionPass.Run(extraction.Samples, cancel);
         progress?.Report(("Working out what happened", 0.98));
-        var (report, keys) = Reasoner.Analyze(extraction, staticFraction);
+        var (report, keys) = Reasoner.Analyze(extraction, staticFraction, cameraHint);
         Directory.CreateDirectory(outputFolder);
         report.KeyFrames = KeyFrames.Write(extraction, keys, report, outputFolder);
         report.AnalysisSeconds = Math.Round(clock.Elapsed.TotalSeconds, 1);

@@ -245,6 +245,7 @@ public partial class AiReviewView : UserControl
 
         if (review.IsDone) Item("\uE8A5", "Open report", () => new CrashReportDialog(review).ShowDialog());
         if (review.State == ReviewState.Failed || review.IsDone) Item("\uE72C", review.IsDone ? "Analyze again" : "Try again", () => CrashReviewService.Retry(review));
+        Item("\uE723", review.Documents.Count > 0 ? $"Attach documents… ({review.Documents.Count} attached)" : "Attach documents…", () => AttachDocuments(review));
         Item("\uE838", "Show video in folder", () => CrashReviewService.ShowInFolder(review), review.VideoExists || review.VideoPath.Length > 0);
         if (review.IsWeb)
         {
@@ -258,5 +259,19 @@ public partial class AiReviewView : UserControl
         menu.Items.Add(new Separator());
         Item("\uE74D", "Remove from list", () => CrashReviewService.ConfirmAndDelete(review), danger: true);
         menu.IsOpen = true;
+    }
+
+    /// <summary>Attaches police reports, news stories or statements; they're read on this PC and weighed with the video.</summary>
+    private async void AttachDocuments(VideoReview review)
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog { Title = $"Attach documents to {review.Number}", Filter = CrashDocuments.Filter, Multiselect = true };
+        if (dlg.ShowDialog() != true) return;
+        var errors = new List<string>();
+        foreach (var path in dlg.FileNames)
+            if (await CrashDocuments.AddFileAsync(review, path) is { } err) errors.Add(err);
+        Refresh();
+        CrashReviewService.NotifyChanged();
+        if (errors.Count > 0) MessageDialog.Inform("Some documents couldn't be read", string.Join("\n\n", errors));
+        else Toaster.Show(review.IsDone ? $"Attached to {review.Number}. Open the report to see how it changed the call." : $"Attached to {review.Number}. It will be used when the analysis finishes.");
     }
 }

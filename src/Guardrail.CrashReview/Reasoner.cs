@@ -7,7 +7,7 @@ public sealed record KeyPlan(List<(double T, string Caption)> Moments, List<(Tra
 /// Turns tracked road users and camera motion into a verdict: find the collision, work out what kind it was,
 /// and apply rules of the road (following distance, lane changes, the centre line, signals, pedestrians).
 /// </summary>
-public static class Reasoner
+public static partial class Reasoner
 {
     private sealed record Candidate(string Kind, double T, double Score, Track? Other = null, Track? A = null, Track? B = null);
 
@@ -23,7 +23,8 @@ public static class Reasoner
     }
 
     /// <summary>Edited videos can cut between cameras: each piece is analyzed and the clearest collision wins.</summary>
-    public static (CrashReport Report, KeyPlan Plan) Analyze(Extraction ex, double staticFraction)
+    /// <param name="cameraHint">"auto", "moving" (dashcam in a moving vehicle), "fixed" (CCTV or a parked vehicle) or "handheld".</param>
+    public static (CrashReport Report, KeyPlan Plan) Analyze(Extraction ex, double staticFraction, string cameraHint = "auto")
     {
         var all = ex.Samples;
         var bounds = new List<int> { 0 };
@@ -35,15 +36,15 @@ public static class Reasoner
             var piece = all.GetRange(bounds[k], bounds[k + 1] - bounds[k]);
             if (piece.Count > 0 && piece[^1].T - piece[0].T >= 2.0) pieces.Add(piece);
         }
-        if (pieces.Count <= 1) return AnalyzePiece(ex, pieces.Count == 1 ? pieces[0] : all, staticFraction).Result;
-        var results = pieces.Select(p => AnalyzePiece(ex, p, staticFraction)).ToList();
+        if (pieces.Count <= 1) return AnalyzePiece(ex, pieces.Count == 1 ? pieces[0] : all, staticFraction, cameraHint).Result;
+        var results = pieces.Select(p => AnalyzePiece(ex, p, staticFraction, cameraHint)).ToList();
         var hits = results.Where(r => r.Result.Report.Verdict != Verdicts.NoCollision).ToList();
         return (hits.Count == 0 ? results[0] : hits.MaxBy(r => r.Score)).Result;
     }
 
-    private static ((CrashReport Report, KeyPlan Plan) Result, double Score) AnalyzePiece(Extraction ex, List<Sample> S, double staticFraction)
+    private static ((CrashReport Report, KeyPlan Plan) Result, double Score) AnalyzePiece(Extraction ex, List<Sample> S, double staticFraction, string cameraHint)
     {
-        var report = new CrashReport { DurationSeconds = Math.Round(ex.Duration, 1), SplitScreen = ex.SplitScreen };
+        var report = new CrashReport { DurationSeconds = Math.Round(ex.Duration, 1), SplitScreen = ex.SplitScreen, CameraSetting = cameraHint };
         var plan = new KeyPlan([], []);
         if (S.Count < 8)
         {
@@ -74,6 +75,7 @@ public static class Reasoner
         var moving = Enumerable.Range(0, n).Where(i => mag[i] > 0.001).ToList();
         bool handheld = !isFixed && moving.Count >= 5 &&
             (CameraMotion.Median(moving.Select(i => Math.Abs(tx[i]))) > 0.03 || moving.Count(i => expand[i] > 0) < 0.45 * moving.Count);
+        if (cameraHint is "fixed" or "moving" or "handheld") { isFixed = cameraHint == "fixed"; handheld = cameraHint == "handheld"; }
         var speed = Smooth(mag, 5);
         double cruise = CameraMotion.Percentile(speed, 75);
         var jolt = new double[n];
@@ -123,7 +125,9 @@ public static class Reasoner
                 double pre = Median(k => ts[k] >= t - 2.0 && ts[k] <= t - 0.3, speed);
                 double post = Median(k => ts[k] >= t + 0.8 && ts[k] <= t + 3.0, speed);
                 bool stops = !double.IsNaN(pre) && !double.IsNaN(post) && post < 0.4 * Math.Max(pre, 1e-6) && pre > 0.15 * Math.Max(cruise, 1e-6);
-                bool breakup = inl[i] < 0.3 && npts[i] >= 10;
+                // The picture breaking up counts only when tracking was solid just before (some videos track poorly throughout).
+                double baseInl = Median(k => ts[k] >= t - 2.0 && ts[k] <= t - 0.3, inl);
+                bool breakup = inl[i] < 0.3 && npts[i] >= 10 && !double.IsNaN(baseInl) && baseInl >= 0.55;
                 if (breakup)
                 {
                     // A two-frame glitch (the picture recovers and the car carries on at the same speed) isn't an impact.
@@ -141,7 +145,7 @@ public static class Reasoner
                     if (bb.Tr.Kind is Kind.Person or Kind.TwoWheeler) s += 0.1;
                     cands.Add(new Candidate("ego_front", t, s, bb.Tr));
                 }
-                else if (jscore > 0.6 && confirm)
+                else if (jscore > 0.6 && confirm && t >= ts[0] + 2.0) // a jolt in the first seconds is usually the recording starting
                     cands.Add(new Candidate("ego_unseen", t, 0.5 * jscore));
             }
         }
@@ -181,7 +185,7 @@ public static class Reasoner
                         double sp = Math.Sqrt(vb.Value.X * vb.Value.X + vb.Value.Y * vb.Value.Y) + 1e-3;
                         jerk = Math.Max(jerk, Math.Min(1, Math.Sqrt(Math.Pow(va.Value.X - vb.Value.X, 2) + Math.Pow(va.Value.Y - vb.Value.Y, 2)) / sp));
                     }
-                    double score = (0.35 * Math.Min(1, approach) + 0.45 * jerk + 0.2 * Math.Min(1, Box.InterOverMin(a, b))) * (isFixed || handheld ? 1.1 : 0.8);
+                    double score = (0.35 * Math.Min(1, approach) + 0.45 * jerk + 0.2 * Math.Min(1, Box.InterOverMin(a, b))) * (isFixed ? 1.1 : handheld ? 0.75 : 0.8);
                     cands.Add(new Candidate("pair", t, score, A: A, B: B));
                     break;
                 }
@@ -200,11 +204,14 @@ public static class Reasoner
         var egoC = cands.Where(c => c.Kind != "pair").ToList();
         double top = egoC.Count > 0 ? egoC.Max(c => c.Score) : 0, overall = cands.Max(c => c.Score);
         var strong = top >= 0.8 * overall ? egoC.Where(c => c.Score >= 0.8 * top && c.Score >= 0.35).ToList() : new List<Candidate>();
+        // A seen impact beats an unseen jolt of similar strength.
+        if (strong.Any(c => c.Kind == "ego_front")) strong = strong.Where(c => c.Kind == "ego_front" || c.Score > 1.25 * strong.Where(f => f.Kind == "ego_front").Max(f => f.Score)).ToList();
         var hit = strong.Count > 0 ? strong.MinBy(c => c.T)! : cands.MaxBy(c => c.Score)!;
         double tImp = hit.T;
         report.ImpactSeconds = Math.Round(tImp, 2);
         var notes = new Notes();
         double faultFirst = 0, faultSecond = 0; // camera/A vs other/B
+        double? hazardT = null; bool rearEnd = false, crossedLine = false;
 
         if (hit.Kind is "ego_front" or "ego_unseen")
         {
@@ -313,6 +320,9 @@ public static class Reasoner
                         faultSecond += 0.4;
                     }
                 }
+                hazardT = inPath.Count > 0 ? inPath[0] : null;
+                rearEnd = report.CollisionType == "Rear-end";
+                crossedLine = crossedCenter;
             }
         }
         else
@@ -333,39 +343,42 @@ public static class Reasoner
                 notes.Add(tImp, $"A pedestrian was struck by the {veh.Name}.", key: true);
                 if (veh == A) faultFirst += 0.5; else faultSecond += 0.5;
             }
-            else if (Math.Min(sa, sb) < 0.15 && Math.Max(sa, sb) > 0.35)
+            else
             {
-                bool aMoves = sa > sb;
-                notes.Add(tImp - 1.0, $"The {(aMoves ? B : A).Name} was stopped; the {(aMoves ? A : B).Name} ran into it.", key: true);
-                if (aMoves) faultFirst += 0.8; else faultSecond += 0.8;
-            }
-            else if (va is { } ua && vb is { } ub)
-            {
-                double ang = Angle(ua, ub);
+                // Who did the closing? Project each one's motion onto the line joining them.
                 var pa = Center(A, tImp - 0.6); var pb = Center(B, tImp - 0.6);
-                if (ang < 35)
+                double dx = pb.X - pa.X, dy = pb.Y - pa.Y, dn = Math.Max(Math.Sqrt(dx * dx + dy * dy), 1e-6);
+                double ca = va is { } ua ? Math.Max(0, (ua.X * dx + ua.Y * dy) / dn / Math.Max(A.BoxAt(tImp).H, 1e-3)) : 0;
+                double cb = vb is { } ub ? Math.Max(0, -(ub.X * dx + ub.Y * dy) / dn / Math.Max(B.BoxAt(tImp).H, 1e-3)) : 0;
+                if (va is { } u1 && vb is { } u2)
                 {
-                    report.CollisionType = "Other road users: rear-end";
-                    bool aFollows = ua.X * (pb.X - pa.X) + ua.Y * (pb.Y - pa.Y) > 0;
-                    notes.Add(tImp - 1.0, $"Both were travelling the same way; the {(aFollows ? A : B).Name} ran into the one ahead.", key: true);
-                    if (aFollows) faultFirst += 0.6; else faultSecond += 0.6;
+                    double ang = Angle(u1, u2);
+                    report.CollisionType = ang < 35 ? "Other road users: rear-end" : ang > 145 ? "Other road users: head-on" : "Other road users: crossing paths";
                 }
-                else if (ang > 145)
+                // Two road users with the same description ("gray car") read as "the gray car ... the other gray car".
+                string Second(Track t, Track first) => t.Name == first.Name ? "other " + t.Name : t.Name;
+                if (Math.Min(sa, sb) < 0.15 && Math.Max(sa, sb) > 0.35)
                 {
-                    report.CollisionType = "Other road users: head-on";
-                    notes.Add(tImp - 1.0, "They were travelling toward each other (head-on).");
+                    bool aMoves = sa > sb;
+                    notes.Add(tImp - 1.0, $"The {(aMoves ? B : A).Name} was stopped or nearly stopped; the {Second(aMoves ? A : B, aMoves ? B : A)} ran into it.", key: true);
+                    if (aMoves) faultFirst += 0.9; else faultSecond += 0.9;
                 }
-                else
+                else if (ca + cb > 0.1)
                 {
-                    report.CollisionType = "Other road users: crossing paths";
-                    notes.Add(tImp - 1.0, "Their paths crossed at an angle.");
+                    double share = ca / (ca + cb), dom = Math.Max(share, 1 - share);
+                    bool aStrikes = share >= 0.5;
+                    Track striker = aStrikes ? A : B, struck = aStrikes ? B : A;
+                    if (dom >= 0.7) notes.Add(tImp - 1.0, $"The {striker.Name} moved into the {Second(struck, striker)}: it did most of the closing before contact.", key: true);
+                    else notes.Add(tImp - 1.0, $"Both the {A.Name} and the {Second(B, A)} moved toward each other before contact.");
                     if (Math.Max(sa, sb) > 1.8 * Math.Max(Math.Min(sa, sb), 0.05))
                     {
-                        bool aFast = sa > sb;
-                        notes.Add(tImp - 1.0, $"The {(aFast ? A : B).Name} was moving much faster.", key: true);
-                        if (aFast) faultFirst += 0.3; else faultSecond += 0.3;
+                        var fast = sa > sb ? A : B;
+                        notes.Add(tImp - 1.5, $"The {fast.Name} was moving much faster than the {Second(fast == A ? B : A, fast)}.", key: true);
                     }
+                    double add = 0.9 * (dom - 0.5) * 2 + (dom >= 0.7 ? 0.15 : 0);
+                    if (aStrikes) faultFirst += add; else faultSecond += add;
                 }
+                else notes.Add(tImp - 1.0, "Their movements before contact couldn't be separated, so fault between them is unclear.");
             }
         }
 
@@ -398,6 +411,10 @@ public static class Reasoner
         if (report.Verdict == Verdicts.Unclear && notes.Key.Count == 0)
             report.Summary = "The AI found the collision but the video doesn't show enough to say who caused it.";
         report.Findings = notes.All.OrderBy(f => f.Seconds).ToList();
+
+        // Every road user, who was involved, where, what the camera driver did, and each party's share.
+        Explain(new ExplainInput(report, S, ts, speed, cruise, tx, camShift, tracks, hit, cands, faultFirst, faultSecond,
+            isFixed ? "fixed" : handheld ? "handheld" : "moving", hazardT, rearEnd, crossedLine), plan);
 
         // Key frames: before, just before, impact, after.
         foreach (var (k, cap) in new[] { (tImp - 2.0, "2 seconds before"), (tImp - 0.8, "Just before"), (tImp, "Impact"), (tImp + 0.8, "Just after") })

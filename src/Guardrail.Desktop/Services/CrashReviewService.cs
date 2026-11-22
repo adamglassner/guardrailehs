@@ -109,6 +109,9 @@ public static class CrashReviewService
         return ok;
     });
 
+    /// <summary>Tells the views a review changed (documents attached, the camera vehicle named…).</summary>
+    public static void NotifyChanged() => Changed?.Invoke();
+
     public static void Retry(VideoReview review)
     {
         review.State = ReviewState.Waiting;
@@ -311,7 +314,7 @@ public static class CrashReviewService
                         });
                     }
                     if (!File.Exists(next.VideoPath)) throw new FileNotFoundException("The video file has been moved or deleted.");
-                    var report = CrashAnalyzer.Analyze(next.VideoPath, next.Folder, progress, _cancel.Token);
+                    var report = CrashAnalyzer.Analyze(next.VideoPath, next.Folder, progress, _cancel.Token, next.CameraHint);
                     foreach (var key in report.KeyFrames) DataLock.ProtectFile(Path.Combine(next.Folder, key.FileName));
                     OnUi(() =>
                     {
@@ -325,7 +328,7 @@ public static class CrashReviewService
                         Changed?.Invoke();
                         Toaster.Show(report.Verdict == Verdicts.NoCollision
                             ? $"{next.Number}: no collision found in {next.VideoName}."
-                            : $"{next.Number}: {next.Describe(report.Headline)} ({report.Confidence}% confidence).");
+                            : $"{next.Number}: {next.Describe(next.Case is { UsedDocuments: true } c ? c.Headline : report.Headline)} ({report.Confidence}% confidence).");
                     });
                 }
                 catch (OperationCanceledException)

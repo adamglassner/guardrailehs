@@ -13,6 +13,8 @@ public sealed class Sample
     public double? YellowLine { get; init; }
     /// <summary>Downscaled JPEG of the frame, for key frames in the report.</summary>
     public required byte[] Jpeg { get; init; }
+    /// <summary>People and phones seen by the cab camera (split-screen recordings only; every few samples).</summary>
+    public List<Detection>? Cabin { get; init; }
 }
 
 public sealed class Extraction
@@ -25,6 +27,8 @@ public sealed class Extraction
     /// <summary>The part of the frame used (split-screen and black bars removed).</summary>
     public Rect View { get; init; }
     public bool SplitScreen { get; init; }
+    /// <summary>The cab-camera panel of a split-screen recording, when there is one.</summary>
+    public Rect? CabinView { get; init; }
 }
 
 /// <summary>The expensive pass over the video: decode, detect, measure camera motion.</summary>
@@ -52,6 +56,7 @@ public static class Extractor
         }
         cap.Set(VideoCaptureProperties.PosFrames, 0);
         Rect view;
+        Rect? cabin = null;
         int srcW, srcH;
         try
         {
@@ -66,12 +71,13 @@ public static class Extractor
             else
             {
                 srcW = probes[0].Cols; srcH = probes[0].Rows;
-                view = Scene.FindView(probes, detector);
+                (view, cabin) = Scene.FindView(probes, detector);
             }
         }
         finally { foreach (var p in probes) p.Dispose(); }
         bool split = view.Width < srcW * 0.8 || view.Height < srcH * 0.8;
 
+        int cabEvery = Math.Max(1, (int)Math.Round(SampleFps / 2)); // the cab camera: 2 looks per second is plenty
         var samples = new List<Sample>();
         using var frame = new Mat();
         int idx = 0;
@@ -91,7 +97,13 @@ public static class Extractor
                     if (scale != 1.0) Cv2.Resize(cropped, work, new OpenCvSharp.Size((int)(cropped.Cols * scale), (int)(cropped.Rows * scale)), 0, 0, InterpolationFlags.Linear);
                     else cropped.CopyTo(work);
 
-                    var dets = detector.Detect(work);
+                    var dets = detector.Detect(work).Where(d => d.Kind != Kind.Phone).ToList();
+                    List<Detection>? cab = null;
+                    if (cabin is { } cr && samples.Count % cabEvery == 0)
+                    {
+                        using var cabMat = new Mat(frame, CameraMotion.Clip(cr, frame.Cols, frame.Rows));
+                        cab = detector.Detect(cabMat, 0.25f).Where(d => d.Kind is Kind.Person or Kind.Phone).ToList();
+                    }
                     foreach (var d in dets)
                         d.Extra = d.Kind switch
                         {
@@ -105,7 +117,7 @@ public static class Extractor
                     Cv2.Resize(work, small, new OpenCvSharp.Size(480, Math.Max(1, (int)(480.0 * work.Rows / work.Cols))), 0, 0, InterpolationFlags.Linear);
                     Cv2.ImEncode(".jpg", small, out byte[] jpeg, new ImageEncodingParam(ImwriteFlags.JpegQuality, 82));
 
-                    samples.Add(new Sample { T = t, Detections = dets, YellowLine = Scene.YellowLine(work, movers), Jpeg = jpeg });
+                    samples.Add(new Sample { T = t, Detections = dets, YellowLine = Scene.YellowLine(work, movers), Jpeg = jpeg, Cabin = cab });
                     if (total > 0) progress?.Report(Math.Min(1.0, (double)idx / Math.Min(total, MaxSeconds * fps)));
                 }
                 idx++;
@@ -114,7 +126,7 @@ public static class Extractor
 
         return new Extraction
         {
-            Samples = samples, Fps = fps, Duration = idx / fps, Width = srcW, Height = srcH, View = view, SplitScreen = split,
+            Samples = samples, Fps = fps, Duration = idx / fps, Width = srcW, Height = srcH, View = view, SplitScreen = split, CabinView = cabin,
         };
     }
 }

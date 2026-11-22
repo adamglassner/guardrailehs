@@ -5,7 +5,7 @@ using OpenCvSharp.Dnn;
 namespace Guardrail.CrashAi;
 
 /// <summary>What a detected object is, as far as fault analysis cares.</summary>
-public enum Kind { Vehicle, TwoWheeler, Person, TrafficLight, StopSign }
+public enum Kind { Vehicle, TwoWheeler, Person, TrafficLight, StopSign, Phone }
 
 /// <summary>A box in normalized image coordinates (0..1 across and down).</summary>
 public readonly record struct Box(double X1, double Y1, double X2, double Y2)
@@ -44,7 +44,7 @@ public sealed record Detection(Box Box, float Score, int ClassId)
 /// <summary>The COCO classes the detector reports that matter for a crash.</summary>
 public static class Classes
 {
-    public const int Person = 0, Bicycle = 1, Car = 2, Motorcycle = 3, Bus = 5, Truck = 7, TrafficLight = 9, StopSign = 11;
+    public const int Person = 0, Bicycle = 1, Car = 2, Motorcycle = 3, Bus = 5, Truck = 7, TrafficLight = 9, StopSign = 11, CellPhone = 67;
 
     public static Kind? KindOf(int id) => id switch
     {
@@ -53,6 +53,7 @@ public static class Classes
         Person => Kind.Person,
         TrafficLight => Kind.TrafficLight,
         StopSign => Kind.StopSign,
+        CellPhone => Kind.Phone,
         _ => null,
     };
 

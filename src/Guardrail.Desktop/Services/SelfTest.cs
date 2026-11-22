@@ -304,6 +304,10 @@ public static class SelfTest
                 $"{rep.Verdict} {rep.CollisionType} {rep.Confidence}% at {rep.ImpactSeconds}");
             Check("Crash AI: impact time found", rep.ImpactSeconds is > 4.5 and < 5.3, rep.ImpactSeconds?.ToString() ?? "none");
             Check("Crash AI: key moments planned", plan.Moments.Count >= 3 && rep.FaultShares.Sum() == 100);
+            Check("Crash AI: every party gets a share", rep.Shares.Count >= 2 && rep.Shares.Sum(x => x.Percent) == 100 && rep.Shares.Any(x => x.IsCamera),
+                string.Join(", ", rep.Shares.Select(x => $"{x.Party} {x.Percent}%")));
+            Check("Crash AI: camera vehicle involved, road users listed", rep.CameraInvolved && rep.RoadUsers.Any(u => u.Involved), $"{rep.RoadUsers.Count} road users");
+            Check("Crash AI: detailed narrative and driver notes", rep.Narrative.Length > 40 && rep.DriverNotes.Count > 0 && rep.Location.Length > 0, rep.Narrative);
         }
         catch (Exception ex) { Check("Crash AI: rear-end scene", false, ex.ToString()); }
 
@@ -322,6 +326,8 @@ public static class SelfTest
             var (rep, _) = Reasoner.Analyze(new Extraction { Samples = samples, Duration = 6 }, 0.9);
             Check("Crash AI: fixed camera, moving car hits a stopped car", rep.CameraKind == "Fixed camera" && rep.Verdict == Verdicts.A,
                 $"{rep.CameraKind} {rep.Verdict} {rep.CollisionType} {rep.Confidence}%");
+            Check("Crash AI: a fixed camera is never a party", !rep.CameraInvolved && rep.Shares.All(x => !x.IsCamera) && rep.Shares.Sum(x => x.Percent) == 100,
+                string.Join(", ", rep.Shares.Select(x => $"{x.Party} {x.Percent}%")));
         }
         catch (Exception ex) { Check("Crash AI: fixed camera scene", false, ex.ToString()); }
 
@@ -334,6 +340,37 @@ public static class SelfTest
             Check("Crash AI: steady traffic is not a collision", rep.Verdict == Verdicts.NoCollision, rep.Verdict);
         }
         catch (Exception ex) { Check("Crash AI: quiet scene", false, ex.ToString()); }
+
+        // 3b) Documents: facts out of a police report, and the combined call.
+        try
+        {
+            const string police = "PEACE OFFICER'S CRASH REPORT\nCrash Date: 03/14/2025   Crash Time: 4:37 PM\nLocation: Intersection of W Main St and N Oak Ave, Springfield\n" +
+                "Weather: Rain\nUnit 1: 2019 Ford F-150, White.\nUnit 2: 2021 Toyota Camry, Gray.\n" +
+                "Narrative: Unit 2 disregarded the red signal and entered the intersection. The front of Unit 1 struck the right side of Unit 2. " +
+                "Driver of Unit 2 admitted to looking at her cell phone.\nContributing Factors: Unit 2 - Disregard Stop and Go Signal; Driver Inattention.\n" +
+                "Citations: Unit 2 driver was cited for running a red light.\nInjuries: Unit 2 driver - possible injury. Unit 1 driver - not injured.";
+            var facts = Guardrail.CrashAi.Documents.DocumentFacts.Extract(police);
+            var u2 = facts.Parties.FirstOrDefault(p => p.Key == "unit 2");
+            var u1 = facts.Parties.FirstOrDefault(p => p.Key == "unit 1");
+            Check("Crash AI documents: police report recognised", facts.Kind == "police report", facts.Kind);
+            Check("Crash AI documents: citation and violations found", u2 is { Citations.Count: > 0 } && u2.Factors.ContainsKey("ran a red light") && u2.Score > (u1?.Score ?? 0),
+                u2 is null ? "no unit 2" : $"{u2.Label}: {string.Join(", ", u2.Factors.Keys)}; cited {u2.Citations.Count}");
+            Check("Crash AI documents: location, time and weather", facts.Locations.Any(l => l.Contains("Main St")) && facts.Times.Count > 0 && facts.Conditions.Contains("rain"),
+                string.Join(" | ", facts.Locations));
+            var video = new CrashReport
+            {
+                Verdict = Verdicts.Unclear, Confidence = 40, Headline = "Fault is shared or unclear", CollisionType = "Crossing paths (intersection / angle)",
+                Shares = [new PartyShare { Party = "Camera vehicle", Percent = 50, IsCamera = true }, new PartyShare { Party = "V1 gray car", Percent = 50 }],
+                RoadUsers = [new RoadUser { Tag = "V1", Label = "gray car", Kind = "vehicle", Involved = true }],
+            };
+            var combined = Guardrail.CrashAi.Documents.CaseAssessment.Combine(video, [new("report.txt", facts)], "unit 1");
+            var top = combined.Shares.FirstOrDefault();
+            Check("Crash AI documents: the report moves fault onto the cited driver", top is { IsCamera: false } && top.Party == "V1 gray car" && top.Percent >= 60 && combined.Shares.Sum(x => x.Percent) == 100,
+                string.Join(", ", combined.Shares.Select(x => $"{x.Party} {x.Percent}%")));
+            Check("Crash AI documents: rich text reader", Guardrail.CrashAi.Documents.DocumentReader.RtfToText(@"{\rtf1\ansi{\fonttbl{\f0 Arial;}}Unit 2 ran the red light.\par}").Contains("Unit 2 ran the red light"));
+            Check("Crash AI documents: web page reader", Guardrail.CrashAi.Documents.DocumentReader.HtmlToText("<html><head><title>Crash</title></head><body><nav>menu</nav><p>A blue Honda Civic rear-ended a minivan.</p></body></html>").Text.Contains("Honda Civic"));
+        }
+        catch (Exception ex) { Check("Crash AI documents", false, ex.ToString()); }
 
         // 4) The real engine (model + OpenCV + video decoding) on a generated video.
         Check("Crash AI: model is built in", CrashAnalyzer.ModelAvailable);
@@ -375,7 +412,15 @@ public static class SelfTest
                     Findings = [new(5.5, "The yellow centre line was on the camera vehicle's left."), new(7.5, "The camera vehicle drifted across it."), new(8.5, "Head-on.")],
                     KeyFrames = [new(6.5, "key1.jpg", "2 seconds before"), new(8.5, "key3.jpg", "Impact")],
                     SpeedTrace = Enumerable.Range(0, 100).Select(i => 3.0 + Math.Sin(i / 9.0)).ToList(), TraceStepSeconds = 0.2,
+                    Shares = [new PartyShare { Party = "Camera vehicle", Percent = 95, IsCamera = true, Reasons = ["crossed the centre line"] }, new PartyShare { Party = "V1 white truck", Percent = 5 }],
+                    CameraInvolved = true, Location = "directly ahead in the camera vehicle's lane, at the front of the camera vehicle",
+                    RoadUsers = [new RoadUser { Tag = "V1", Label = "white truck", Kind = "vehicle", Involved = true, Role = "struck by the camera vehicle", Where = "ahead", Notes = ["oncoming"] },
+                                 new RoadUser { Tag = "V2", Label = "red car", Kind = "vehicle", Role = "not involved", Where = "to the left of the camera vehicle" }],
+                    DriverNotes = [new(6.0, "The camera vehicle was travelling at a steady speed."), new(8.0, "No braking was seen before the impact.")],
+                    DriverIssues = ["crossed the centre line"], CabinNotes = [new(1.0, "The cab camera didn't show a phone in the 10 seconds before the collision.")],
+                    Narrative = "At 0:08.5 the video shows a head-on collision. Involved: the camera vehicle, V1 (white truck).",
                 },
+                Documents = [new ReviewDocument { Title = "Police report.pdf", Text = "Unit 1 crossed the center line and struck Unit 2. Unit 1 driver was cited for failure to maintain lane." }],
             };
             var dialog = new CrashReportDialog(review);
             dialog.Show();
