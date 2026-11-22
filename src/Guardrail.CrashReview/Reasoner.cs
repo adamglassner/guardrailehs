@@ -355,10 +355,12 @@ public static partial class Reasoner
                     double ang = Angle(u1, u2);
                     report.CollisionType = ang < 35 ? "Other road users: rear-end" : ang > 145 ? "Other road users: head-on" : "Other road users: crossing paths";
                 }
+                // Two road users with the same description ("gray car") read as "the gray car ... the other gray car".
+                string Second(Track t, Track first) => t.Name == first.Name ? "other " + t.Name : t.Name;
                 if (Math.Min(sa, sb) < 0.15 && Math.Max(sa, sb) > 0.35)
                 {
                     bool aMoves = sa > sb;
-                    notes.Add(tImp - 1.0, $"The {(aMoves ? B : A).Name} was stopped or nearly stopped; the {(aMoves ? A : B).Name} ran into it.", key: true);
+                    notes.Add(tImp - 1.0, $"The {(aMoves ? B : A).Name} was stopped or nearly stopped; the {Second(aMoves ? A : B, aMoves ? B : A)} ran into it.", key: true);
                     if (aMoves) faultFirst += 0.9; else faultSecond += 0.9;
                 }
                 else if (ca + cb > 0.1)
@@ -366,12 +368,12 @@ public static partial class Reasoner
                     double share = ca / (ca + cb), dom = Math.Max(share, 1 - share);
                     bool aStrikes = share >= 0.5;
                     Track striker = aStrikes ? A : B, struck = aStrikes ? B : A;
-                    if (dom >= 0.7) notes.Add(tImp - 1.0, $"The {striker.Name} moved into the {struck.Name}: it did most of the closing before contact.", key: true);
-                    else notes.Add(tImp - 1.0, $"Both the {A.Name} and the {B.Name} moved toward each other before contact.");
+                    if (dom >= 0.7) notes.Add(tImp - 1.0, $"The {striker.Name} moved into the {Second(struck, striker)}: it did most of the closing before contact.", key: true);
+                    else notes.Add(tImp - 1.0, $"Both the {A.Name} and the {Second(B, A)} moved toward each other before contact.");
                     if (Math.Max(sa, sb) > 1.8 * Math.Max(Math.Min(sa, sb), 0.05))
                     {
                         var fast = sa > sb ? A : B;
-                        notes.Add(tImp - 1.5, $"The {fast.Name} was moving much faster than the {(fast == A ? B : A).Name}.", key: true);
+                        notes.Add(tImp - 1.5, $"The {fast.Name} was moving much faster than the {Second(fast == A ? B : A, fast)}.", key: true);
                     }
                     double add = 0.9 * (dom - 0.5) * 2 + (dom >= 0.7 ? 0.15 : 0);
                     if (aStrikes) faultFirst += add; else faultSecond += add;
