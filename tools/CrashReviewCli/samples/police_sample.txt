@@ -1,0 +1,15 @@
+STATE OF TEXAS PEACE OFFICER'S CRASH REPORT (SAMPLE - TEST DATA)
+Crash Date: 03/14/2025   Crash Time: 4:37 PM
+Location: Intersection of W Main St and N Oak Ave, Springfield
+Weather: Rain   Light Condition: Daylight   Road Surface: Wet
+
+Unit 1: 2019 Ford F-150, White. Driver: Unit 1 driver. Direction of travel: Northbound on N Oak Ave.
+Unit 2: 2021 Toyota Camry, Gray. Driver: Unit 2 driver. Direction of travel: Eastbound on W Main St.
+
+Narrative: Unit 2 was traveling eastbound on W Main St approaching the intersection with N Oak Ave. Unit 1 was traveling northbound on N Oak Ave.
+Unit 2 disregarded the red signal and entered the intersection. The front of Unit 1 struck the right side of Unit 2. Witness stated Unit 2 never slowed down.
+Driver of Unit 2 admitted to looking at her cell phone. Unit 1 was traveling at approximately 45 mph in a 40 mph zone.
+
+Contributing Factors: Unit 2 - Disregard Stop and Go Signal; Driver Inattention; Cell/Mobile Device Use. Unit 1 - Speeding - Over Limit (Possible).
+Citations: Unit 2 driver was cited for running a red light (Disregard Stop and Go Signal).
+Injuries: Unit 2 driver - possible injury, transported to Springfield General. Unit 1 driver - not injured.

@@ -1,0 +1,63 @@
+name: Crash Review AI eval (temporary)
+on:
+  push:
+    branches: [crash-ai-v2]
+permissions:
+  contents: write
+jobs:
+  eval:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: ai-testdata
+          path: testdata
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Model
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force src/Guardrail.CrashReview/Models | Out-Null
+          Copy-Item testdata/model/yolox_s.onnx src/Guardrail.CrashReview/Models/yolox_s.onnx
+      - name: Build
+        shell: pwsh
+        run: dotnet build tools/CrashReviewCli -c Release -v q -nologo
+      - name: Documents
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem tools/CrashReviewCli/bin/Release -Recurse -Filter CrashReviewCli.exe | Select-Object -First 1).FullName
+          $out = Join-Path $env:RUNNER_TEMP 'eval'
+          New-Item -ItemType Directory -Force $out, "$out/docs" | Out-Null
+          # Clip descriptions (news / police text) as test documents
+          foreach ($line in Get-Content testdata/videos/INDEX.tsv) {
+            $f = $line -split "`t"
+            if ($f.Count -ge 5 -and $f[4].Length -gt 150) { Set-Content -Path "$out/docs/$($f[0].Substring(0,2)).txt" -Value $f[4] -Encoding utf8 }
+          }
+          Copy-Item tools/CrashReviewCli/samples/*.txt "$out/docs/"
+          & $exe --docs (Get-ChildItem "$out/docs/*.txt" | ForEach-Object { $_.FullName }) | Tee-Object -FilePath "$out/docs.txt"
+      - name: Engine on test videos
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem tools/CrashReviewCli/bin/Release -Recurse -Filter CrashReviewCli.exe | Select-Object -First 1).FullName
+          $out = Join-Path $env:RUNNER_TEMP 'eval'
+          $hints = @{ '00' = 'fixed'; '15' = 'fixed'; '19' = 'fixed'; '20' = 'fixed'; '21' = 'fixed'; '22' = 'fixed'; '23' = 'fixed'; '18' = 'handheld' }
+          $log = Join-Path $out 'videos.txt'
+          foreach ($v in Get-ChildItem testdata/videos/*.mp4) {
+            $k = $v.Name.Substring(0, 2)
+            $args2 = @($out)
+            if ($hints.ContainsKey($k)) { $args2 += "--hint=$($hints[$k])" }
+            if (Test-Path "$out/docs/$k.txt") { $args2 += "--docs=$out/docs/$k.txt" }
+            $args2 += $v.FullName
+            & $exe @args2 *>&1 | Tee-Object -FilePath $log -Append
+          }
+      - name: Push results to branch ai-debug
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/eval"
+          find . -name 'key*.jpg' -delete
+          git init -q -b ai-debug
+          git config user.name github-actions; git config user.email github-actions@users.noreply.github.com
+          git add -A && git commit -q -m "Crash Review v2 eval results"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ai-debug

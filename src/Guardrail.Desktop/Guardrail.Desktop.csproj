@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <!-- Windows 10 SDK projections: built-in text recognition (Windows.Media.Ocr) and PDF rendering for attached documents. -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -13,7 +15,7 @@
     <Company>Bytehawk Studio</Company>
     <Description>Free, open-source, self-hosted EHS and fleet safety software.</Description>
     <!-- Releasing: change this and push to main. CI builds, tests and publishes GitHub Release v<Version>. -->
-    <Version>0.13.0</Version>
+    <Version>0.14.0</Version>
     <Authors>Bytehawk Studio</Authors>
     <Copyright>Copyright (c) 2026 Adam Glassner. MIT License.</Copyright>
     <!-- Lets the project at least restore/compile on non-Windows CI; the app itself is Windows-only. -->

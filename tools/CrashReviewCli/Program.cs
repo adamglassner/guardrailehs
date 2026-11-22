@@ -1,9 +1,15 @@
 using System.Text.Json;
 using Guardrail.CrashAi;
+using Guardrail.CrashAi.Documents;
 
-// Usage: CrashReviewCli <output folder> <video> [<video> ...]
+// Usage: CrashReviewCli <output folder> [--hint=auto|moving|fixed|handheld] [--docs=a.txt;b.pdf] <video> [<video> ...]
+//        CrashReviewCli --docs <document> [<document> ...]      (just the facts read from documents)
 // Set GUARDRAIL_DUMP=1 to also write each video's per-frame measurements (samples.json) for debugging.
 if (args.Length >= 2 && args[0] == "--probe") return Probe.Run(args[1]);
+if (args.Length >= 2 && args[0] == "--docs") return Docs.Run(args.Skip(1));
+string hint = args.FirstOrDefault(a => a.StartsWith("--hint="))?["--hint=".Length..] ?? "auto";
+var docFiles = (args.FirstOrDefault(a => a.StartsWith("--docs="))?["--docs=".Length..] ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries);
+args = args.Where(a => !a.StartsWith("--")).ToArray();
 if (args.Length < 2) { Console.Error.WriteLine("Usage: CrashReviewCli <output folder> <video>..."); return 2; }
 string outRoot = args[0];
 bool dump = Environment.GetEnvironmentVariable("GUARDRAIL_DUMP") == "1";
@@ -16,10 +22,22 @@ foreach (var video in args.Skip(1))
     Console.WriteLine($"== {name}");
     try
     {
-        var report = CrashAnalyzer.Analyze(video, dir);
-        Console.WriteLine($"   {report.CameraKind} | {report.Verdict} {report.Confidence}% | {report.CollisionType} | impact {report.ImpactSeconds} | {string.Join(" vs ", report.Parties)} | {report.AnalysisSeconds}s");
+        var report = CrashAnalyzer.Analyze(video, dir, cameraHint: hint);
+        Console.WriteLine($"   {report.CameraKind} | {report.Verdict} {report.Confidence}% | {report.CollisionType} | impact {report.ImpactSeconds} | camera involved: {report.CameraInvolved} | {report.AnalysisSeconds}s");
         Console.WriteLine($"   {report.Headline}. {report.Summary}");
+        Console.WriteLine($"   Where: {report.Location}");
+        Console.WriteLine($"   Shares: {string.Join(", ", report.Shares.Select(x => $"{x.Party} {x.Percent}%"))}");
+        Console.WriteLine($"   {report.Narrative}");
         foreach (var f in report.Findings) Console.WriteLine($"     {f.Seconds,6:0.0}  {f.Text}");
+        foreach (var f in report.DriverNotes.Concat(report.CabinNotes)) Console.WriteLine($"     drv {f.Seconds,6:0.0}  {f.Text}");
+        foreach (var u in report.RoadUsers.Where(u => u.Involved)) Console.WriteLine($"     {u.Tag} {u.Label}: {u.Role}; {u.Where}; {string.Join("; ", u.Notes)}");
+        if (docFiles.Length > 0)
+        {
+            var docs = docFiles.Select(f => new AttachedFacts(Path.GetFileName(f), DocumentFacts.Extract(DocumentReader.ReadFile(f)))).ToList();
+            var c = CaseAssessment.Combine(report, docs);
+            Console.WriteLine($"   With documents: {c.Headline} | {string.Join(", ", c.Shares.Select(x => $"{x.Party} {x.Percent}% (video {x.VideoPercent?.ToString() ?? "-"}, docs {x.DocumentPercent?.ToString() ?? "-"})"))}");
+            foreach (var n in c.Notes) Console.WriteLine($"     note: {n}");
+        }
         File.WriteAllText(Path.Combine(dir, "report.json"), JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
 
         if (dump)
@@ -46,6 +64,22 @@ foreach (var video in args.Skip(1))
     }
 }
 return failures;
+
+static class Docs
+{
+    public static int Run(IEnumerable<string> files)
+    {
+        foreach (var f in files)
+        {
+            var facts = DocumentFacts.Extract(DocumentReader.ReadFile(f));
+            Console.WriteLine($"== {Path.GetFileName(f)} | {facts.Kind} | when: {string.Join(", ", facts.Dates.Concat(facts.Times))} | where: {string.Join(" | ", facts.Locations)} | conditions: {string.Join(", ", facts.Conditions)} | hit-and-run: {facts.HitAndRun}");
+            foreach (var i in facts.Injuries) Console.WriteLine($"   injury: {i}");
+            foreach (var p in facts.Parties.OrderByDescending(p => p.Score))
+                Console.WriteLine($"   {p.Label,-32} score {p.Score:0.00} | struck others {p.Striking} (rear-ended {p.RearEnded}) | was struck {p.Struck} | cited: {string.Join("; ", p.Citations)} | {string.Join(", ", p.Factors.Select(kv => $"{kv.Key} {kv.Value:0.0}"))}");
+        }
+        return 0;
+    }
+}
 
 static class Probe
 {

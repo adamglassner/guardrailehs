@@ -26,10 +26,11 @@ public static class Scene
     }
 
     /// <summary>
-    /// Picks the road-facing view: trims black borders and, for split-screen recordings
-    /// (cab camera beside or above the road camera), the panel with the most traffic in it.
+    /// Picks the road-facing view: trims black borders and, for split-screen or picture-in-picture recordings
+    /// (cab camera beside, above or behind the road camera), the panel with the most traffic in it.
+    /// Also returns the cab camera panel when there is one, so the driver can be checked for phone use.
     /// </summary>
-    public static Rect FindView(IReadOnlyList<Mat> probes, Detector detector)
+    public static (Rect Road, Rect? Cabin) FindView(IReadOnlyList<Mat> probes, Detector detector)
     {
         int W = probes[0].Cols, H = probes[0].Rows;
         var grays = probes.Select(p => { var g = new Mat(); Cv2.CvtColor(p, g, ColorConversionCodes.BGR2GRAY); return g; }).ToList();
@@ -41,62 +42,126 @@ public static class Scene
             var mxb = Bytes(mx);
             var whole = TrimDark(new Rect(0, 0, W, H), mxb, W);
 
-            // Mean absolute horizontal / vertical gradient per column / row inside the trimmed view.
-            var gx = new double[whole.Width]; var gy = new double[whole.Height];
+            // Mean absolute horizontal / vertical gradient at every pixel, averaged over the probes.
+            var gxMap = new float[W * H]; var gyMap = new float[W * H];
             foreach (var g in grays)
             {
                 var px = Bytes(g);
-                for (int y = whole.Y; y < whole.Bottom; y++)
-                    for (int x = whole.X + 1; x < whole.Right; x++)
+                for (int y = 0; y < H; y++)
+                    for (int x = 0; x < W; x++)
                     {
-                        int d = Math.Abs(px[y * W + x] - px[y * W + x - 1]);
-                        gx[x - whole.X] += d;
-                        if (y > whole.Y) gy[y - whole.Y] += Math.Abs(px[y * W + x] - px[(y - 1) * W + x]);
+                        int i = y * W + x;
+                        if (x > 0) gxMap[i] += Math.Abs(px[i] - px[i - 1]);
+                        if (y > 0) gyMap[i] += Math.Abs(px[i] - px[i - W]);
                     }
             }
-            var cands = new List<Rect>();
-            if (Seam(gx) is int sx)
-            {
-                cands.Add(new Rect(whole.X, whole.Y, sx, whole.Height));
-                cands.Add(new Rect(whole.X + sx + 1, whole.Y, whole.Width - sx - 1, whole.Height));
-            }
-            if (Seam(gy) is int sy)
-            {
-                cands.Add(new Rect(whole.X, whole.Y, whole.Width, sy));
-                cands.Add(new Rect(whole.X, whole.Y + sy + 1, whole.Width, whole.Height - sy - 1));
-            }
-            if (cands.Count == 0) return whole;
+            float inv = 1f / grays.Count;
+            for (int i = 0; i < gxMap.Length; i++) { gxMap[i] *= inv; gyMap[i] *= inv; }
 
-            Rect best = whole; double bestScore = double.MinValue;
-            foreach (var raw in cands)
+            var leaves = Split(whole, gxMap, gyMap, W, 0);
+            if (leaves.Count == 1 && Inset(whole, gxMap, gyMap, W) is { } pip) leaves = pip;
+            leaves = leaves.Select(c => TrimDark(c, mxb, W)).Where(c => c.Width >= 64 && c.Height >= 64).ToList();
+            if (leaves.Count <= 1) return (leaves.Count == 1 ? leaves[0] : whole, null);
+
+            var scored = new List<(Rect R, double Road, double Cab)>();
+            foreach (var c in leaves)
             {
-                var c = TrimDark(raw, mxb, W);
-                if (c.Width < 64 || c.Height < 64) continue;
-                double score = 0;
+                double road = 0, cab = 0;
                 foreach (var p in probes)
                 {
                     using var crop = new Mat(p, c);
                     foreach (var d in detector.Detect(crop))
                     {
-                        if (d.Kind is Kind.Vehicle or Kind.TwoWheeler or Kind.TrafficLight or Kind.StopSign) score += 1;
-                        else if (d.Kind == Kind.Person && d.Box.H > 0.5) score -= 0.5; // the cab camera sees the driver up close
+                        if (d.Kind is Kind.Vehicle or Kind.TwoWheeler or Kind.TrafficLight or Kind.StopSign) road += 1;
+                        else if (d.Kind == Kind.Person && d.Box.H > 0.45) cab += 1; // the cab camera sees the driver up close
                     }
                 }
-                if (score > bestScore) { bestScore = score; best = c; }
+                scored.Add((c, road - 0.5 * cab, cab));
             }
-            return best;
+            var roadView = scored.MaxBy(x => x.Road).R;
+            var cabs = scored.Where(x => x.R != roadView && x.Cab >= 3).ToList();
+            Rect? cabin = cabs.Count > 0 ? cabs.MaxBy(x => x.Cab * 1e7 + x.R.Width * x.R.Height).R : null;
+            return (roadView, cabin);
         }
         finally { foreach (var g in grays) g.Dispose(); }
     }
 
-    private static int? Seam(double[] g)
+    /// <summary>Recursively splits a panel at straight seams that run along (nearly) its whole height or width.</summary>
+    private static List<Rect> Split(Rect r, float[] gxMap, float[] gyMap, int stride, int depth)
     {
-        int lo = (int)(g.Length * 0.4), hi = (int)(g.Length * 0.6);
+        if (depth > 2 || r.Width < 160 || r.Height < 120) return [r];
+        var gx = new double[r.Width]; var gy = new double[r.Height];
+        for (int y = r.Y; y < r.Bottom; y++)
+            for (int x = r.X; x < r.Right; x++)
+            {
+                gx[x - r.X] += gxMap[y * stride + x] / r.Height;
+                gy[y - r.Y] += gyMap[y * stride + x] / r.Width;
+            }
+        if (Seam(gx, i => Column(gxMap, stride, r.X + i, r.Y, r.Bottom)) is int sx)
+            return [.. Split(new Rect(r.X, r.Y, sx, r.Height), gxMap, gyMap, stride, depth + 1),
+                    .. Split(new Rect(r.X + sx + 1, r.Y, r.Width - sx - 1, r.Height), gxMap, gyMap, stride, depth + 1)];
+        if (Seam(gy, i => Row(gyMap, stride, r.Y + i, r.X, r.Right)) is int sy)
+            return [.. Split(new Rect(r.X, r.Y, r.Width, sy), gxMap, gyMap, stride, depth + 1),
+                    .. Split(new Rect(r.X, r.Y + sy + 1, r.Width, r.Height - sy - 1), gxMap, gyMap, stride, depth + 1)];
+        return [r];
+    }
+
+    private static float[] Column(float[] map, int stride, int x, int y0, int y1)
+    {
+        var v = new float[Math.Max(0, y1 - y0)];
+        for (int y = y0; y < y1; y++) v[y - y0] = map[y * stride + x];
+        return v;
+    }
+
+    private static float[] Row(float[] map, int stride, int y, int x0, int x1)
+    {
+        var v = new float[Math.Max(0, x1 - x0)];
+        for (int x = x0; x < x1; x++) v[x - x0] = map[y * stride + x];
+        return v;
+    }
+
+    /// <summary>A panel seam is a straight edge along nearly the whole panel — unlike a horizon, a bonnet or a road edge.</summary>
+    private static int? Seam(double[] g, Func<int, float[]> line)
+    {
+        int lo = (int)(g.Length * 0.3), hi = (int)(g.Length * 0.7);
         if (hi <= lo) return null;
         double baseLevel = CameraMotion.Median(g) + 1e-3;
         int best = lo;
         for (int i = lo; i < hi; i++) if (g[i] > g[best]) best = i;
-        return g[best] > 4 * baseLevel ? best : null;
+        if (g[best] <= 4 * baseLevel) return null;
+        var l = line(best);
+        return l.Length > 0 && l.Count(v => v > 3 * baseLevel) >= 0.85 * l.Length ? best : null;
+    }
+
+    /// <summary>Picture-in-picture: a rectangle in one corner whose two inner edges are straight lines.</summary>
+    private static List<Rect>? Inset(Rect r, float[] gxMap, float[] gyMap, int stride)
+    {
+        var gx = new double[r.Width]; var gy = new double[r.Height];
+        for (int y = r.Y; y < r.Bottom; y++)
+            for (int x = r.X; x < r.Right; x++)
+            {
+                gx[x - r.X] += gxMap[y * stride + x] / r.Height;
+                gy[y - r.Y] += gyMap[y * stride + x] / r.Width;
+            }
+        double bx = CameraMotion.Median(gx) + 1e-3, by = CameraMotion.Median(gy) + 1e-3;
+        var xs = Enumerable.Range(0, r.Width).OrderByDescending(i => gx[i]).Take(8).Where(i => i > 0.15 * r.Width && i < 0.85 * r.Width).ToList();
+        var ys = Enumerable.Range(0, r.Height).OrderByDescending(i => gy[i]).Take(8).Where(i => i > 0.15 * r.Height && i < 0.85 * r.Height).ToList();
+        (double F, Rect Ins, Rect Rest)? best = null;
+        foreach (int xi in xs)
+            foreach (int yi in ys)
+                foreach (bool top in new[] { true, false })
+                    foreach (bool right in new[] { true, false })
+                    {
+                        var col = top ? Column(gxMap, stride, r.X + xi, r.Y, r.Y + yi) : Column(gxMap, stride, r.X + xi, r.Y + yi, r.Bottom);
+                        var row = right ? Row(gyMap, stride, r.Y + yi, r.X + xi, r.Right) : Row(gyMap, stride, r.Y + yi, r.X, r.X + xi);
+                        if (col.Length < 20 || row.Length < 20) continue;
+                        double f = Math.Min(col.Count(v => v > 2.0 * bx) / (double)col.Length, row.Count(v => v > 2.0 * by) / (double)row.Length);
+                        if (f < 0.88 || (best != null && f <= best.Value.F)) continue;
+                        var ins = new Rect(right ? r.X + xi + 1 : r.X, top ? r.Y : r.Y + yi + 1, right ? r.Width - xi - 1 : xi, top ? yi : r.Height - yi - 1);
+                        var rest = new Rect(right ? r.X : r.X + xi + 1, r.Y, right ? xi : r.Width - xi - 1, r.Height);
+                        best = (f, ins, rest);
+                    }
+        return best is { } b ? [b.Ins, b.Rest] : null;
     }
 
     private static Rect TrimDark(Rect r, byte[] mx, int stride)
