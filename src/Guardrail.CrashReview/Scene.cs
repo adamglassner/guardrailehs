@@ -146,7 +146,7 @@ public static class Scene
         double bx = CameraMotion.Median(gx) + 1e-3, by = CameraMotion.Median(gy) + 1e-3;
         var xs = Enumerable.Range(0, r.Width).OrderByDescending(i => gx[i]).Take(8).Where(i => i > 0.15 * r.Width && i < 0.85 * r.Width).ToList();
         var ys = Enumerable.Range(0, r.Height).OrderByDescending(i => gy[i]).Take(8).Where(i => i > 0.15 * r.Height && i < 0.85 * r.Height).ToList();
-        (double F, Rect Ins, Rect Rest)? best = null;
+        (double F, Rect Ins, Rect Other)? best = null;
         foreach (int xi in xs)
             foreach (int yi in ys)
                 foreach (bool top in new[] { true, false })
@@ -161,7 +161,7 @@ public static class Scene
                         var rest = new Rect(right ? r.X : r.X + xi + 1, r.Y, right ? xi : r.Width - xi - 1, r.Height);
                         best = (f, ins, rest);
                     }
-        return best is { } b ? [b.Ins, b.Rest] : null;
+        return best is { } b ? [b.Ins, b.Other] : null;
     }
 
     private static Rect TrimDark(Rect r, byte[] mx, int stride)
