@@ -145,7 +145,7 @@ public static partial class Reasoner
                     if (bb.Tr.Kind is Kind.Person or Kind.TwoWheeler) s += 0.1;
                     cands.Add(new Candidate("ego_front", t, s, bb.Tr));
                 }
-                else if (jscore > 0.6 && confirm)
+                else if (jscore > 0.6 && confirm && t >= ts[0] + 2.0) // a jolt in the first seconds is usually the recording starting
                     cands.Add(new Candidate("ego_unseen", t, 0.5 * jscore));
             }
         }
@@ -204,6 +204,8 @@ public static partial class Reasoner
         var egoC = cands.Where(c => c.Kind != "pair").ToList();
         double top = egoC.Count > 0 ? egoC.Max(c => c.Score) : 0, overall = cands.Max(c => c.Score);
         var strong = top >= 0.8 * overall ? egoC.Where(c => c.Score >= 0.8 * top && c.Score >= 0.35).ToList() : new List<Candidate>();
+        // A seen impact beats an unseen jolt of similar strength.
+        if (strong.Any(c => c.Kind == "ego_front")) strong = strong.Where(c => c.Kind == "ego_front" || c.Score > 1.25 * strong.Where(f => f.Kind == "ego_front").Max(f => f.Score)).ToList();
         var hit = strong.Count > 0 ? strong.MinBy(c => c.T)! : cands.MaxBy(c => c.Score)!;
         double tImp = hit.T;
         report.ImpactSeconds = Math.Round(tImp, 2);
