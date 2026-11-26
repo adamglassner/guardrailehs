@@ -1,7 +1,7 @@
 <Window x:Class="Guardrail.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Guardrail EHS"
+        Title="GuardHawk"
         Icon="pack://application:,,,/Assets/guardrail.ico"
         Width="1480" Height="920" MinWidth="1100" MinHeight="660"
         WindowStartupLocation="CenterScreen"

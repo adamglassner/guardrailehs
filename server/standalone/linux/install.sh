@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Installs Guardrail Server as a systemd service:  sudo ./install.sh
+# Installs GuardHawk Server as a systemd service:  sudo ./install.sh
 # Program: /opt/guardrail-server   Data: /var/lib/guardrail-server   Port: 5080
 # Uninstall later with:  sudo ./uninstall.sh   (or /opt/guardrail-server/uninstall.sh)
 set -euo pipefail
@@ -19,7 +19,7 @@ systemctl enable --now guardrail-server
 
 ip=$(hostname -I 2>/dev/null | awk '{print $1}')
 echo
-echo "Guardrail Server is running."
+echo "GuardHawk Server is running."
 echo "  Web panel:  http://${ip:-localhost}:5080"
 echo "  Status:     systemctl status guardrail-server"
 echo "  Logs:       journalctl -u guardrail-server -f"

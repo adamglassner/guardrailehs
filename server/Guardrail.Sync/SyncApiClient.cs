@@ -119,7 +119,7 @@ public sealed class SyncApiClient : IDisposable
         ErrorResponse? err = null;
         try { err = await res.Content.ReadFromJsonAsync<ErrorResponse>(Json, ct); } catch { }
         throw new SyncException((int)res.StatusCode, err?.Error ?? "http_" + (int)res.StatusCode,
-            err?.Message ?? $"The server answered {(int)res.StatusCode} {res.ReasonPhrase}. Is that a Guardrail Server?");
+            err?.Message ?? $"The server answered {(int)res.StatusCode} {res.ReasonPhrase}. Is that a GuardHawk Server?");
     }
 
     public void Dispose() => _http.Dispose();

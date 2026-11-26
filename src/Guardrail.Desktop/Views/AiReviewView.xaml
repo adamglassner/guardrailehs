@@ -223,6 +223,6 @@
             </StackPanel>
         </Border>
         <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="2,10,0,0" TextWrapping="Wrap"
-                   Text="How it works: an object detector (YOLOX-S) finds every vehicle, rider and pedestrian; Guardrail tracks them, measures how the camera vehicle moved, finds the impact and applies rules of the road (following distance, lane changes, centre lines, signals). Results are estimates from the video alone." />
+                   Text="How it works: an object detector (YOLOX-S) finds every vehicle, rider and pedestrian; GuardHawk tracks them, measures how the camera vehicle moved, finds the impact and applies rules of the road (following distance, lane changes, centre lines, signals). Results are estimates from the video alone." />
     </StackPanel>
 </UserControl>

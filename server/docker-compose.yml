@@ -1,4 +1,4 @@
-# Guardrail Server, one container with SQLite:   docker compose up -d   then open http://<this machine>:5080
+# GuardHawk Server, one container with SQLite:   docker compose up -d   then open http://<this machine>:5080
 # Uninstall:  docker compose down      (add -v to delete the data volume too)
 services:
   guardrail:

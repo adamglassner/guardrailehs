@@ -20,7 +20,7 @@ public partial class AiReviewView : UserControl
         PreventCheck.IsChecked = App.Settings.CrashSetPreventability;
         PreventCheck.IsEnabled = App.Settings.CrashAnalyzeAccidents;
         if (!CrashAnalyzer.ModelAvailable)
-            PrivacyText.Text = "The AI model isn't included in this build, so videos can't be analyzed. Install Guardrail from the official release.";
+            PrivacyText.Text = "The AI model isn't included in this build, so videos can't be analyzed. Install GuardHawk from the official release.";
 
         Loaded += (_, _) =>
         {
@@ -109,7 +109,7 @@ public partial class AiReviewView : UserControl
         if (added > 0)
             Toaster.Show($"{added} video{(added == 1 ? "" : "s")} added. The AI is on it — you can keep working.");
         if (skipped > 0)
-            Toaster.Show($"{skipped} file{(skipped == 1 ? " isn't a video" : "s aren't videos")} Guardrail can read.");
+            Toaster.Show($"{skipped} file{(skipped == 1 ? " isn't a video" : "s aren't videos")} GuardHawk can read.");
     }
 
     // ----- Web links -----
@@ -135,7 +135,7 @@ public partial class AiReviewView : UserControl
         }
         foreach (var l in links) CrashReviewService.AddUrl(l);
         LinkBox.Clear();
-        Toaster.Show(links.Count == 1 ? "Link added. Guardrail downloads the video, then analyzes it." : $"{links.Count} links added.");
+        Toaster.Show(links.Count == 1 ? "Link added. GuardHawk downloads the video, then analyzes it." : $"{links.Count} links added.");
     }
 
     private void DropZone_DragOver(object sender, DragEventArgs e)

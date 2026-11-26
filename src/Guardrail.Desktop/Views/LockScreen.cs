@@ -42,7 +42,7 @@ public sealed class LockPanel : UserControl
         stack.Children.Add(logo);
         var title = new TextBlock
         {
-            Text = "Guardrail is locked", FontSize = 24, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 14, 0, 0),
+            Text = "GuardHawk is locked", FontSize = 24, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 14, 0, 0),
             FontFamily = (FontFamily)Application.Current.FindResource("DisplayFont"),
         };
         stack.Children.Add(title);
@@ -96,7 +96,7 @@ public sealed class LockPanel : UserControl
         _recovery.Visibility = recovery ? Visibility.Visible : Visibility.Collapsed;
         _prompt.Text = recovery
             ? "Enter the recovery key you saved when you turned on protection (like ABCDE-FGHJK-…)."
-            : DataLock.IsPin ? "Enter your PIN to open Guardrail." : "Enter your password to open Guardrail.";
+            : DataLock.IsPin ? "Enter your PIN to open GuardHawk." : "Enter your password to open GuardHawk.";
         _switch.Content = recovery ? (DataLock.IsPin ? "Use my PIN instead" : "Use my password instead") : "Forgot it? Use your recovery key";
         _error.Visibility = Visibility.Collapsed;
         Dispatcher.BeginInvoke(() => { if (recovery) _recovery.Focus(); else _secret.Focus(); }, DispatcherPriority.Input);
@@ -145,7 +145,7 @@ public sealed class UnlockWindow : Window
 {
     public UnlockWindow()
     {
-        Title = "Guardrail EHS";
+        Title = "GuardHawk";
         Icon = new BitmapImage(new Uri("pack://application:,,,/Assets/guardrail.ico"));
         Width = 560;
         Height = 620;
@@ -163,7 +163,7 @@ public sealed class UnlockWindow : Window
             if (recovered)
             {
                 MessageDialog.Inform("Choose a new PIN or password",
-                    "You opened Guardrail with your recovery key. Next, choose a new PIN or password. Your recovery key keeps working.");
+                    "You opened GuardHawk with your recovery key. Next, choose a new PIN or password. Your recovery key keeps working.");
                 new SetLockDialog(change: true) { Owner = this }.ShowDialog();
             }
             DialogResult = true;

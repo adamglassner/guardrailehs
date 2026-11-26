@@ -146,7 +146,7 @@ public static class DocumentReader
     public static async Task<(string Title, string Text)> FetchAsync(string url, CancellationToken cancel = default)
     {
         using var http = new HttpClient(new HttpClientHandler { AutomaticDecompression = DecompressionMethods.All }) { Timeout = TimeSpan.FromSeconds(30) };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) Guardrail-EHS");
+        http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) GuardHawk-EHS");
         using var resp = await http.GetAsync(url, cancel);
         resp.EnsureSuccessStatusCode();
         string type = resp.Content.Headers.ContentType?.MediaType ?? "";

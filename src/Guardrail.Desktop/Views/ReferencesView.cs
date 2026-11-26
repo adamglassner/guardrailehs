@@ -852,7 +852,7 @@ public sealed class ReferencesView : UserControl
                 Formula("LTIR", "Lost-time (days-away) cases × 200,000 ÷ hours worked"),
                 Formula("Severity", "Lost workdays × 200,000 ÷ hours worked"),
                 Formula("Accident frequency", "Vehicle accidents × 1,000,000 ÷ miles driven"),
-                Para("200,000 hours = 100 full-time employees working 40 hours a week for 50 weeks. Guardrail calculates these for you on the Dashboard from Monthly Data.")))));
+                Para("200,000 hours = 100 full-time employees working 40 hours a week for 50 weeks. GuardHawk calculates these for you on the Dashboard from Monthly Data.")))));
         page.Children.Add(SourceNote("Summaries of 29 CFR 1904. Electronic submission rules depend on establishment size and industry — check osha.gov/injuryreporting."));
         return page;
     }

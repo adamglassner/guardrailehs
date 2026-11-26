@@ -1,5 +1,5 @@
 [Unit]
-Description=Guardrail Server (sync server for Guardrail EHS)
+Description=GuardHawk Server (sync server for GuardHawk)
 After=network-online.target
 Wants=network-online.target
 

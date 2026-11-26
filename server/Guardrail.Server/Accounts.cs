@@ -143,7 +143,7 @@ public sealed class Accounts(Db db, SettingsStore settings, ActivityLog activity
             activity.Add("signin", username, $"Failed sign-in for {username} from {ip}", found.Org);
             throw new ApiProblem(401, "bad_login", "Wrong username or password.");
         }
-        if (found.Disabled) throw new ApiProblem(403, "disabled", "This account is turned off. Ask your Guardrail Server admin.");
+        if (found.Disabled) throw new ApiProblem(403, "disabled", "This account is turned off. Ask your GuardHawk Server admin.");
         var session = NewSession(c, null, found.Id, r.DeviceName, r.Platform, r.AppVersion, ip);
         activity.Add("signin", username, $"{username} signed in on {Clip(r.DeviceName, "a device")}", found.Org);
         return Session(found.Id, session.Token, session.Id);

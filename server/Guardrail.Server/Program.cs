@@ -130,7 +130,7 @@ app.Use(async (http, next) =>
     if (path.StartsWithSegments("/api/v1") && !path.StartsWithSegments("/api/v1/info"))
     {
         if (!http.RequestServices.GetRequiredService<ServiceState>().Running)
-            throw new ApiProblem(503, "paused", "Syncing is paused on this Guardrail Server right now. Your data is safe on this device and syncs when it's started again.");
+            throw new ApiProblem(503, "paused", "Syncing is paused on this GuardHawk Server right now. Your data is safe on this device and syncs when it's started again.");
         string? auth = http.Request.Headers.Authorization;
         if (auth != null && auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
@@ -225,7 +225,7 @@ if (!string.IsNullOrEmpty(config.BootstrapAdmin) && !string.IsNullOrEmpty(config
 var serviceState = app.Services.GetRequiredService<ServiceState>();
 app.Lifetime.ApplicationStarted.Register(() =>
 {
-    log.LogInformation("Guardrail Server {Version} ({How}, node {Node}) — {Db} database, files in {Storage}",
+    log.LogInformation("GuardHawk Server {Version} ({How}, node {Node}) — {Db} database, files in {Storage}",
         ServiceState.Version, config.HowItRuns, serviceState.NodeId, config.DatabaseLabel, app.Services.GetRequiredService<BlobStore>().Describe);
     log.LogInformation("Web panel and sync: http://localhost:{Port}/{Https}", config.Port, config.HttpsPort is int p ? $" and https on port {p}" : "");
     if (admins.NeedsSetup()) log.LogWarning("No admin yet: open the web panel to create one");

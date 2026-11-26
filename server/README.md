@@ -1,8 +1,8 @@
-# Guardrail Server
+# GuardHawk Server
 
-The optional, self-hosted server for Guardrail EHS. It puts a whole team on the same incidents, actions,
+The optional, self-hosted server for GuardHawk. It puts a whole team on the same incidents, actions,
 inspections, fleet records and documents, gives each person an account and a role, and comes with a web panel to
-run it. Guardrail keeps working without it: everything stays on the PC until you connect, and each PC keeps a full
+run it. GuardHawk keeps working without it: everything stays on the PC until you connect, and each PC keeps a full
 copy afterwards, so people can keep working when the server can't be reached.
 
 - **Start small.** One program with a SQLite database on a Windows PC, a Linux box, a NAS or a Raspberry Pi.
@@ -21,16 +21,16 @@ All of them listen on port **5080**.
 
 ### Windows
 
-Download **GuardrailServer-&lt;version&gt;-Setup.exe** from the
+Download **GuardHawkServer-&lt;version&gt;-Setup.exe** from the
 [latest server release](https://github.com/adamglassner/guardrailehs/releases?q=server-v) (or from **Servers** in
 the Bytehawk Studio Launcher) and run it. It installs a Windows service that starts with Windows, can open the
 firewall for your network, and opens the web panel. Data: `C:\ProgramData\Guardrail Server`.
 
-**Uninstall:** Settings → Apps → Guardrail Server → Uninstall. It asks whether to delete the data too.
+**Uninstall:** Settings → Apps → GuardHawk Server → Uninstall. It asks whether to delete the data too.
 
 ### Linux
 
-Download **GuardrailServer-&lt;version&gt;-linux-x64.tar.gz** (or `linux-arm64` for a Raspberry Pi 4/5), unpack it and
+Download **GuardHawkServer-&lt;version&gt;-linux-x64.tar.gz** (or `linux-arm64` for a Raspberry Pi 4/5), unpack it and
 run `sudo ./install.sh`. That installs `/opt/guardrail-server` as a systemd service with its data in
 `/var/lib/guardrail-server`. To try it without installing, run `./start-here.sh`.
 
@@ -50,18 +50,18 @@ runs as a non-root user and has a health check.
 
 ### Windows without installing
 
-Unzip **GuardrailServer-&lt;version&gt;-win-x64.zip** and double-click `Start-Guardrail-Server.cmd`. Data goes in
+Unzip **GuardHawkServer-&lt;version&gt;-win-x64.zip** and double-click `Start-GuardHawk-Server.cmd`. Data goes in
 the `data` folder next to it. `Install-Service.ps1` turns it into a Windows service later and
 `Uninstall-Service.ps1` removes it (`-Purge` deletes the data).
 
 ## First run
 
 Open `http://<server>:5080`. The first visit asks for your organization's name and creates the **admin** account
-for the web panel (separate from the accounts people use in Guardrail). Then:
+for the web panel (separate from the accounts people use in GuardHawk). Then:
 
 1. **People → Add person** (they get a temporary password), or **Invites** to share a code, or turn on
    **Open sign-up** in Settings.
-2. In Guardrail EHS: **Settings → Guardrail Server → Connect**, enter the server's address and sign in or join
+2. In GuardHawk: **Settings → GuardHawk Server → Connect**, enter the server's address and sign in or join
    with the invite code. The first sync uploads what's on that PC; everyone else's PCs download it.
 
 **Pause sync** stops syncing on every server (devices keep working and catch up later). **Restart** restarts the

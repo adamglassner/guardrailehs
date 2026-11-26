@@ -519,7 +519,7 @@ public sealed class CrashReportDialog : DialogFrame
 
         if (_review.Documents.Count == 0)
         {
-            stack.Children.Add(Muted("Attach the police report, a news story or a statement. Guardrail reads it on this PC — citations, contributing factors, " +
+            stack.Children.Add(Muted("Attach the police report, a news story or a statement. GuardHawk reads it on this PC — citations, contributing factors, " +
                                      "who hit whom, where and when — and weighs it with what the video shows. Officers' findings weigh the most."));
             return stack;
         }

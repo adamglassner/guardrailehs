@@ -38,7 +38,7 @@ public static class Backup
         using (var zip = ZipFile.OpenRead(zipPath))
         {
             if (!zip.Entries.Any(e => e.FullName.EndsWith(".json", StringComparison.OrdinalIgnoreCase) && !e.FullName.Contains('/')))
-                throw new InvalidDataException("That file doesn't look like a Guardrail backup.");
+                throw new InvalidDataException("That file doesn't look like a GuardHawk backup.");
             if (zip.Entries.Any(e => e.FullName.Contains("..")))
                 throw new InvalidDataException("That backup contains unsafe paths.");
         }

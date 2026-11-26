@@ -91,9 +91,9 @@ public sealed class SetLockDialog : FormFrame
     public string? RecoveryKey { get; private set; }
 
     public SetLockDialog(bool change)
-        : base(change ? "Change PIN or password" : "Protect Guardrail",
+        : base(change ? "Change PIN or password" : "Protect GuardHawk",
                change ? "Choose a new PIN or password. Your recovery key keeps working."
-                      : "Your records and attached documents will be encrypted on this PC. You'll need the PIN or password to open Guardrail.",
+                      : "Your records and attached documents will be encrypted on this PC. You'll need the PIN or password to open GuardHawk.",
                "", change ? "Change" : "Turn on protection")
     {
         _change = change;
@@ -157,9 +157,9 @@ public sealed class RecoveryKeyDialog : FormFrame
         save.Margin = new Thickness(0, 0, 8, 0);
         save.Click += (_, _) =>
         {
-            var dlg = new Microsoft.Win32.SaveFileDialog { FileName = "Guardrail recovery key.txt", Filter = "Text file (*.txt)|*.txt" };
+            var dlg = new Microsoft.Win32.SaveFileDialog { FileName = "GuardHawk recovery key.txt", Filter = "Text file (*.txt)|*.txt" };
             if (dlg.ShowDialog(this) == true)
-                File.WriteAllText(dlg.FileName, $"Guardrail EHS recovery key\r\n\r\n{key}\r\n\r\nKeep this somewhere safe and away from this computer (printed, or in a password manager).\r\n");
+                File.WriteAllText(dlg.FileName, $"GuardHawk recovery key\r\n\r\n{key}\r\n\r\nKeep this somewhere safe and away from this computer (printed, or in a password manager).\r\n");
         };
         var print = MakeButton("Print", "GhostButton", "");
         print.Click += (_, _) =>
@@ -167,12 +167,12 @@ public sealed class RecoveryKeyDialog : FormFrame
             var pd = new PrintDialog();
             if (pd.ShowDialog() != true) return;
             var panel = new StackPanel { Margin = new Thickness(60) };
-            panel.Children.Add(new TextBlock { Text = "Guardrail EHS recovery key", FontSize = 22, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 16) });
+            panel.Children.Add(new TextBlock { Text = "GuardHawk recovery key", FontSize = 22, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 16) });
             panel.Children.Add(new TextBlock { Text = key, FontFamily = new System.Windows.Media.FontFamily("Consolas"), FontSize = 24 });
             panel.Children.Add(new TextBlock { Text = $"Created {DateTime.Now:MMMM d, yyyy}. Keep this page somewhere safe.", Margin = new Thickness(0, 16, 0, 0) });
             panel.Measure(new Size(pd.PrintableAreaWidth, pd.PrintableAreaHeight));
             panel.Arrange(new Rect(new Size(pd.PrintableAreaWidth, pd.PrintableAreaHeight)));
-            pd.PrintVisual(panel, "Guardrail recovery key");
+            pd.PrintVisual(panel, "GuardHawk recovery key");
         };
         buttons.Children.Add(copy);
         buttons.Children.Add(save);

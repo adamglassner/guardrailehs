@@ -149,7 +149,7 @@ public class ServerTests
         Assert.Equal("ready", await http.GetStringAsync("/readyz"));
         string metrics = await http.GetStringAsync("/metrics");
         Assert.Contains("guardrail_requests_total", metrics);
-        Assert.Contains("<title>Guardrail Server</title>", await http.GetStringAsync("/"));
+        Assert.Contains("<title>GuardHawk Server</title>", await http.GetStringAsync("/"));
     }
 
     [Fact]

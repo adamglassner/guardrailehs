@@ -1,4 +1,4 @@
-# Guardrail Server — docker build -f server/Dockerfile -t guardrail-server .   (from the repository root)
+# GuardHawk Server — docker build -f server/Dockerfile -t guardrail-server .   (from the repository root)
 # The build runs on the machine's own platform; the output is portable .NET, so one build serves x64 and ARM64 images.
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
@@ -11,8 +11,8 @@ COPY src/Guardrail.Desktop/Assets/guardrail.ico src/Guardrail.Desktop/Assets/
 RUN dotnet publish server/Guardrail.Server/Guardrail.Server.csproj -c Release -o /app --no-restore /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
-LABEL org.opencontainers.image.title="Guardrail Server" \
-      org.opencontainers.image.description="Self-hosted sync server for Guardrail EHS, with a web panel. One container with SQLite, or many behind a load balancer with PostgreSQL and S3 storage." \
+LABEL org.opencontainers.image.title="GuardHawk Server" \
+      org.opencontainers.image.description="Self-hosted sync server for GuardHawk, with a web panel. One container with SQLite, or many behind a load balancer with PostgreSQL and S3 storage." \
       org.opencontainers.image.vendor="Bytehawk Studio" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.source="https://github.com/adamglassner/guardrailehs"

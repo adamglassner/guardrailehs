@@ -431,7 +431,7 @@ public static class SelfTest
 
     public static async Task<int> RunAsync(MainWindow window)
     {
-        Report.AppendLine($"Guardrail EHS self-test {DateTime.Now:u}");
+        Report.AppendLine($"GuardHawk self-test {DateTime.Now:u}");
 
         foreach (var theme in new[] { AppTheme.Light, AppTheme.Dark })
         {

@@ -45,7 +45,7 @@ public sealed class LocationsView : UserControl
         titles.Children.Add(new TextBlock
         {
             Style = Res<Style>("Muted"), Margin = new Thickness(0, 4, 0, 0), TextWrapping = TextWrapping.Wrap,
-            Text = "Your plants, offices, terminals and job sites, grouped by region and district. Every Location field in Guardrail offers this list, and the Dashboard can filter by it.",
+            Text = "Your plants, offices, terminals and job sites, grouped by region and district. Every Location field in GuardHawk offers this list, and the Dashboard can filter by it.",
         });
         header.Children.Add(titles);
         page.Children.Add(header);

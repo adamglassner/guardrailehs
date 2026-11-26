@@ -1,4 +1,4 @@
-; Guardrail Server for Windows: installs the server as a Windows service (starts with Windows),
+; GuardHawk Server for Windows: installs the server as a Windows service (starts with Windows),
 ; opens port 5080 on private networks and opens the web panel. Uninstall from Settings → Apps (asks whether to
 ; delete the data too).
 ;   iscc /DMyAppVersion=0.1.0 /DSourceDir=..\..\dist-server\win-x64 server\installer\GuardrailServer.iss
@@ -9,7 +9,7 @@
 #ifndef SourceDir
   #define SourceDir "..\..\dist-server\win-x64"
 #endif
-#define MyAppName "Guardrail Server"
+#define MyAppName "GuardHawk Server"
 #define MyExe "GuardrailServer.exe"
 #define Service "GuardrailServer"
 
@@ -20,13 +20,13 @@ AppVersion={#MyAppVersion}
 AppPublisher=Bytehawk Studio
 AppPublisherURL=https://github.com/adamglassner/guardrailehs
 DefaultDirName={autopf}\Guardrail Server
-DefaultGroupName=Guardrail Server
+DefaultGroupName=GuardHawk Server
 DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\..\dist-server
-OutputBaseFilename=GuardrailServer-{#MyAppVersion}-Setup
+OutputBaseFilename=GuardHawkServer-{#MyAppVersion}-Setup
 SetupIconFile=..\..\src\Guardrail.Desktop\Assets\guardrail.ico
 UninstallDisplayIcon={app}\{#MyExe}
 UninstallDisplayName={#MyAppName}
@@ -48,35 +48,41 @@ Name: "{commonappdata}\Guardrail Server"
 Source: "{#SourceDir}\{#MyExe}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\wwwroot\*"; DestDir: "{app}\wwwroot"; Flags: ignoreversion recursesubdirs createallsubdirs
 
+[InstallDelete]
+; Renamed from Guardrail Server: remove the old shortcuts when updating.
+Type: filesandordirs; Name: "{autoprograms}\Guardrail Server"
+Type: files; Name: "{autodesktop}\Guardrail Server panel.url"
+
 [INI]
-Filename: "{group}\Guardrail Server panel.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://localhost:5080"
-Filename: "{autodesktop}\Guardrail Server panel.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://localhost:5080"
+Filename: "{group}\GuardHawk Server panel.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://localhost:5080"
+Filename: "{autodesktop}\GuardHawk Server panel.url"; Section: "InternetShortcut"; Key: "URL"; String: "http://localhost:5080"
 
 [UninstallDelete]
-Type: files; Name: "{group}\Guardrail Server panel.url"
-Type: files; Name: "{autodesktop}\Guardrail Server panel.url"
+Type: files; Name: "{group}\GuardHawk Server panel.url"
+Type: files; Name: "{autodesktop}\GuardHawk Server panel.url"
 
 [Run]
 Filename: "{sys}\sc.exe"; Parameters: "create {#Service} binPath= ""\""{app}\{#MyExe}\"""" start= delayed-auto DisplayName= ""{#MyAppName}"""; Flags: runhidden; Check: not ServiceExists
-Filename: "{sys}\sc.exe"; Parameters: "description {#Service} ""Sync server for Guardrail EHS. Web panel: http://localhost:5080"""; Flags: runhidden
+Filename: "{sys}\sc.exe"; Parameters: "description {#Service} ""Sync server for GuardHawk. Web panel: http://localhost:5080"""; Flags: runhidden
+Filename: "{sys}\sc.exe"; Parameters: "config {#Service} DisplayName= ""{#MyAppName}"""; Flags: runhidden
 ; The service's environment: where to keep data (set after the service exists)
 Filename: "{sys}\reg.exe"; Parameters: "add ""HKLM\SYSTEM\CurrentControlSet\Services\{#Service}"" /v Environment /t REG_MULTI_SZ /d ""GR_DATA={commonappdata}\Guardrail Server"" /f"; Flags: runhidden
 ; Restart after a crash or a "Restart" from the web panel (exit code 75); "Shut down" in the panel stays stopped
 Filename: "{sys}\sc.exe"; Parameters: "failure {#Service} reset= 86400 actions= restart/3000/restart/3000/restart/10000"; Flags: runhidden
 Filename: "{sys}\sc.exe"; Parameters: "failureflag {#Service} 1"; Flags: runhidden
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Guardrail Server"""; Flags: runhidden; Tasks: firewall
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""Guardrail Server"" dir=in action=allow protocol=TCP localport=5080 profile=private,domain"; Flags: runhidden; Tasks: firewall
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""GuardHawk Server"""; Flags: runhidden; Tasks: firewall
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""GuardHawk Server"" dir=in action=allow protocol=TCP localport=5080 profile=private,domain"; Flags: runhidden; Tasks: firewall
 Filename: "{sys}\sc.exe"; Parameters: "start {#Service}"; Flags: runhidden
-Filename: "http://localhost:5080"; Description: "Open the Guardrail Server web panel"; Flags: postinstall shellexec nowait skipifsilent
+Filename: "http://localhost:5080"; Description: "Open the GuardHawk Server web panel"; Flags: postinstall shellexec nowait skipifsilent
 
 [UninstallRun]
 Filename: "{sys}\sc.exe"; Parameters: "stop {#Service}"; Flags: runhidden; RunOnceId: "StopService"
 Filename: "{sys}\timeout.exe"; Parameters: "/t 3 /nobreak"; Flags: runhidden; RunOnceId: "Wait"
 Filename: "{sys}\sc.exe"; Parameters: "delete {#Service}"; Flags: runhidden; RunOnceId: "DeleteService"
-Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""Guardrail Server"""; Flags: runhidden; RunOnceId: "Firewall"
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""GuardHawk Server"""; Flags: runhidden; RunOnceId: "Firewall"
 
 [Messages]
-FinishedLabel=Guardrail Server is installed and running as a Windows service. It starts with Windows, even before anyone signs in.%n%nYour data is kept in C:\ProgramData\Guardrail Server.
+FinishedLabel=GuardHawk Server is installed and running as a Windows service. It starts with Windows, even before anyone signs in.%n%nYour data is kept in C:\ProgramData\Guardrail Server.
 
 [Code]
 function ServiceExists: Boolean;
@@ -104,7 +110,7 @@ begin
   begin
     Data := ExpandConstant('{commonappdata}\Guardrail Server');
     if DirExists(Data) and (not UninstallSilent) then
-      if MsgBox('Also delete Guardrail Server''s data (accounts, synced records and files) in ' + Data + '?' + #13#10#13#10 +
+      if MsgBox('Also delete GuardHawk Server''s data (accounts, synced records and files) in ' + Data + '?' + #13#10#13#10 +
                 'Choose No to keep it, for example to reinstall later.', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
         DelTree(Data, True, True, True);
   end;

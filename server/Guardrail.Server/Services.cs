@@ -49,7 +49,7 @@ public sealed class SettingsStore(Db db)
     private readonly ConcurrentDictionary<string, (string? Value, long At)> _cache = new();
     private const long CacheMs = 5000;
 
-    public string ServerName { get => Get("server_name") ?? "Guardrail Server"; set => Set("server_name", value); }
+    public string ServerName { get => Get("server_name") ?? "GuardHawk Server"; set => Set("server_name", value); }
     public bool OpenSignup { get => Get("open_signup") == "1"; set => Set("open_signup", value ? "1" : "0"); }
     /// <summary>Role for people who sign up without an invite.</summary>
     public string SignupRole { get => Get("signup_role") is { } r && Sync.Protocol.Roles.IsValid(r) ? r : Sync.Protocol.Roles.Member; set => Set("signup_role", value); }
