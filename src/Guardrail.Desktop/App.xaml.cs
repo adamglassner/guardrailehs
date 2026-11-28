@@ -44,7 +44,7 @@ public partial class App : Application
             {
                 // If the themed dialog itself can't show (e.g. during startup), fall back to Windows' message box.
                 MessageBox.Show("Something went wrong, but your saved records are safe.\n\n" + args.Exception.Message,
-                    "Guardrail EHS", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    "GuardHawk", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         };
 

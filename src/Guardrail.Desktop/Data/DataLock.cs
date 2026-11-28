@@ -274,7 +274,7 @@ public static class DataLock
     }
 }
 
-public sealed class LockedException() : InvalidOperationException("Guardrail is locked.");
+public sealed class LockedException() : InvalidOperationException("GuardHawk is locked.");
 
 /// <summary>Opens protected documents: decrypts a temporary copy that's deleted when Guardrail closes.</summary>
 public static class FileVault

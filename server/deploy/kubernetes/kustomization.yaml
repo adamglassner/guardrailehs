@@ -1,4 +1,4 @@
-# Guardrail Server on Kubernetes:  kubectl apply -k deploy/kubernetes     Uninstall:  kubectl delete -k deploy/kubernetes
+# GuardHawk Server on Kubernetes:  kubectl apply -k deploy/kubernetes     Uninstall:  kubectl delete -k deploy/kubernetes
 # Bring your own PostgreSQL and S3-compatible storage (a managed database and bucket, or operators in the cluster),
 # then fill in secret.yaml and configmap.yaml. Starts 3 servers and scales to 20 with CPU load.
 apiVersion: kustomize.config.k8s.io/v1beta1

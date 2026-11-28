@@ -126,7 +126,7 @@ public static partial class Editors
 
         var dialog = new FormDialog(
             isNew ? "Record training" : $"Edit {t.Number}",
-            isNew ? "Log a completed course. Guardrail warns you 30 days before it expires." : $"Added {t.CreatedAt:MMM d, yyyy}",
+            isNew ? "Log a completed course. GuardHawk warns you 30 days before it expires." : $"Added {t.CreatedAt:MMM d, yyyy}",
             [
                 new FormField { Key = "employee", Label = "Employee", Required = true, Value = t.Employee },
                 new FormField { Key = "course", Label = "Course", Required = true, Value = t.Course, Hint = "For example: Forklift operator, First aid / CPR, HAZWOPER 8-hour refresher." },
@@ -287,7 +287,7 @@ public static partial class Editors
 
         var dialog = new FormDialog(
             isNew ? "Add document" : $"Edit {d.Number}",
-            isNew ? "A copy of the file is kept in Guardrail's data folder, so moving or deleting the original doesn't break it."
+            isNew ? "A copy of the file is kept in GuardHawk's data folder, so moving or deleting the original doesn't break it."
                   : $"Last updated {d.UpdatedAt:MMM d, yyyy}",
             [
                 new FormField { Key = "title", Label = "Title", Required = true, Value = d.Title, Hint = "For example: Hazard Communication Program, Lockout/Tagout Procedure." },
@@ -295,7 +295,7 @@ public static partial class Editors
                 new FormField { Key = "file", Label = isNew ? "File" : "File (choose a new one to replace it)", Kind = FieldKind.File, Required = true, Value = currentFile },
                 new FormField { Key = "version", Label = "Version", Value = d.DocVersion },
                 new FormField { Key = "owner", Label = "Owner", Value = d.Owner },
-                new FormField { Key = "review", Label = "Next review", Kind = FieldKind.Date, Value = d.ReviewDue, Hint = "Guardrail flags it 30 days before. Leave blank if it doesn't need regular review." },
+                new FormField { Key = "review", Label = "Next review", Kind = FieldKind.Date, Value = d.ReviewDue, Hint = "GuardHawk flags it 30 days before. Leave blank if it doesn't need regular review." },
                 new FormField { Key = "notes", Label = "Notes", Kind = FieldKind.MultiLine, Value = d.Notes },
             ],
             allowDelete: !isNew,

@@ -1,4 +1,4 @@
-// Guardrail Server web panel. Plain JavaScript, no build step.
+// GuardHawk Server web panel. Plain JavaScript, no build step.
 import { ICONS } from './icons.js';
 
 const $app = document.getElementById('app');
@@ -178,15 +178,15 @@ function authPage(setup) {
   clearInterval(state.timer);
   $app.innerHTML = `<div class="auth"><form class="card" autocomplete="on">
     <img class="logo" src="logo.png" alt="">
-    <h1>${setup ? 'Set up Guardrail Server' : 'Guardrail Server'}</h1>
-    <p class="lead">${setup ? 'Create the admin account for this web panel. It\'s separate from the accounts people use in the Guardrail app.' : 'Sign in to manage your Guardrail Server.'}</p>
+    <h1>${setup ? 'Set up GuardHawk Server' : 'GuardHawk Server'}</h1>
+    <p class="lead">${setup ? 'Create the admin account for this web panel. It\'s separate from the accounts people use in the GuardHawk app.' : 'Sign in to manage your GuardHawk Server.'}</p>
     ${setup ? '<div class="field"><label for="o">Organization name</label><input class="input" id="o" name="org" autocomplete="organization" placeholder="e.g. Acme Logistics"><span class="hint">Shown to people when they connect. You can change it later.</span></div>' : ''}
     <div class="field"><label for="u">Admin name</label><input class="input" id="u" name="username" autocomplete="username" required minlength="3" value="${setup ? 'admin' : ''}"></div>
     <div class="field"><label for="p">Password</label><input class="input" id="p" name="password" type="password" autocomplete="${setup ? 'new-password' : 'current-password'}" required ${setup ? 'minlength="10"' : ''}>
       ${setup ? '<span class="hint">At least 10 characters.</span>' : ''}</div>
     <div class="error-text" hidden></div>
     <button class="btn primary" style="width:100%;height:46px">${setup ? 'Create admin and continue' : 'Sign in'}</button>
-    <p class="muted small" style="text-align:center;margin:18px 0 0">Guardrail Server ${esc(state.version)} · Bytehawk Studio</p>
+    <p class="muted small" style="text-align:center;margin:18px 0 0">GuardHawk Server ${esc(state.version)} · Bytehawk Studio</p>
   </form></div>`;
   const form = $app.querySelector('form');
   form.querySelector(setup ? '#o' : '#u').focus();
@@ -219,7 +219,7 @@ function shell(content) {
   const running = o ? o.running : true;
   return `<div class="shell">
     <nav class="sidebar" aria-label="Main">
-      <div class="brand"><img src="logo.png" alt=""><div><b>Guardrail</b><span>Server</span></div></div>
+      <div class="brand"><img src="logo.png" alt=""><div><b>GuardHawk</b><span>Server</span></div></div>
       ${PAGES.map(([id, label, ic]) => `<button class="nav ${state.page === id ? 'active' : ''}" data-page="${id}" ${state.page === id ? 'aria-current="page"' : ''}>
         ${icon(state.page === id ? ic + '-fill' : ic)}<span>${label}</span>${id === 'users' && o ? `<span class="count">${o.users}</span>` : ''}${id === 'nodes' && o && o.nodesOnline > 1 ? `<span class="count">${o.nodesOnline}</span>` : ''}</button>`).join('')}
       <div class="spacer"></div>
@@ -283,12 +283,12 @@ async function overviewPage() {
   const address = location.origin;
   const cluster = o.nodesOnline > 1;
   paint(`
-    <div class="page-head"><div class="grow"><h1>${esc(o.serverName)}</h1><p>${esc(o.orgName)}${o.orgs > 1 ? ` and ${o.orgs - 1} more ${o.orgs === 2 ? 'organization' : 'organizations'}` : ''} · your Guardrail Server at a glance.</p></div></div>
+    <div class="page-head"><div class="grow"><h1>${esc(o.serverName)}</h1><p>${esc(o.orgName)}${o.orgs > 1 ? ` and ${o.orgs - 1} more ${o.orgs === 2 ? 'organization' : 'organizations'}` : ''} · your GuardHawk Server at a glance.</p></div></div>
     <div class="grid">
       <section class="card hero ${o.running ? '' : 'stopped'}">
         <div class="grow">
           <div class="big"><span class="pulse"></span>${o.running ? 'Syncing' : 'Syncing is paused'}</div>
-          <div class="sub">${o.running ? `Up ${uptime(o.uptimeSeconds)} · version ${esc(o.version)} · ${esc(o.runsAs)}${cluster ? ` · ${o.nodesOnline} servers` : ''}` : 'Guardrail keeps working on every device with the data it has, and catches up when you start syncing again.'}</div>
+          <div class="sub">${o.running ? `Up ${uptime(o.uptimeSeconds)} · version ${esc(o.version)} · ${esc(o.runsAs)}${cluster ? ` · ${o.nodesOnline} servers` : ''}` : 'GuardHawk keeps working on every device with the data it has, and catches up when you start syncing again.'}</div>
         </div>
         ${o.running
           ? `<button class="btn" data-act="stop">${icon('pause')}Pause sync</button>`
@@ -311,8 +311,8 @@ async function overviewPage() {
           ${cluster ? `<p class="muted small" style="margin:8px 0 0">${num(o.clusterRequestsPerMinute)} requests in the last minute across all ${o.nodesOnline} servers. <a href="#nodes" data-goto="nodes">See servers</a></p>` : ''}
         </section>
         <section class="card">
-          <div class="card-head"><h2>Connect Guardrail</h2></div>
-          <p class="muted small" style="margin:0 0 12px">In Guardrail EHS, open <b>Settings → Guardrail Server</b>, choose <b>Connect</b> and enter this address:</p>
+          <div class="card-head"><h2>Connect GuardHawk</h2></div>
+          <p class="muted small" style="margin:0 0 12px">In GuardHawk, open <b>Settings → GuardHawk Server</b>, choose <b>Connect</b> and enter this address:</p>
           <div class="copy-box"><code>${esc(address)}</code><button class="btn sm" data-copy="${esc(address)}">${icon('copy', 'sm')}Copy</button></div>
           <p class="muted small" style="margin:12px 0 0">${o.openSignup ? 'Anyone who can reach this server can create an account.' : 'New people need an <a href="#invites" data-goto="invites">invite code</a>, or <a href="#users" data-goto="users">add them yourself</a>.'}
             On other computers, use this machine's network address or name instead of “localhost”.</p>
@@ -342,7 +342,7 @@ async function overviewPage() {
     </div>`, () => {
     const act = (name) => $app.querySelector(`[data-act="${name}"]`);
     act('stop')?.addEventListener('click', async () => {
-      if (!await confirmBox({ title: 'Pause syncing?', message: 'Guardrail keeps working on every device with the data it has. Devices catch up when you start syncing again. The web panel stays on.', confirm: 'Pause sync', iconName: 'pause' })) return;
+      if (!await confirmBox({ title: 'Pause syncing?', message: 'GuardHawk keeps working on every device with the data it has. Devices catch up when you start syncing again. The web panel stays on.', confirm: 'Pause sync', iconName: 'pause' })) return;
       await api('/service/stop', { method: 'POST', body: {} }); toast('Syncing paused'); render();
     });
     act('start')?.addEventListener('click', async () => { await api('/service/start', { method: 'POST', body: {} }); toast('Syncing started'); render(); });
@@ -362,22 +362,22 @@ async function overviewPage() {
 
 async function shutdown(o) {
   const how = {
-    'Windows service': 'To start it again: open Services on this PC and start “Guardrail Server”, or restart the PC.',
+    'Windows service': 'To start it again: open Services on this PC and start “GuardHawk Server”, or restart the PC.',
     'systemd service': 'To start it again: sudo systemctl start guardrail-server',
     Docker: 'To start it again: docker start guardrail-server (or docker compose up -d).',
     Kubernetes: 'Kubernetes starts a new copy automatically. To stop it for good, scale the deployment to 0.',
-    Standalone: 'To start it again, run Guardrail Server the same way you started it.',
+    Standalone: 'To start it again, run GuardHawk Server the same way you started it.',
   }[o.runsAs] || '';
   const cluster = o.nodesOnline > 1;
   if (!await confirmBox({
-    title: cluster ? 'Shut down this server?' : 'Shut down Guardrail Server?',
-    message: `${cluster ? `Only this server (${o.nodeId}) stops. The other ${o.nodesOnline - 1} keep syncing.` : 'Syncing stops and this web panel goes offline. Guardrail keeps working on every device and catches up later.'} ${how}`,
+    title: cluster ? 'Shut down this server?' : 'Shut down GuardHawk Server?',
+    message: `${cluster ? `Only this server (${o.nodeId}) stops. The other ${o.nodesOnline - 1} keep syncing.` : 'Syncing stops and this web panel goes offline. GuardHawk keeps working on every device and catches up later.'} ${how}`,
     confirm: 'Shut down', danger: true, iconName: 'power',
   })) return;
   await api('/service/shutdown', { method: 'POST', body: {} });
   clearInterval(state.timer);
   $app.innerHTML = `<div class="auth"><div class="card" style="text-align:center"><div class="badge-icon" style="margin:0 auto 14px">${icon('power', 'lg')}</div>
-    <h1>Guardrail Server is shutting down</h1><p class="lead">${esc(how)}</p>
+    <h1>GuardHawk Server is shutting down</h1><p class="lead">${esc(how)}</p>
     <button class="btn" onclick="location.reload()">${icon('arrow-clockwise')}Reload this page</button></div></div>`;
 }
 
@@ -409,14 +409,14 @@ async function usersPage() {
   const q = (state.userQuery || '').toLowerCase();
   const shown = users.filter((u) => u.username.includes(q) || u.displayName.toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q));
   paint(`
-    <div class="page-head"><div class="grow"><h1>People</h1><p>Everyone who signs in to Guardrail with this server, their role and their devices.</p></div>
+    <div class="page-head"><div class="grow"><h1>People</h1><p>Everyone who signs in to GuardHawk with this server, their role and their devices.</p></div>
       <button class="btn" data-goto="invites">${icon('ticket-diagonal')}Invite</button>
       <button class="btn primary" data-add>${icon('add')}Add person</button></div>
     <section class="card">
       <div class="card-head"><div class="search" style="flex:1;max-width:340px">${icon('search')}<input class="input" id="q" placeholder="Search people" value="${esc(state.userQuery || '')}"></div>
         <span class="muted small">${users.length} ${users.length === 1 ? 'account' : 'accounts'}</span></div>
       ${users.length === 0
-        ? `<div class="empty"><div class="badge-icon">${icon('people', 'lg')}</div><b>No one yet</b><p>Add people yourself, or create an invite code. People join from Guardrail under Settings → Guardrail Server.</p></div>`
+        ? `<div class="empty"><div class="badge-icon">${icon('people', 'lg')}</div><b>No one yet</b><p>Add people yourself, or create an invite code. People join from GuardHawk under Settings → GuardHawk Server.</p></div>`
         : `<div class="table-wrap"><table><thead><tr><th>Person</th>${multi ? '<th>Organization</th>' : ''}<th>Role</th><th>Status</th><th>Devices</th><th>Records edited</th><th>Last seen</th></tr></thead><tbody>
           ${shown.map((u) => `<tr class="clickable" data-user="${u.id}" tabindex="0">
             <td><div class="user-cell">${avatar(u.displayName || u.username)}<div><b>${esc(u.displayName)}</b><div class="muted small">${esc(u.username)}${u.email && u.email !== u.username ? ' · ' + esc(u.email) : ''}</div></div></div></td>
@@ -463,7 +463,7 @@ function addPerson() {
           username: el.querySelector('#nu').value, displayName: el.querySelector('#nn').value, email: el.querySelector('#ne').value || null,
           role: el.querySelector('#nr').value, orgId: multi ? +el.querySelector('#no').value : null } });
         close();
-        await secretBox(`${r.user.displayName} can sign in`, `Give them this temporary password with the username “${r.user.username}”. They can change it in Guardrail under Settings → Guardrail Server.`, r.password);
+        await secretBox(`${r.user.displayName} can sign in`, `Give them this temporary password with the username “${r.user.username}”. They can change it in GuardHawk under Settings → GuardHawk Server.`, r.password);
         usersPage();
       } catch (ex) { toast(ex.message, true); }
     };
@@ -547,7 +547,7 @@ async function invitesPage(fresh) {
   const active = invites.filter((i) => i.usesLeft > 0 && (!i.expiresAt || new Date(i.expiresAt) > new Date()));
   const multi = state.orgs.length > 1;
   paint(`
-    <div class="page-head"><div class="grow"><h1>Invites</h1><p>Share a code so someone can create their own account. They enter it in Guardrail when joining the server.</p></div></div>
+    <div class="page-head"><div class="grow"><h1>Invites</h1><p>Share a code so someone can create their own account. They enter it in GuardHawk when joining the server.</p></div></div>
     <div class="grid cols-3">
       <section class="card">
         <div class="card-head"><h2>New invite</h2></div>
@@ -555,7 +555,7 @@ async function invitesPage(fresh) {
           <div class="field"><label for="ir">Role</label><select class="input" id="ir">${roleOptions('member')}</select></div>
           <div class="field"><label for="io">Organization</label><select class="input" id="io">
             ${state.orgs.map((o) => `<option value="${o.id}">${esc(o.name)}</option>`).join('')}<option value="new">New organization…</option></select>
-            <span class="hint">${multi ? '' : 'Hosting Guardrail for more than one company? Pick “New organization”: each one only sees its own data.'}</span></div>
+            <span class="hint">${multi ? '' : 'Hosting GuardHawk for more than one company? Pick “New organization”: each one only sees its own data.'}</span></div>
           <div class="field" id="newOrgRow" hidden><label for="ion">New organization name</label><input class="input" id="ion" placeholder="Company name" autocomplete="off"><span class="hint">Created when the first person uses the code. Give it the Admin role.</span></div>
           <div class="field"><label for="iu">For username <span class="muted">(optional)</span></label><input class="input" id="iu" placeholder="Anyone" autocomplete="off"></div>
           <div class="grid cols-2" style="gap:12px"><div class="field"><label for="in">Uses</label><input class="input" id="in" type="number" min="1" max="10000" value="1"></div>
@@ -640,10 +640,10 @@ async function dataPage() {
   }
   const multi = state.orgs.length > 1;
   paint(`
-    <div class="page-head"><div class="grow"><h1>Data</h1><p>What's been synced, by type. Read-only: records are added and changed in the Guardrail app.</p></div>
+    <div class="page-head"><div class="grow"><h1>Data</h1><p>What's been synced, by type. Read-only: records are added and changed in the GuardHawk app.</p></div>
       ${multi ? `<select class="input" id="org" style="width:auto">${state.orgs.map((o) => `<option value="${o.id}" ${o.id === state.dataOrg ? 'selected' : ''}>${esc(o.name)}</option>`).join('')}</select>` : ''}
       <a class="btn" href="/admin/api/data/export?org=${state.dataOrg}" download>${icon('arrow-download')}Export all</a></div>
-    ${collections.length === 0 ? `<section class="card"><div class="empty"><div class="badge-icon">${icon('table', 'lg')}</div><b>Nothing synced yet</b><p>Records show up here once someone connects Guardrail to this server.</p></div></section>` : `
+    ${collections.length === 0 ? `<section class="card"><div class="empty"><div class="badge-icon">${icon('table', 'lg')}</div><b>Nothing synced yet</b><p>Records show up here once someone connects GuardHawk to this server.</p></div></section>` : `
     <div class="chips" style="margin-bottom:16px">${collections.map((c) => `<button class="chip ${c.collection === state.dataCollection ? 'on' : ''}" data-col="${esc(c.collection)}">${esc(collName(c.collection))}<span class="n">${num(c.records)}</span></button>`).join('')}</div>
     <section class="card">
       <div class="card-head"><h2>${esc(collName(state.dataCollection))}</h2>
@@ -686,7 +686,7 @@ async function nodesPage() {
   try { [nodes, o] = await Promise.all([api('/nodes'), api('/overview')]); state.overview = o; } catch { return; }
   const online = nodes.filter((n) => n.online);
   paint(`
-    <div class="page-head"><div class="grow"><h1>Servers</h1><p>Every copy of Guardrail Server sharing this database. Add more behind a load balancer to handle more people.</p></div></div>
+    <div class="page-head"><div class="grow"><h1>Servers</h1><p>Every copy of GuardHawk Server sharing this database. Add more behind a load balancer to handle more people.</p></div></div>
     <div class="grid cols-4" style="margin-bottom:16px">
       ${stat('server-multiple', 'Online', num(online.length), `${nodes.length - online.length} offline`)}
       ${stat('data-bar', 'Requests, last minute', num(online.reduce((a, n) => a + n.requestsLastMinute, 0)), 'All servers together')}
@@ -718,7 +718,7 @@ async function nodesPage() {
 // ----- Settings -----
 
 const UNINSTALL = {
-  'Windows service': `<p>Open <b>Settings → Apps → Installed apps</b> on this PC, find <b>Guardrail Server</b> and choose <b>Uninstall</b> (or use the Bytehawk Studio Launcher). If you used the zip, run <span class="mono">Uninstall-Service.ps1</span> from its folder.</p><p class="muted small">Your data stays in C:\\ProgramData\\Guardrail Server unless you delete that folder.</p>`,
+  'Windows service': `<p>Open <b>Settings → Apps → Installed apps</b> on this PC, find <b>GuardHawk Server</b> and choose <b>Uninstall</b> (or use the Bytehawk Studio Launcher). If you used the zip, run <span class="mono">Uninstall-Service.ps1</span> from its folder.</p><p class="muted small">Your data stays in C:\\ProgramData\\Guardrail Server unless you delete that folder.</p>`,
   'systemd service': `<p>In the folder you installed from, run:</p><div class="copy-box"><code>sudo ./uninstall.sh</code></div><p class="muted small">Add <span class="mono">--purge</span> to delete the data in /var/lib/guardrail-server too.</p>`,
   Docker: `<p>Stop and remove the container:</p><div class="copy-box"><code>docker compose down</code></div><p class="muted small">Add <span class="mono">-v</span> to delete the data volume too, or <span class="mono">docker rm -f guardrail-server</span> if you used docker run.</p>`,
   Kubernetes: `<p>Delete the resources you applied:</p><div class="copy-box"><code>kubectl delete -k deploy/kubernetes</code></div><p class="muted small">The database and storage you provided aren't touched.</p>`,
@@ -734,7 +734,7 @@ async function settingsPage() {
     <div class="grid cols-2">
       <section class="card"><div class="card-head"><h2>Server</h2></div>
         <form id="sf">
-          <div class="field"><label for="sn">Server name</label><input class="input" id="sn" maxlength="60" value="${esc(s.serverName)}"><span class="hint">Shown in Guardrail when people connect.</span></div>
+          <div class="field"><label for="sn">Server name</label><input class="input" id="sn" maxlength="60" value="${esc(s.serverName)}"><span class="hint">Shown in GuardHawk when people connect.</span></div>
           <div class="field"><label for="mu">Account limit</label><input class="input" id="mu" type="number" min="0" value="${s.maxUsers}"><span class="hint">0 for no limit.</span></div>
           <label class="switch" style="margin-bottom:14px"><input type="checkbox" id="os" ${s.openSignup ? 'checked' : ''}><span class="track"></span>
             <span class="text"><b>Open sign-up</b><span>Off: people need an invite code, or you add them.</span></span></label>
@@ -776,7 +776,7 @@ async function settingsPage() {
         <a class="btn" href="/admin/api/data/export?org=${org?.id || ''}" download>${icon('arrow-download')}Export all records</a>
       </section>
       <section class="card"><div class="card-head"><h2>About</h2></div>
-        <dl class="kv"><dt>Version</dt><dd>Guardrail Server ${esc(o.version)}</dd><dt>Runs as</dt><dd>${esc(o.runsAs)}</dd><dt>Database</dt><dd>${esc(o.databaseVersion)}</dd>
+        <dl class="kv"><dt>Version</dt><dd>GuardHawk Server ${esc(o.version)}</dd><dt>Runs as</dt><dd>${esc(o.runsAs)}</dd><dt>Database</dt><dd>${esc(o.databaseVersion)}</dd>
           <dt>Files</dt><dd>${esc(o.storage)}</dd><dt>Runtime</dt><dd>${esc(o.runtime)}</dd><dt>Made by</dt><dd>Bytehawk Studio</dd></dl>
         <p class="muted small" style="margin-bottom:0">Data is stored on this server so roles, shared records and this panel work. Use HTTPS (or a VPN) when people connect from outside your network.</p>
       </section>
@@ -862,7 +862,7 @@ async function start() {
     if (PAGES.some(([id]) => id === hash)) state.page = hash;
     render();
   } catch {
-    $app.innerHTML = '<div class="auth"><div class="card"><h1>Can\'t reach the server</h1><p class="lead">Check that Guardrail Server is running, then reload this page.</p></div></div>';
+    $app.innerHTML = '<div class="auth"><div class="card"><h1>Can\'t reach the server</h1><p class="lead">Check that GuardHawk Server is running, then reload this page.</p></div></div>';
   }
 }
 

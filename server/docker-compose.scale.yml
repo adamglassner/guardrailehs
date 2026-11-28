@@ -1,4 +1,4 @@
-# Guardrail Server, scaled out: 3 servers behind a load balancer, sharing PostgreSQL and S3-compatible storage (SeaweedFS).
+# GuardHawk Server, scaled out: 3 servers behind a load balancer, sharing PostgreSQL and S3-compatible storage (SeaweedFS).
 #   docker compose -f docker-compose.scale.yml up -d          then open http://<this machine>:5080
 #   docker compose -f docker-compose.scale.yml up -d --scale guardrail=6     (more servers)
 # Change every "change-me" before using this for real, and put HTTPS in front (or use Caddy's automatic HTTPS:

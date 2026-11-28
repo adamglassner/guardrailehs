@@ -157,7 +157,7 @@ public static class ServerSync
         catch (SyncException e)
         {
             Offline = e.Offline;
-            LastError = e.SignedOut ? "You've been signed out of Guardrail Server. Connect again to keep syncing." : e.Message;
+            LastError = e.SignedOut ? "You've been signed out of GuardHawk Server. Connect again to keep syncing." : e.Message;
             return LastError;
         }
         catch (Exception e) when (e is IOException or JsonException or CryptographicException or InvalidOperationException)

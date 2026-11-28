@@ -102,7 +102,7 @@ public static class CrashReviewService
     {
         if (App.Settings.AllowYtDlp) return true;
         bool ok = Views.MessageDialog.Confirm("Download yt-dlp?",
-            "This link is on a site like YouTube, Facebook or Vimeo. Guardrail uses yt-dlp, a free open-source downloader, to get the video. " +
+            "This link is on a site like YouTube, Facebook or Vimeo. GuardHawk uses yt-dlp, a free open-source downloader, to get the video. " +
             "It's downloaded once (about 18 MB) from yt-dlp's official GitHub releases and checked before use.\n\n" +
             "Only analyze videos you have the right to use.", "Download yt-dlp", "Not now");
         if (ok) { App.Settings.AllowYtDlp = true; App.Settings.Save(); }

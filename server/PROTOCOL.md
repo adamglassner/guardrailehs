@@ -1,6 +1,6 @@
-# Guardrail Server API (protocol 1)
+# GuardHawk Server API (protocol 1)
 
-The Guardrail apps talk to `/api/v1` with JSON (camelCase). Errors come back as `{ "error": "code", "message": "…" }`
+The GuardHawk apps talk to `/api/v1` with JSON (camelCase). Errors come back as `{ "error": "code", "message": "…" }`
 with a matching HTTP status; `message` is written to be shown to people as is. Signed-in calls send
 `Authorization: Bearer <token>`.
 

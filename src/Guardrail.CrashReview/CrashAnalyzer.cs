@@ -11,7 +11,7 @@ namespace Guardrail.CrashAi;
 /// </summary>
 public static class CrashAnalyzer
 {
-    public const string EngineName = "Guardrail Crash Review 2.0 (YOLOX-S + rules)";
+    public const string EngineName = "GuardHawk Crash Review 2.0 (YOLOX-S + rules)";
     private const string ModelResource = "yolox_s.onnx";
     private static readonly object ModelLock = new();
     private static string? _modelPath;
@@ -35,7 +35,7 @@ public static class CrashAnalyzer
         {
             if (_modelPath != null && File.Exists(_modelPath)) return _modelPath;
             using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(ModelResource)
-                ?? throw new InvalidOperationException("The Crash Review AI model isn't included in this build of Guardrail.");
+                ?? throw new InvalidOperationException("The Crash Review AI model isn't included in this build of GuardHawk.");
             using var ms = new MemoryStream();
             stream.CopyTo(ms);
             string hash = Convert.ToHexString(SHA256.HashData(ms.ToArray()))[..12].ToLowerInvariant();

@@ -1,7 +1,7 @@
-# Builds Guardrail EHS:
-#   1. publishes the self-contained single-file exe -> dist\Guardrail.exe
-#   2. zips it as the portable download             -> dist\GuardrailEHS-<version>-win-x64.zip
-#   3. compiles the Inno Setup installer            -> dist\GuardrailEHS-<version>-Setup.exe
+# Builds GuardHawk:
+#   1. publishes the self-contained single-file exe -> dist\GuardHawk.exe
+#   2. zips it as the portable download             -> dist\GuardHawk-<version>-win-x64.zip
+#   3. compiles the Inno Setup installer            -> dist\GuardHawk-<version>-Setup.exe
 # Requirements: .NET 8 SDK, Inno Setup 6 (winget install JRSoftware.InnoSetup)
 #
 #   .\build.ps1                     # version from the .csproj
@@ -53,13 +53,13 @@ if (Test-Path $publish) { Remove-Item $publish -Recurse -Force }
     -p:Version=$Version -p:AssemblyVersion="$Version.0" -p:FileVersion="$Version.0" -p:InformationalVersion=$Version `
     -o $publish
 if ($LASTEXITCODE -ne 0) { throw 'dotnet publish failed' }
-Copy-Item (Join-Path $publish 'Guardrail.exe') (Join-Path $dist 'Guardrail.exe') -Force
-Write-Host "Built $dist\Guardrail.exe"
+Copy-Item (Join-Path $publish 'GuardHawk.exe') (Join-Path $dist 'GuardHawk.exe') -Force
+Write-Host "Built $dist\GuardHawk.exe"
 
 Write-Host '== Portable zip ==' -ForegroundColor Cyan
-$zip = Join-Path $dist "GuardrailEHS-$Version-win-x64.zip"
+$zip = Join-Path $dist "GuardHawk-$Version-win-x64.zip"
 if (Test-Path $zip) { Remove-Item $zip -Force }
-Compress-Archive -Path (Join-Path $publish 'Guardrail.exe'), (Join-Path $root 'LICENSE') -DestinationPath $zip
+Compress-Archive -Path (Join-Path $publish 'GuardHawk.exe'), (Join-Path $root 'LICENSE') -DestinationPath $zip
 Write-Host "Built $zip"
 
 if ($SkipInstaller) { return }
@@ -72,6 +72,6 @@ $iscc = @(
 ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 if (-not $iscc) { throw 'Inno Setup 6 (ISCC.exe) not found. Install it with: winget install JRSoftware.InnoSetup' }
 
-& $iscc "/DPublishDir=$publish" "/DMyAppVersion=$Version" (Join-Path $root 'installer\GuardrailEHS.iss')
+& $iscc "/DPublishDir=$publish" "/DMyAppVersion=$Version" (Join-Path $root 'installer\GuardHawk.iss')
 if ($LASTEXITCODE -ne 0) { throw 'Inno Setup compile failed' }
-Write-Host "Built $dist\GuardrailEHS-$Version-Setup.exe" -ForegroundColor Green
+Write-Host "Built $dist\GuardHawk-$Version-Setup.exe" -ForegroundColor Green

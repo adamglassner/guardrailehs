@@ -16,7 +16,7 @@ public partial class SettingsView : UserControl
         InitializeComponent();
         // Always the version this exe was built as (set from the .csproj by build.ps1 / CI).
         var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-        VersionText.Text = $"Guardrail EHS {version?.ToString(3) ?? ""} (preview)";
+        VersionText.Text = $"GuardHawk {version?.ToString(3) ?? ""} (preview)";
 
         (App.Settings.Theme switch
         {
@@ -65,8 +65,8 @@ public partial class SettingsView : UserControl
         ProtectionPill.Tag = on ? "Current" : "Denied";
         ProtectionPillText.Text = on ? "ON" : "OFF";
         ProtectionText.Text = on
-            ? $"Guardrail asks for your {(DataLock.IsPin ? "PIN" : "password")} when it opens and after it's been left alone. Lock it any time with Ctrl+L or Lock in the sidebar."
-            : "Encrypt your records and documents on this PC and ask for a PIN or password to open Guardrail. Good for shared office or shop PCs. Off by default. Works alongside Guardrail Server: the server never sees your PIN or password.";
+            ? $"GuardHawk asks for your {(DataLock.IsPin ? "PIN" : "password")} when it opens and after it's been left alone. Lock it any time with Ctrl+L or Lock in the sidebar."
+            : "Encrypt your records and documents on this PC and ask for a PIN or password to open GuardHawk. Good for shared office or shop PCs. Off by default. Works alongside GuardHawk Server: the server never sees your PIN or password.";
 
         ProtectionButtons.Children.Clear();
         Button Make(string glyph, string text, string style, RoutedEventHandler click)
@@ -116,7 +116,7 @@ public partial class SettingsView : UserControl
         if (new SetLockDialog(change: true).ShowDialog() == true)
         {
             UpdateProtection();
-            Toaster.Show("Changed. Use the new one next time Guardrail asks.");
+            Toaster.Show("Changed. Use the new one next time GuardHawk asks.");
         }
     }
 
@@ -145,7 +145,7 @@ public partial class SettingsView : UserControl
     {
         var dlg = new Microsoft.Win32.SaveFileDialog
         {
-            Title = "Back up Guardrail", FileName = $"Guardrail backup {DateTime.Now:yyyy-MM-dd}.zip", Filter = "Guardrail backup (*.zip)|*.zip",
+            Title = "Back up GuardHawk", FileName = $"GuardHawk backup {DateTime.Now:yyyy-MM-dd}.zip", Filter = "GuardHawk backup (*.zip)|*.zip",
         };
         if (dlg.ShowDialog(Window.GetWindow(this)) != true) return;
         try
@@ -165,10 +165,10 @@ public partial class SettingsView : UserControl
 
     private void Restore_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new Microsoft.Win32.OpenFileDialog { Title = "Restore a Guardrail backup", Filter = "Guardrail backup (*.zip)|*.zip" };
+        var dlg = new Microsoft.Win32.OpenFileDialog { Title = "Restore a GuardHawk backup", Filter = "GuardHawk backup (*.zip)|*.zip" };
         if (dlg.ShowDialog(Window.GetWindow(this)) != true) return;
         if (!MessageDialog.Confirm("Restore this backup?",
-                $"Everything in Guardrail will be replaced with {Path.GetFileName(dlg.FileName)}. Your current data is kept in a \"data-before-restore\" folder next to it, just in case. Guardrail restarts afterwards.",
+                $"Everything in GuardHawk will be replaced with {Path.GetFileName(dlg.FileName)}. Your current data is kept in a \"data-before-restore\" folder next to it, just in case. GuardHawk restarts afterwards.",
                 "Restore and restart", danger: true))
             return;
         try
@@ -208,10 +208,10 @@ public partial class SettingsView : UserControl
         {
             ServerPill.Tag = "Denied";
             ServerPillText.Text = "LOCAL ONLY";
-            ServerText.Text = "Guardrail is saving everything on this PC. To share records with your team, connect to a Guardrail Server: your own PC, NAS or in-house server, a Docker container, or a cluster. Records stay on this PC too, so Guardrail keeps working offline.";
+            ServerText.Text = "GuardHawk is saving everything on this PC. To share records with your team, connect to a GuardHawk Server: your own PC, NAS or in-house server, a Docker container, or a cluster. Records stay on this PC too, so GuardHawk keeps working offline.";
             ServerDetails.Visibility = Visibility.Collapsed;
-            Make("\uE968", "Connect…", "PrimaryButton", () => { if (new ConnectServerDialog().ShowDialog() == true) Toaster.Show("Connected to Guardrail Server. Syncing…"); return Task.CompletedTask; });
-            Make("\uE896", "Get Guardrail Server", "GhostButton", () => { Open("https://github.com/adamglassner/guardrailehs/tree/main/server#install"); return Task.CompletedTask; });
+            Make("\uE968", "Connect…", "PrimaryButton", () => { if (new ConnectServerDialog().ShowDialog() == true) Toaster.Show("Connected to GuardHawk Server. Syncing…"); return Task.CompletedTask; });
+            Make("\uE896", "Get GuardHawk Server", "GhostButton", () => { Open("https://github.com/adamglassner/guardrailehs/tree/main/server#install"); return Task.CompletedTask; });
             return;
         }
 
@@ -241,19 +241,19 @@ public partial class SettingsView : UserControl
         Make("\uE895", "Sync now", "PrimaryButton", async () =>
         {
             string? err = await ServerSync.SyncNowAsync(quiet: false);
-            Toaster.Show(err ?? "Synced with Guardrail Server.");
+            Toaster.Show(err ?? "Synced with GuardHawk Server.");
         });
         Make("\uE774", "Open web panel", "GhostButton", () => { Open(c.Url); return Task.CompletedTask; });
         if (ServerSync.LastError?.Contains("signed out") == true)
             Make("\uE968", "Connect again…", "GhostButton", () => { new ConnectServerDialog().ShowDialog(); return Task.CompletedTask; });
         var off = Make("\uE8D8", "Disconnect…", "GhostButton", async () =>
         {
-            if (!MessageDialog.Confirm("Disconnect from Guardrail Server?",
-                    "Guardrail goes back to saving only on this PC. Everything already here stays. You can connect again any time." +
+            if (!MessageDialog.Confirm("Disconnect from GuardHawk Server?",
+                    "GuardHawk goes back to saving only on this PC. Everything already here stays. You can connect again any time." +
                     (ServerSync.Pending > 0 ? $"\n\n{ServerSync.Pending:N0} change(s) haven't been sent yet and won't be." : ""),
                     "Disconnect", "Cancel", danger: true)) return;
             await ServerSync.DisconnectAsync();
-            Toaster.Show("Disconnected. Guardrail is saving on this PC only.");
+            Toaster.Show("Disconnected. GuardHawk is saving on this PC only.");
         });
         off.SetResourceReference(ForegroundProperty, "Brush.Danger");
     }
@@ -265,8 +265,8 @@ public partial class SettingsView : UserControl
             Open(c.Url.TrimEnd('/') + "/#users");
             return;
         }
-        MessageDialog.Inform("Users and roles come with Guardrail Server",
-            "Accounts, roles (admin, manager, member, viewer) and invites are managed in Guardrail Server's web panel. Connect to a server under Guardrail Server above, or set one up first.");
+        MessageDialog.Inform("Users and roles come with GuardHawk Server",
+            "Accounts, roles (admin, manager, member, viewer) and invites are managed in GuardHawk Server's web panel. Connect to a server under GuardHawk Server above, or set one up first.");
     }
 
     private static void Open(string url)

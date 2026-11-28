@@ -90,6 +90,6 @@
             </StackPanel>
         </Border>
         <TextBlock Style="{StaticResource Muted}" FontSize="11.5" Margin="2,8,0,0" TextWrapping="Wrap"
-                   Text="A planning aid, not legal advice: a real DOT compliance review also looks at drug and alcohol testing, insurance and other records Guardrail doesn't track yet." />
+                   Text="A planning aid, not legal advice: a real DOT compliance review also looks at drug and alcohol testing, insurance and other records GuardHawk doesn't track yet." />
     </StackPanel>
 </UserControl>

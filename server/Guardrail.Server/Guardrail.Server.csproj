@@ -7,11 +7,11 @@
     <LangVersion>latest</LangVersion>
     <RootNamespace>Guardrail.Server</RootNamespace>
     <AssemblyName>GuardrailServer</AssemblyName>
-    <Product>Guardrail Server</Product>
+    <Product>GuardHawk Server</Product>
     <Company>Bytehawk Studio</Company>
     <Copyright>© 2026 Bytehawk Studio</Copyright>
     <!-- Releasing: change this and push to main. CI publishes the Docker image, standalone builds and the Windows installer as server-v<Version>. -->
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <InvariantGlobalization>true</InvariantGlobalization>
     <ApplicationIcon>..\..\src\Guardrail.Desktop\Assets\guardrail.ico</ApplicationIcon>
   </PropertyGroup>

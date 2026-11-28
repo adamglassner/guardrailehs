@@ -18,11 +18,11 @@ public sealed class ConnectServerDialog : FormFrame
     private readonly FrameworkElement _nameRow, _inviteRow;
 
     public ConnectServerDialog()
-        : base("Connect to Guardrail Server", "Share records with your team. Everything stays on this PC too, so Guardrail keeps working when the server can't be reached.",
+        : base("Connect to GuardHawk Server", "Share records with your team. Everything stays on this PC too, so GuardHawk keeps working when the server can't be reached.",
                "", "Connect", 540)
     {
         if (ServerSync.Connection?.Url is { Length: > 0 } last) _url.Text = last;
-        AddField("Server address", _url, "Ask whoever runs your Guardrail Server, e.g. http://192.168.1.20:5080 or https://ehs.yourcompany.com");
+        AddField("Server address", _url, "Ask whoever runs your GuardHawk Server, e.g. http://192.168.1.20:5080 or https://ehs.yourcompany.com");
         _mode = AddField("I want to", Chips([("signin", "Sign in"), ("join", "Create my account")], "signin"));
         AddField("Username", _username, "Often your email address.");
         AddField("Password", _password);
@@ -53,8 +53,8 @@ public sealed class ConnectServerDialog : FormFrame
         {
             using var api = ServerSync.Client(url);
             var info = await api.InfoAsync();
-            if (info.Product != "Guardrail Server") return "That address answers, but it isn't a Guardrail Server.";
-            if (info.Protocol > Protocol.Version) return "That server needs a newer version of Guardrail. Update Guardrail and try again.";
+            if (info.Product is not ("Guardrail Server" or "GuardHawk Server")) return "That address answers, but it isn't a GuardHawk Server.";
+            if (info.Protocol > Protocol.Version) return "That server needs a newer version of GuardHawk. Update GuardHawk and try again.";
 
             string device = Environment.MachineName, version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "";
             var session = Selected(_mode) == "join"

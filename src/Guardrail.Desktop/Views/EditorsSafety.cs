@@ -204,7 +204,7 @@ public static partial class Editors
 
         var where = new FormDialog(
             "Start an inspection",
-            "Where is it, and what's being inspected? Guardrail then offers the checklists made for it.",
+            "Where is it, and what's being inspected? GuardHawk then offers the checklists made for it.",
             [
                 new FormField { Key = "location", Label = "Site / area", Required = true },
                 new FormField { Key = "department", Label = "Department", Suggestions = KnownDepartments(), Hint = "Optional." },
@@ -370,7 +370,7 @@ public static partial class Editors
                 new FormField { Key = "requester", Label = "Requested by", Value = c.Requester },
                 new FormField { Key = "approver", Label = "Approver", Value = c.Approver },
                 new FormField { Key = "duration", Label = "Permanent or temporary?", Kind = FieldKind.Choice, Options = ChangeRequest.Durations, Value = c.Duration },
-                new FormField { Key = "until", Label = "Temporary until", Kind = FieldKind.Date, Value = c.TemporaryUntil, Hint = "Only for temporary changes. Guardrail flags it when the date passes." },
+                new FormField { Key = "until", Label = "Temporary until", Kind = FieldKind.Date, Value = c.TemporaryUntil, Hint = "Only for temporary changes. GuardHawk flags it when the date passes." },
                 new FormField { Key = "target", Label = "Target date", Kind = FieldKind.Date, Value = c.TargetDate },
                 new FormField { Key = "risk", Label = "Risk assessment done?", Kind = FieldKind.Choice, Options = ChangeRequest.YesNo, Value = c.RiskReviewed },
                 new FormField { Key = "training", Label = "Training or procedure updates needed?", Kind = FieldKind.Choice, Options = ChangeRequest.YesNo, Value = c.TrainingNeeded },

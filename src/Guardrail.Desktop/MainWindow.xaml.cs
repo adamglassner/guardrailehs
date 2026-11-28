@@ -206,7 +206,7 @@ public partial class MainWindow : Window
             ? "No records yet. Everything you add stays on this computer."
             : $"{records:N0} record{(records == 1 ? "" : "s")} · back up from Settings";
         var version = Assembly.GetExecutingAssembly().GetName().Version;
-        StatusText.Text = $"Guardrail EHS {version?.ToString(3)} · {records:N0} records saved on this PC · syncing to a Guardrail Server is coming soon";
+        StatusText.Text = $"GuardHawk {version?.ToString(3)} · {records:N0} records saved on this PC · syncing to a GuardHawk Server is coming soon";
     }
 
     // ----- PIN / password lock -----
@@ -225,7 +225,7 @@ public partial class MainWindow : Window
             var row = new StackPanel { Orientation = Orientation.Horizontal };
             row.Children.Add(new TextBlock { Text = "\uE72E", Style = (Style)FindResource("Icon"), FontSize = 15, Width = 28 });
             row.Children.Add(new TextBlock { Text = "Lock", FontSize = 13.5 });
-            _lockButton = new Button { Style = (Style)FindResource("SidebarButton"), Content = row, ToolTip = "Lock Guardrail now (Ctrl+L)" };
+            _lockButton = new Button { Style = (Style)FindResource("SidebarButton"), Content = row, ToolTip = "Lock GuardHawk now (Ctrl+L)" };
             _lockButton.Click += (_, _) => LockNow();
             bottom.Children.Insert(bottom.Children.IndexOf(ThemeButton), _lockButton);
         }
@@ -285,7 +285,7 @@ public partial class MainWindow : Window
                 if (recovered)
                 {
                     MessageDialog.Inform("Choose a new PIN or password",
-                        "You unlocked Guardrail with your recovery key. Next, choose a new PIN or password. Your recovery key keeps working.");
+                        "You unlocked GuardHawk with your recovery key. Next, choose a new PIN or password. Your recovery key keeps working.");
                     new SetLockDialog(change: true).ShowDialog();
                 }
             };

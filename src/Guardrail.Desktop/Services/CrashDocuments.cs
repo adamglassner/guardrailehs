@@ -26,7 +26,7 @@ public static class CrashDocuments
         try
         {
             if (!File.Exists(path)) return $"{Path.GetFileName(path)} wasn't found.";
-            if (!CanAttach(path)) return $"{Path.GetFileName(path)} isn't a document Guardrail can read (PDF, Word, text, web page or a picture).";
+            if (!CanAttach(path)) return $"{Path.GetFileName(path)} isn't a document GuardHawk can read (PDF, Word, text, web page or a picture).";
             string text; bool ocr = false;
             if (DocumentReader.IsImage(path)) { text = await Ocr.ReadImageAsync(path); ocr = true; }
             else

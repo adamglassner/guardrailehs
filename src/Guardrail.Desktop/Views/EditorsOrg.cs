@@ -18,7 +18,7 @@ public static partial class Editors
 
         var dialog = new FormDialog(
             isNew ? "Add location" : $"Edit {l.Name}",
-            isNew ? "A plant, office, terminal or job site. Its name is offered in every Location field across Guardrail."
+            isNew ? "A plant, office, terminal or job site. Its name is offered in every Location field across GuardHawk."
                   : $"{l.Number}" + (used > 0 ? $" · used on {used} record{(used == 1 ? "" : "s")}" : ""),
             [
                 new FormField { Key = "name", Label = "Location name", Required = true, Value = l.Name, Hint = isNew ? "e.g. Dallas Plant, North Terminal" : used > 0 ? "Renaming updates every record that uses it." : null },

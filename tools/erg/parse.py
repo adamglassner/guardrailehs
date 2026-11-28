@@ -1,4 +1,4 @@
-"""Parse pdftotext -layout output of ERG 2024 into compact JSON for Guardrail."""
+"""Parse pdftotext -layout output of ERG 2024 into compact JSON for GuardHawk."""
 import json, re, sys
 
 src, dst = sys.argv[1], sys.argv[2]
